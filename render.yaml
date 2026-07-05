@@ -40,4 +40,4 @@ services:
       - key: USER_SEED_PASS
         value: "PedroNexDrive@2026"
       - key: ALLOWED_ORIGINS
-        value: "https://nexdrive.onrender.com" # Replace with your actual frontend/app domain on Render
+        value: "https://nexdrive-uwz7.onrender.com"

@@ -42,16 +42,29 @@ public class SecurityConfig {
                                 .policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // Static resources (Angular build output)
+                        .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
+                        .requestMatchers("/*.js", "/*.css", "/*.woff2", "/*.woff", "/*.ttf", "/*.svg", "/*.png", "/*.jpg", "/*.ico").permitAll()
+                        .requestMatchers("/assets/**", "/media/**").permitAll()
+                        // SPA client-side routes (forwarded to index.html by SpaController)
+                        .requestMatchers(
+                                "/buy", "/rent", "/rent/**", "/car/**",
+                                "/favorites", "/my-rentals", "/profile", "/sell-car",
+                                "/about", "/faq", "/contact", "/privacy", "/terms",
+                                "/login", "/register", "/404"
+                        ).permitAll()
+                        // Public API endpoints
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/vehicles",
                                 "/api/vehicles/**",
-                                "/api/reviews/vehicle/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html"
+                                "/api/reviews/vehicle/**"
                         ).permitAll()
+                        // Swagger / OpenAPI documentation
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        // Admin-only endpoints
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/rentals").hasRole("ADMIN")
+                        // All other API requests require authentication
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
