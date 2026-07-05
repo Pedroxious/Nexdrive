@@ -35,9 +35,5 @@ services:
         generateValue: true
       - key: JWT_EXPIRATION
         value: "86400000"
-      - key: ADMIN_SEED_PASS
-        value: "NexDriveAdmin@2026"
-      - key: USER_SEED_PASS
-        value: "PedroNexDrive@2026"
       - key: ALLOWED_ORIGINS
         value: "https://nexdrive-uwz7.onrender.com"
