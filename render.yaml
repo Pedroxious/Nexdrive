@@ -1,0 +1,36 @@
+databases:
+  - name: nexdrive-db
+    databaseName: neondb
+    user: neondb_owner
+    plan: free
+
+services:
+  - type: web
+    name: nexdrive
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    startCommand: java -jar app.jar
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nexdrive-db
+          property: connectionString
+      - key: DB_USER
+        fromDatabase:
+          name: nexdrive-db
+          property: user
+      - key: DB_PASS
+        fromDatabase:
+          name: nexdrive-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: "86400000"
+      - key: ADMIN_SEED_PASS
+        value: "NexDriveAdmin@2026"
+      - key: USER_SEED_PASS
+        value: "PedroNexDrive@2026"
+      - key: ALLOWED_ORIGINS
+        value: "https://nexdrive.onrender.com" # Replace with your actual frontend/app domain on Render

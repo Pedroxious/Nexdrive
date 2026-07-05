@@ -1,0 +1,17 @@
+{
+  "name": "Nexdrive",
+  "short_name": "Nexdrive",
+  "description": "Aluguel e compra premium de veículos",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060D1A",
+  "theme_color": "#00BFEA",
+  "icons": [
+    {
+      "src": "favicon/nexdrive-favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

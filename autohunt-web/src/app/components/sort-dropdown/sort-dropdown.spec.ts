@@ -1,0 +1,22 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { SortDropdownComponent } from './sort-dropdown';
+
+describe('SortDropdownComponent', () => {
+  let component: SortDropdownComponent;
+  let fixture: ComponentFixture<SortDropdownComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SortDropdownComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SortDropdownComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
