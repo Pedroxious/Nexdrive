@@ -68,6 +68,28 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
       </div>
     </div>
 
+    <!-- Mobile Brand Filter Strip -->
+    <div class="mobile-brand-strip">
+      <div class="mobile-brand-scroll">
+        @for (brand of mobileBrands; track brand) {
+          <button
+            class="mobile-brand-chip"
+            [class.active]="selectedBrands().includes(brand)"
+            (click)="toggleMobileBrand(brand)"
+          >
+            <img
+              [src]="'/assets/logos/' + mobileBrandFileName(brand) + '.png'"
+              [alt]="brand"
+              class="mobile-brand-logo"
+              (error)="onMobileBrandError($event, brand)"
+              draggable="false"
+            />
+            <span class="mobile-brand-name">{{ brand }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
     <!-- ZONA 2 — Sidebar + Grid -->
     <div class="content-zone">
       <div class="content-inner">
@@ -533,6 +555,76 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
       }
     }
 
+    /* ── Mobile Brand Filter Strip ── */
+    .mobile-brand-strip {
+      display: none;
+      padding: 28px 16px 8px;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .mobile-brand-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+      &::-webkit-scrollbar { display: none; }
+    }
+
+    .mobile-brand-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      min-width: 68px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      scroll-snap-align: start;
+      flex-shrink: 0;
+      &:hover { border-color: var(--text-secondary); }
+      &.active {
+        border-color: var(--accent);
+        background: var(--accent-light);
+        .mobile-brand-name { color: var(--accent); font-weight: 700; }
+        .mobile-brand-logo {
+          filter: brightness(0) saturate(100%) invert(55%) sepia(98%) saturate(1000%) hue-rotate(160deg) brightness(1.1);
+        }
+      }
+    }
+
+    .mobile-brand-logo {
+      height: 22px;
+      width: auto;
+      max-width: 44px;
+      object-fit: contain;
+      transition: filter 0.2s ease;
+    }
+
+    :host-context([data-theme='dark']) .mobile-brand-logo {
+      filter: brightness(0) invert(1);
+    }
+    :host-context([data-theme='dark']) .mobile-brand-chip.active .mobile-brand-logo {
+      filter: brightness(0) saturate(100%) invert(55%) sepia(98%) saturate(1000%) hue-rotate(160deg) brightness(1.1);
+    }
+
+    .mobile-brand-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 56px;
+    }
+
     /* ══ Responsive ══ */
     @media (max-width: 1200px) {
       .car-grid { grid-template-columns: repeat(2, 1fr); }
@@ -541,15 +633,16 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
     @media (max-width: 992px) {
       .content-inner { grid-template-columns: 1fr; gap: 20px; }
       .sidebar-wrapper { display: none; }
+      .mobile-brand-strip { display: block; }
       .car-grid { grid-template-columns: repeat(2, 1fr); }
       .hero-search-anchor { width: 80%; }
     }
 
     @media (max-width: 768px) {
-      .hero-banner { height: 50vw; min-height: 220px; max-height: 360px; }
+      .hero-banner { height: 45vw; min-height: 240px; max-height: 380px; }
       .hero-dots { bottom: 40px; gap: 6px; }
       .hero-dot { width: 7px; height: 7px; &.active { width: 20px; } }
-      .hero-search-anchor { width: 88%; }
+      .hero-search-anchor { width: 92%; }
       .hero-search-inner { padding: 6px 6px 6px 16px; }
       .hero-search-btn { padding: 11px 24px; font-size: 14px; }
       .hero-search-input { font-size: 14px; }
@@ -563,16 +656,16 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
     }
 
     @media (max-width: 480px) {
-      .hero-banner { height: 55vw; min-height: 180px; max-height: 280px; }
+      .hero-banner { height: 50vw; min-height: 200px; max-height: 300px; }
       .hero-dots { bottom: 34px; gap: 5px; }
       .hero-dot { width: 6px; height: 6px; &.active { width: 18px; } }
-      .hero-search-anchor { width: 92%; }
+      .hero-search-anchor { width: 95%; }
       .hero-search-inner { padding: 5px 5px 5px 14px; }
       .hero-search-icon { width: 18px; height: 18px; margin-right: 10px; }
-      .hero-search-btn { padding: 10px 18px; font-size: 13px; }
-      .hero-search-input { font-size: 13px; &::placeholder { font-size: 12px; } }
+      .hero-search-btn { padding: 10px 16px; font-size: 12px; }
+      .hero-search-input { font-size: 13px; &::placeholder { font-size: 11px; } }
       .hero-search-clear { width: 26px; height: 26px; svg { width: 14px; height: 14px; } }
-      .content-zone { padding-top: 36px; }
+      .content-zone { padding-top: 28px; }
       .content-inner { padding: 0 12px 28px; }
       .car-grid { grid-template-columns: 1fr; gap: 12px; }
       .pg-numbers { display: none; }
@@ -588,6 +681,10 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
         .sort-select { padding: 8px 12px; font-size: 12px; }
       }
       .empty-state { padding: 48px 16px; }
+      .mobile-brand-strip { padding: 20px 12px 6px; }
+      .mobile-brand-chip { padding: 6px 10px; min-width: 60px; }
+      .mobile-brand-logo { height: 18px; max-width: 38px; }
+      .mobile-brand-name { font-size: 9px; max-width: 48px; }
     }
   `]
 })
@@ -613,6 +710,35 @@ export class HomeComponent implements OnInit, OnDestroy {
     { src: '/assets/slides/BG10.webp', alt: 'NexDrive Banner 10' },
     { src: '/assets/slides/BGE.webp',  alt: 'NexDrive Banner E'  },
   ];
+
+  // Mobile brand filter strip
+  mobileBrands = [
+    'Toyota', 'Honda', 'Chevrolet', 'Volkswagen', 'Fiat', 'Jeep',
+    'Hyundai', 'Nissan', 'Renault', 'Ford', 'BMW', 'Mercedes-Benz',
+    'Tesla', 'BYD', 'Volvo', 'Porsche'
+  ];
+
+  mobileBrandFileName(brand: string): string {
+    const nameMap: Record<string, string> = {
+      'Mercedes-Benz': 'mercedes-benz',
+      'Caoa Chery': 'chery',
+      'Range Rover': 'land-rover',
+      'Citroën': 'citroen',
+    };
+    return nameMap[brand] || brand.toLowerCase();
+  }
+
+  toggleMobileBrand(brand: string) {
+    this.selectedBrands.update(prev =>
+      prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
+    );
+    this.loadCars();
+  }
+
+  onMobileBrandError(event: Event, brand: string) {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+  }
 
   constructor() {
     effect(() => {
