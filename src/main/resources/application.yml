@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: NexDrive
+
+  config:
+    import: "optional:file:.env[.properties]"
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:neondb}?sslmode=require}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USER:neondb_owner}
+    password: ${DB_PASS:npg_dsYOivx4VZz1}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      expiration: ${JWT_EXPIRATION:86400000}
+    seed:
+      admin-password: ${ADMIN_SEED_PASS:NexDriveAdmin@2026}
+      user-password: ${USER_SEED_PASS:PedroNexDrive@2026}
+    cors:
+      allowed-origins: ${ALLOWED_ORIGINS:http://localhost:4200}
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-stacktrace: never
+
+logging:
+  level:
+    br.com.unipaulistana.rentacar: INFO
+    org.hibernate.SQL: INFO

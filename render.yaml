@@ -11,10 +11,18 @@ services:
     dockerfilePath: Dockerfile
     plan: free
     envVars:
-      - key: DATABASE_URL
+      - key: DB_HOST
         fromDatabase:
           name: nexdrive-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: nexdrive-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: nexdrive-db
+          property: database
       - key: DB_USER
         fromDatabase:
           name: nexdrive-db
