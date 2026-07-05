@@ -45,7 +45,7 @@ public class SecurityConfig {
                         // Static resources (Angular build output)
                         .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
                         .requestMatchers("/*.js", "/*.css", "/*.woff2", "/*.woff", "/*.ttf", "/*.svg", "/*.png", "/*.jpg", "/*.ico").permitAll()
-                        .requestMatchers("/assets/**", "/media/**").permitAll()
+                        .requestMatchers("/assets/**", "/media/**", "/favicon/**").permitAll()
                         // SPA client-side routes (forwarded to index.html by SpaController)
                         .requestMatchers(
                                 "/buy", "/rent", "/rent/**", "/car/**",
