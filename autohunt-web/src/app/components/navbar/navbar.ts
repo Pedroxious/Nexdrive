@@ -324,6 +324,20 @@ import { CarService } from '../../core/services/car';
       &:hover { background: var(--accent-hover); box-shadow: 0 4px 16px rgba(0,191,234,0.35); }
     }
 
+    .mobile-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: #ffffff;
+      cursor: pointer;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+      &:hover { background: rgba(255,255,255,0.10); }
+    }
+
     /* ── Mobile ── */
     @media (max-width: 900px) {
       .nav-links, .nav-center, .sell-btn { display: none; }

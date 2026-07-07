@@ -71,22 +71,41 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
     <!-- Mobile Brand Filter Strip -->
     <div class="mobile-brand-strip">
       <div class="mobile-brand-scroll">
-        @for (brand of mobileBrands; track brand) {
-          <button
-            class="mobile-brand-chip"
-            [class.active]="selectedBrands().includes(brand)"
-            (click)="toggleMobileBrand(brand)"
-          >
-            <img
-              [src]="'/assets/logos/' + mobileBrandFileName(brand) + '.png'"
-              [alt]="brand"
-              class="mobile-brand-logo"
-              (error)="onMobileBrandError($event, brand)"
-              draggable="false"
-            />
-            <span class="mobile-brand-name">{{ brand }}</span>
-          </button>
-        }
+        <div class="mobile-brand-track">
+          @for (brand of mobileBrands; track brand) {
+            <button
+              class="mobile-brand-chip"
+              [class.active]="selectedBrands().includes(brand)"
+              (click)="toggleMobileBrand(brand)"
+            >
+              <img
+                [src]="'/assets/logos/' + mobileBrandFileName(brand) + '.png'"
+                [alt]="brand"
+                class="mobile-brand-logo"
+                (error)="onMobileBrandError($event, brand)"
+                draggable="false"
+              />
+              <span class="mobile-brand-name">{{ brand }}</span>
+            </button>
+          }
+          <!-- Duplicate for infinite scroll -->
+          @for (brand of mobileBrands; track 'dup-' + brand) {
+            <button
+              class="mobile-brand-chip"
+              [class.active]="selectedBrands().includes(brand)"
+              (click)="toggleMobileBrand(brand)"
+            >
+              <img
+                [src]="'/assets/logos/' + mobileBrandFileName(brand) + '.png'"
+                [alt]="brand"
+                class="mobile-brand-logo"
+                (error)="onMobileBrandError($event, brand)"
+                draggable="false"
+              />
+              <span class="mobile-brand-name">{{ brand }}</span>
+            </button>
+          }
+        </div>
       </div>
     </div>
 
@@ -642,20 +661,30 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
     /* ── Mobile Brand Filter Strip ── */
     .mobile-brand-strip {
       display: none;
-      padding: 12px 16px 4px;
+      padding: 8px 0 4px;
       max-width: var(--max-width);
       margin: 0 auto;
       overflow: hidden;
     }
 
     .mobile-brand-scroll {
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .mobile-brand-track {
       display: flex;
       gap: 8px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      padding-bottom: 4px;
-      &::-webkit-scrollbar { display: none; }
+      width: max-content;
+      animation: brandMarquee 30s linear infinite;
+      &:hover {
+        animation-play-state: paused;
+      }
+    }
+
+    @keyframes brandMarquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
     }
 
     .mobile-brand-chip {
@@ -716,7 +745,7 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
     @media (max-width: 992px) {
       .content-inner { grid-template-columns: 1fr; gap: 12px; }
       .sidebar-wrapper { display: none; }
-      .mobile-brand-strip { display: block; }
+      .mobile-brand-strip { display: block; padding-top: 12px; }
       .car-grid { grid-template-columns: repeat(2, 1fr); }
       .hero-search-anchor { width: 80%; }
       .results-info { margin-bottom: 12px; }
@@ -727,11 +756,17 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
       .hero-slide img { object-fit: contain; object-position: center; background: var(--bg-navbar); }
       .hero-dots { bottom: 36px; gap: 6px; }
       .hero-dot { width: 7px; height: 7px; &.active { width: 20px; } }
-      .hero-search-anchor { width: 92%; }
+      .hero-search-anchor {
+        position: relative; bottom: auto; left: auto;
+        transform: none;
+        width: 92%; max-width: none;
+        margin: -22px auto 0; z-index: 10;
+      }
       .hero-search-inner { padding: 6px 6px 6px 16px; }
       .hero-search-btn { padding: 11px 20px; font-size: 13px; }
       .hero-search-input { font-size: 14px; }
-      .content-zone { padding-top: 32px; }
+      .mobile-brand-strip { padding-top: 14px; }
+      .content-zone { padding-top: 16px; }
       .content-inner { padding: 0 14px 28px; gap: 10px; }
       .car-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .results-info {
@@ -746,13 +781,17 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
       .hero-slide img { object-fit: contain; background: var(--bg-navbar); }
       .hero-dots { bottom: 28px; gap: 5px; }
       .hero-dot { width: 6px; height: 6px; &.active { width: 18px; } }
-      .hero-search-anchor { width: 94%; }
+      .hero-search-anchor { width: 94%; margin: -18px auto 0; }
       .hero-search-inner { padding: 4px 4px 4px 12px; }
       .hero-search-icon { width: 16px; height: 16px; margin-right: 8px; }
       .hero-search-btn { padding: 9px 14px; font-size: 11px; }
       .hero-search-input { font-size: 13px; &::placeholder { font-size: 11px; } }
       .hero-search-clear { width: 24px; height: 24px; svg { width: 13px; height: 13px; } }
-      .content-zone { padding-top: 24px; }
+      .mobile-brand-strip { padding: 12px 0 4px; }
+      .mobile-brand-chip { padding: 6px 10px; min-width: 60px; }
+      .mobile-brand-logo { height: 18px; max-width: 38px; }
+      .mobile-brand-name { font-size: 9px; max-width: 48px; }
+      .content-zone { padding-top: 12px; }
       .content-inner { padding: 0 10px 24px; gap: 8px; }
       .car-grid { grid-template-columns: 1fr; gap: 12px; }
       .pg-numbers { display: none; }
@@ -771,10 +810,6 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
         .sort-label { font-size: 12px; }
       }
       .empty-state { padding: 40px 14px; }
-      .mobile-brand-strip { padding: 16px 10px 4px; }
-      .mobile-brand-chip { padding: 6px 10px; min-width: 60px; }
-      .mobile-brand-logo { height: 18px; max-width: 38px; }
-      .mobile-brand-name { font-size: 9px; max-width: 48px; }
     }
   `]
 })
@@ -885,7 +920,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // States
   searchQuery = signal('');
-  sortBy = signal('pricePerDay,asc');
+  sortBy = signal('year,desc');
   showSortDropdown = signal(false);
 
   sortOptions = [
