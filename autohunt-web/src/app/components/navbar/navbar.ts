@@ -324,18 +324,33 @@ import { CarService } from '../../core/services/car';
       &:hover { background: var(--accent-hover); box-shadow: 0 4px 16px rgba(0,191,234,0.35); }
     }
 
-    .mobile-menu-btn { display: none; color: rgba(255,255,255,0.70); }
-
     /* ── Mobile ── */
     @media (max-width: 900px) {
       .nav-links, .nav-center, .sell-btn { display: none; }
       .mobile-menu-btn { display: flex; }
+      .nav-container { gap: 8px; }
+      .nav-right { gap: 4px; }
     }
     @media (max-width: 600px) {
-      .nav-container { padding: 0 16px; }
+      .nav-container { padding: 0 12px; height: 56px; gap: 6px; }
       .sell-text { display: none; }
-      .logo-favicon { width: 30px; height: 30px; }
-      .logo-text { font-size: 22px; }
+      .logo-favicon { width: 26px; height: 26px; border-radius: 7px; }
+      .logo-text { font-size: 20px; letter-spacing: -0.5px; }
+      .logo { gap: 7px; }
+      .nav-right { gap: 2px; }
+      .icon-btn { width: 34px; height: 34px; }
+      .login-btn { padding: 7px 14px; font-size: 12px; gap: 4px; }
+      .mobile-menu-btn { width: 34px; height: 34px; }
+      .notif-dropdown { width: 280px; right: -40px; }
+      .badge { width: 14px; height: 14px; font-size: 8px; top: 2px; right: 2px; }
+    }
+    @media (max-width: 380px) {
+      .nav-container { padding: 0 10px; }
+      .logo-favicon { width: 24px; height: 24px; }
+      .logo-text { font-size: 18px; }
+      .login-btn { padding: 6px 12px; font-size: 11px; }
+      .icon-btn { width: 32px; height: 32px; }
+      .mobile-menu-btn { width: 32px; height: 32px; }
     }
 
     .mobile-panel {

@@ -196,6 +196,33 @@ import { ToastService } from '../../core/services/toast';
         lucide-icon { transform: translateX(2px); }
       }
     }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .card-image { height: 170px; }
+      .card-body { padding: 12px 14px 14px; }
+      .card-header { margin-bottom: 10px; }
+      .car-name { font-size: 14px; }
+      .car-sub { font-size: 11px; }
+      .specs-row { gap: 3px; margin-bottom: 12px; }
+      .spec { padding: 3px 6px; font-size: 10px; }
+      .card-footer { padding-top: 10px; }
+      .amount { font-size: 18px; }
+      .currency { font-size: 12px; }
+      .period { font-size: 11px; }
+      .reserve-btn { padding: 7px 12px; font-size: 11px; }
+      .fav-btn { width: 30px; height: 30px; top: 8px; right: 8px; }
+      .badge-tag { top: 8px; left: 8px; padding: 3px 8px; font-size: 9px; }
+    }
+
+    @media (max-width: 480px) {
+      .card-image { height: 200px; }
+      .car-card { border-radius: 12px; }
+      .card-body { padding: 12px 14px 16px; }
+      .car-name { font-size: 15px; }
+      .amount { font-size: 20px; }
+      .reserve-btn { padding: 8px 14px; font-size: 12px; }
+    }
   `]
 })
 export class CarCardComponent {

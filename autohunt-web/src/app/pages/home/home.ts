@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy, AfterViewInit, effect, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, AfterViewInit, effect, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, NavigationStart } from '@angular/router';
@@ -113,11 +113,20 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
             </div>
             <div class="sort-controls">
               <span class="sort-label">Ordenar por:</span>
-              <select class="sort-select clickable" [(ngModel)]="sortBy" (change)="loadCars()">
-                <option value="pricePerDay,asc">Preco: Menor para Maior</option>
-                <option value="pricePerDay,desc">Preco: Maior para Menor</option>
-                <option value="year,desc">Mais Recentes</option>
-              </select>
+              <div class="custom-select" (click)="toggleSortDropdown($event)">
+                <div class="custom-select-trigger">
+                  <span>{{ currentSortLabel() }}</span>
+                  <svg class="custom-select-arrow" [class.open]="showSortDropdown()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="custom-select-dropdown" *ngIf="showSortDropdown()" (click)="$event.stopPropagation()">
+                  @for (opt of sortOptions; track opt.value) {
+                    <button class="custom-select-option" [class.active]="sortBy() === opt.value" (click)="selectSort(opt.value)">
+                      <svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span>{{ opt.label }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
             </div>
           </div>
 
@@ -445,26 +454,101 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
         font-weight: 600;
         color: var(--text-secondary);
       }
+    }
 
-      .sort-select {
-        padding: 10px 16px;
-        border-radius: var(--radius-md);
-        font-family: 'Inter', sans-serif;
-        font-size: 13px;
-        font-weight: 600;
+    /* ── Custom Sort Dropdown ── */
+    .custom-select {
+      position: relative;
+      user-select: none;
+    }
+
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      &:hover {
+        border-color: var(--accent);
+        background: var(--accent-light);
+      }
+    }
+
+    .custom-select-arrow {
+      width: 14px;
+      height: 14px;
+      color: var(--text-muted);
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+      &.open {
+        transform: rotate(180deg);
+        color: var(--accent);
+      }
+    }
+
+    .custom-select-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 220px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.10);
+      z-index: 100;
+      overflow: hidden;
+      animation: sortDropIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes sortDropIn {
+      from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .custom-select-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 14px;
+      background: transparent;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      .opt-check {
+        width: 16px;
+        height: 16px;
+        opacity: 0;
+        color: var(--accent);
+        flex-shrink: 0;
+        transition: opacity 0.15s;
+      }
+      &:hover {
+        background: var(--accent-light);
         color: var(--text-primary);
-        background: var(--surface);
-        border: 1px solid var(--border);
-        outline: none;
-        box-shadow: var(--shadow-xs);
-        transition: all 0.2s ease;
-        &:hover {
-          border-color: var(--text-secondary);
-        }
-        &:focus {
-          border-color: var(--accent);
-          box-shadow: 0 0 0 3px var(--accent-light);
-        }
+      }
+      &.active {
+        color: var(--accent);
+        font-weight: 700;
+        background: var(--accent-light);
+        .opt-check { opacity: 1; }
+      }
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border-light);
       }
     }
 
@@ -558,16 +642,16 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
     /* ── Mobile Brand Filter Strip ── */
     .mobile-brand-strip {
       display: none;
-      padding: 28px 16px 8px;
+      padding: 12px 16px 4px;
       max-width: var(--max-width);
       margin: 0 auto;
+      overflow: hidden;
     }
 
     .mobile-brand-scroll {
       display: flex;
       gap: 8px;
       overflow-x: auto;
-      scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       padding-bottom: 4px;
@@ -586,7 +670,6 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
       border-radius: var(--radius-md);
       cursor: pointer;
       transition: all 0.2s ease;
-      scroll-snap-align: start;
       flex-shrink: 0;
       &:hover { border-color: var(--text-secondary); }
       &.active {
@@ -631,42 +714,46 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
     }
 
     @media (max-width: 992px) {
-      .content-inner { grid-template-columns: 1fr; gap: 20px; }
+      .content-inner { grid-template-columns: 1fr; gap: 12px; }
       .sidebar-wrapper { display: none; }
       .mobile-brand-strip { display: block; }
       .car-grid { grid-template-columns: repeat(2, 1fr); }
       .hero-search-anchor { width: 80%; }
+      .results-info { margin-bottom: 12px; }
     }
 
     @media (max-width: 768px) {
-      .hero-banner { height: 45vw; min-height: 240px; max-height: 380px; }
-      .hero-dots { bottom: 40px; gap: 6px; }
+      .hero-banner { height: 52vw; min-height: 200px; max-height: 320px; }
+      .hero-slide img { object-fit: contain; object-position: center; background: var(--bg-navbar); }
+      .hero-dots { bottom: 36px; gap: 6px; }
       .hero-dot { width: 7px; height: 7px; &.active { width: 20px; } }
       .hero-search-anchor { width: 92%; }
       .hero-search-inner { padding: 6px 6px 6px 16px; }
-      .hero-search-btn { padding: 11px 24px; font-size: 14px; }
+      .hero-search-btn { padding: 11px 20px; font-size: 13px; }
       .hero-search-input { font-size: 14px; }
-      .content-zone { padding-top: 42px; }
-      .content-inner { padding: 0 16px 32px; }
-      .car-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+      .content-zone { padding-top: 32px; }
+      .content-inner { padding: 0 14px 28px; gap: 10px; }
+      .car-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .results-info {
-        padding: 12px 16px;
-        .results-count h2 { font-size: 17px; }
+        padding: 10px 14px; margin-bottom: 8px;
+        .results-count h2 { font-size: 16px; }
       }
     }
 
     @media (max-width: 480px) {
-      .hero-banner { height: 50vw; min-height: 200px; max-height: 300px; }
-      .hero-dots { bottom: 34px; gap: 5px; }
+      .hero-zone { margin-bottom: 0; }
+      .hero-banner { height: 48vw; min-height: 170px; max-height: 260px; }
+      .hero-slide img { object-fit: contain; background: var(--bg-navbar); }
+      .hero-dots { bottom: 28px; gap: 5px; }
       .hero-dot { width: 6px; height: 6px; &.active { width: 18px; } }
-      .hero-search-anchor { width: 95%; }
-      .hero-search-inner { padding: 5px 5px 5px 14px; }
-      .hero-search-icon { width: 18px; height: 18px; margin-right: 10px; }
-      .hero-search-btn { padding: 10px 16px; font-size: 12px; }
+      .hero-search-anchor { width: 94%; }
+      .hero-search-inner { padding: 4px 4px 4px 12px; }
+      .hero-search-icon { width: 16px; height: 16px; margin-right: 8px; }
+      .hero-search-btn { padding: 9px 14px; font-size: 11px; }
       .hero-search-input { font-size: 13px; &::placeholder { font-size: 11px; } }
-      .hero-search-clear { width: 26px; height: 26px; svg { width: 14px; height: 14px; } }
-      .content-zone { padding-top: 28px; }
-      .content-inner { padding: 0 12px 28px; }
+      .hero-search-clear { width: 24px; height: 24px; svg { width: 13px; height: 13px; } }
+      .content-zone { padding-top: 24px; }
+      .content-inner { padding: 0 10px 24px; gap: 8px; }
       .car-grid { grid-template-columns: 1fr; gap: 12px; }
       .pg-numbers { display: none; }
       .pg-mobile-info { display: inline-flex; }
@@ -674,14 +761,17 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
       .pagination-bar { gap: 4px; padding: 6px 10px; }
       .pg-nav { padding: 6px 10px; }
       .results-info {
-        flex-direction: column; align-items: flex-start; gap: 10px;
-        padding: 10px 14px;
-        .results-count h2 { font-size: 16px; }
+        flex-direction: column; align-items: flex-start; gap: 8px;
+        padding: 10px 12px; margin-bottom: 4px;
+        .results-count h2 { font-size: 15px; }
         .sort-controls { width: 100%; justify-content: space-between; }
-        .sort-select { padding: 8px 12px; font-size: 12px; }
+        .custom-select-trigger { padding: 7px 10px; font-size: 11px; }
+        .custom-select-dropdown { min-width: 190px; }
+        .custom-select-option { padding: 10px 12px; font-size: 12px; }
+        .sort-label { font-size: 12px; }
       }
-      .empty-state { padding: 48px 16px; }
-      .mobile-brand-strip { padding: 20px 12px 6px; }
+      .empty-state { padding: 40px 14px; }
+      .mobile-brand-strip { padding: 16px 10px 4px; }
       .mobile-brand-chip { padding: 6px 10px; min-width: 60px; }
       .mobile-brand-logo { height: 18px; max-width: 38px; }
       .mobile-brand-name { font-size: 9px; max-width: 48px; }
@@ -796,6 +886,34 @@ export class HomeComponent implements OnInit, OnDestroy {
   // States
   searchQuery = signal('');
   sortBy = signal('pricePerDay,asc');
+  showSortDropdown = signal(false);
+
+  sortOptions = [
+    { value: 'pricePerDay,asc', label: 'Preço: Menor → Maior' },
+    { value: 'pricePerDay,desc', label: 'Preço: Maior → Menor' },
+    { value: 'year,desc', label: 'Mais Recentes' }
+  ];
+
+  currentSortLabel = computed(() => {
+    const opt = this.sortOptions.find(o => o.value === this.sortBy());
+    return opt ? opt.label : 'Ordenar';
+  });
+
+  toggleSortDropdown(e: Event) {
+    e.stopPropagation();
+    this.showSortDropdown.update(v => !v);
+  }
+
+  selectSort(value: string) {
+    this.sortBy.set(value);
+    this.showSortDropdown.set(false);
+    this.loadCars();
+  }
+
+  @HostListener('document:click')
+  onDocClick() {
+    this.showSortDropdown.set(false);
+  }
 
   // Filters
   testDrive = signal(false);
