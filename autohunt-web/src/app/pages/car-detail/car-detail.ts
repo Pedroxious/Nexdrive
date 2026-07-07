@@ -1035,6 +1035,11 @@ import { LoadingComponent } from '../../components/loading/loading';
     }
 
     /* ===== RESPONSIVE ===== */
+    :host {
+      display: block;
+      overflow-x: hidden;
+    }
+
     @media (max-width: 1024px) {
       .main-grid {
         grid-template-columns: 1fr;
@@ -1053,48 +1058,116 @@ import { LoadingComponent } from '../../components/loading/loading';
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .detail-container {
-        padding: 24px 16px;
+        padding: 20px 12px;
       }
-      
+
+      .back-nav {
+        margin-bottom: 16px;
+      }
+
+      .back-btn {
+        font-size: 13px;
+      }
+
+      .main-grid {
+        gap: 20px;
+      }
+
+      .left-col {
+        gap: 20px;
+      }
+
       .image-area {
-        padding: 16px;
+        padding: 12px;
+        border-radius: var(--radius-md);
       }
-      
+
       .main-image-wrapper {
-        height: 280px;
+        height: 260px;
+        border-radius: var(--radius-md);
       }
-      
+
+      .gallery-thumbs {
+        gap: 6px;
+      }
+
       .gallery-thumbs .thumb {
-        width: 60px;
-        height: 45px;
+        width: 56px;
+        height: 42px;
       }
-      
+
       .pricing-card {
-        padding: 24px;
+        padding: 20px;
       }
-      
+
       .card-header .vehicle-title {
+        font-size: 22px;
+      }
+
+      .price-section {
+        padding: 14px;
+      }
+
+      .price-block .price-amount-wrapper .price-value {
         font-size: 24px;
       }
-      
-      .price-section {
+
+      .specs-table td {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      .specs-table .spec-key {
+        width: 110px;
+      }
+
+      .related-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .detail-container {
+        padding: 16px 10px;
+      }
+
+      .image-area {
+        padding: 8px;
+      }
+
+      .main-image-wrapper {
+        height: 220px;
+      }
+
+      .gallery-thumbs .thumb {
+        width: 52px;
+        height: 40px;
+      }
+
+      .pricing-card {
         padding: 16px;
       }
-      
+
+      .card-header .vehicle-title {
+        font-size: 20px;
+      }
+
       .price-block .price-amount-wrapper .price-value {
-        font-size: 26px;
+        font-size: 22px;
       }
-      
-      .specs-table td {
-        padding: 12px 16px;
-      }
-      
+
       .specs-table .spec-key {
-        width: 120px;
+        width: 100px;
+        font-size: 12px;
       }
-      
+
+      .specs-table .spec-value {
+        font-size: 12px;
+      }
+
       .related-grid {
         grid-template-columns: 1fr !important;
       }

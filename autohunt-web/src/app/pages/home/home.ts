@@ -811,6 +811,20 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
       }
       .empty-state { padding: 40px 14px; }
     }
+
+    /* ── Landscape mobile ── */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .hero-banner { height: 60vw; min-height: 160px; max-height: 240px; }
+      .hero-search-anchor {
+        position: relative; bottom: auto; left: auto;
+        transform: none;
+        width: 80%; max-width: none;
+        margin: -18px auto 0; z-index: 10;
+      }
+      .mobile-brand-strip { padding-top: 14px; }
+      .content-zone { padding-top: 12px; }
+      .car-grid { grid-template-columns: repeat(2, 1fr); }
+    }
   `]
 })
 export class HomeComponent implements OnInit, OnDestroy {

@@ -238,7 +238,7 @@ import { FormsModule } from '@angular/forms';
 
     .section-content {
       padding-top: 12px;
-      max-height: 500px;
+      max-height: 900px;
       overflow: hidden;
       transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
       opacity: 1;
