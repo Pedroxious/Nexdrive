@@ -1,5 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { tap } from 'rxjs';
 
 export interface User {
@@ -16,6 +17,7 @@ export interface User {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
+  private router = inject(Router);
   private apiUrl = '/api/auth';
 
   currentUser = signal<User | null>(
@@ -64,6 +66,8 @@ export class AuthService {
     this.token.set(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    this.http.post(`${this.apiUrl}/logout`, {}).subscribe();
+    this.router.navigate(['/']);
   }
 
   private setSession(token: string, user: User) {
