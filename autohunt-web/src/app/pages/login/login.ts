@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { ToastService } from '../../core/services/toast';
 
@@ -54,11 +54,22 @@ import { ToastService } from '../../core/services/toast';
            <button type="submit" class="auth-btn" [disabled]="isLoading() || !loginForm.valid">
               {{ isLoading() ? 'Entrando...' : 'Entrar' }}
            </button>
-        </form>
+         </form>
 
-        <div class="auth-footer">
-           <p>Não tem uma conta? <a routerLink="/register">Cadastre-se</a></p>
-        </div>
+         <div class="divider">
+            <span>ou</span>
+         </div>
+
+         <button type="button" class="google-btn" [disabled]="isLoading()" (click)="loginWithGoogle()">
+            <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+               <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.79 5.79 0 0 1 8.2 12.725a5.79 5.79 0 0 1 5.79-5.79c1.498 0 2.861.565 3.905 1.485l3.059-3.059C19.1 3.561 16.735 2.5 13.99 2.5a9.725 9.725 0 0 0-9.725 9.725 9.725 9.725 0 0 0 9.725 9.725c5.73 0 9.135-4.03 9.135-9.283 0-.603-.048-1.066-.145-1.38H12.24Z"/>
+            </svg>
+            <span>Entrar com o Google</span>
+         </button>
+
+         <div class="auth-footer">
+            <p>Não tem uma conta? <a routerLink="/register">Cadastre-se</a></p>
+         </div>
       </div>
     </div>
   `,
@@ -209,6 +220,53 @@ import { ToastService } from '../../core/services/toast';
       } 
     }
     
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      &::before, &::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid var(--border);
+      }
+      span {
+        padding: 0 10px;
+      }
+    }
+
+    .google-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      &:hover:not(:disabled) {
+        background: var(--accent-light);
+        border-color: var(--accent);
+      }
+      &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .google-icon {
+        flex-shrink: 0;
+      }
+    }
+
     .animate-in { 
       animation: authIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
     }
@@ -219,7 +277,7 @@ import { ToastService } from '../../core/services/toast';
     }
   `]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   email = '';
   password = '';
   isLoading = signal(false);
@@ -227,6 +285,34 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private toast = inject(ToastService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      const token = params['token'];
+      const error = params['error'];
+
+      if (error) {
+        this.toast.error('Falha na autenticação: ' + error);
+      }
+
+      if (token) {
+        this.isLoading.set(true);
+        localStorage.setItem('token', token);
+        this.auth.getMe().subscribe({
+          next: () => {
+            this.toast.success('Login realizado com sucesso!');
+            this.router.navigate(['/']);
+          },
+          error: (err) => {
+            this.toast.error('Erro ao autenticar com o Google');
+            this.isLoading.set(false);
+            localStorage.removeItem('token');
+          }
+        });
+      }
+    });
+  }
 
   onLogin() {
     this.isLoading.set(true);
@@ -240,5 +326,9 @@ export class LoginComponent {
         this.isLoading.set(false);
       }
     });
+  }
+
+  loginWithGoogle() {
+    window.location.href = '/oauth2/authorization/google';
   }
 }

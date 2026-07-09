@@ -53,6 +53,15 @@ public class AuthService {
         return Map.of("token", token, "user", user);
     }
 
+    public void logout(String jwt) {
+        if (jwt != null) {
+            sessionRepository.findByTokenAndActiveTrue(jwt).ifPresent(session -> {
+                session.setActive(false);
+                sessionRepository.save(session);
+            });
+        }
+    }
+
     private void createSession(User user, String token) {
         String userAgent = request.getHeader("User-Agent");
         String device = getDeviceFromUserAgent(userAgent);

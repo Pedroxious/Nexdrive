@@ -35,24 +35,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        String jwt = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
+        } else {
+            jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (jakarta.servlet.http.Cookie cookie : cookies) {
+                    if ("token".equals(cookie.getName())) {
+                        jwt = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
+
+        final String finalJwt = jwt;
         try {
-            final String jwt = authHeader.substring(7);
-            final String userEmail = jwtService.extractUsername(jwt);
+            final String userEmail = jwtService.extractUsername(finalJwt);
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-                if (jwtService.isTokenValid(jwt, userDetails)) {
+                if (jwtService.isTokenValid(finalJwt, userDetails)) {
                     // Check if session is active or create one for backward compatibility
-                    UserSession session = sessionRepository.findByTokenAndActiveTrue(jwt)
+                    UserSession session = sessionRepository.findByTokenAndActiveTrue(finalJwt)
                             .orElseGet(() -> {
                                 User user = userRepository.findByEmail(userEmail).orElse(null);
                                 if (user != null) {
                                     UserSession newSession = UserSession.builder()
                                             .user(user)
-                                            .token(jwt)
+                                            .token(finalJwt)
                                             .device(getDeviceFromUserAgent(request.getHeader("User-Agent")))
                                             .createdAt(java.time.LocalDateTime.now())
                                             .active(true)
