@@ -46,6 +46,7 @@ export class AuthService {
     return this.http.get<User>(`${this.apiUrl}/me`).pipe(
       tap(user => {
         this.currentUser.set(user);
+        this.isLoggedIn.set(true);
         localStorage.setItem('user', JSON.stringify(user));
       })
     );
