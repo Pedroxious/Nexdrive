@@ -299,8 +299,16 @@ export class LoginComponent implements OnInit {
 
       if (oauth2 === 'success' || token) {
         this.isLoading.set(true);
+        
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        this.auth.token.set(null);
+        this.auth.currentUser.set(null);
+        this.auth.isLoggedIn.set(false);
+
         if (token) {
           localStorage.setItem('token', token);
+          this.auth.token.set(token);
         }
         this.auth.getMe().subscribe({
           next: () => {

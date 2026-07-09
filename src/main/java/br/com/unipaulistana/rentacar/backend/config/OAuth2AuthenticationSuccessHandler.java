@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
@@ -35,13 +37,18 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String name = oAuth2User.getAttribute("name");
         String picture = oAuth2User.getAttribute("picture");
 
+        log.info("OAuth2: Google login success handler triggered for email: {}", email);
+
         if (email == null) {
+            log.warn("OAuth2: Redirecting to login with error because email attribute is missing.");
             response.sendRedirect("/login?error=no_email");
             return;
         }
 
+        final boolean[] isNewUser = {false};
         User user = userRepository.findByEmail(email)
                 .map(existingUser -> {
+                    log.info("OAuth2: Found existing user in DB with email: {}", email);
                     existingUser.setLastLoginAt(LocalDateTime.now());
                     if (existingUser.getProfileImageUrl() == null) {
                         existingUser.setProfileImageUrl(picture);
@@ -49,6 +56,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                     return userRepository.save(existingUser);
                 })
                 .orElseGet(() -> {
+                    log.info("OAuth2: Creating a new user record in DB for email: {}", email);
+                    isNewUser[0] = true;
                     User newUser = User.builder()
                             .email(email)
                             .fullName(name != null ? name : "Google User")
@@ -59,8 +68,13 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                     return userRepository.save(newUser);
                 });
 
+        log.info("OAuth2: User resolved in database. ID: {}, email: {}, isNew: {}", user.getId(), user.getEmail(), isNewUser[0]);
+
         String token = jwtService.generateToken(user);
+        log.info("OAuth2: JWT token generated. Starts with: {}", token.substring(0, Math.min(10, token.length())));
+
         createSession(user, token, request.getHeader("User-Agent"));
+        log.info("OAuth2: Session registered successfully for user ID: {}", user.getId());
 
         org.springframework.http.ResponseCookie responseCookie = org.springframework.http.ResponseCookie.from("token", token)
                 .httpOnly(true)
@@ -71,6 +85,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                 .build();
         response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, responseCookie.toString());
 
+        log.info("OAuth2: Successfully wrote HTTP-Only cookie. Redirecting to /login?oauth2=success");
         response.sendRedirect("/login?oauth2=success");
     }
 
