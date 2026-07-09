@@ -290,15 +290,18 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       const token = params['token'];
+      const oauth2 = params['oauth2'];
       const error = params['error'];
 
       if (error) {
         this.toast.error('Falha na autenticação: ' + error);
       }
 
-      if (token) {
+      if (oauth2 === 'success' || token) {
         this.isLoading.set(true);
-        localStorage.setItem('token', token);
+        if (token) {
+          localStorage.setItem('token', token);
+        }
         this.auth.getMe().subscribe({
           next: () => {
             this.toast.success('Login realizado com sucesso!');
