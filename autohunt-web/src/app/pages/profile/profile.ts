@@ -54,147 +54,201 @@ import { ToastService } from '../../core/services/toast';
         </div>
 
         <form (ngSubmit)="save()" #profileForm="ngForm" class="profile-form">
-          <div class="form-grid">
-            <div class="input-group">
-              <label>Nome Completo</label>
-              <input type="text" [(ngModel)]="editUser.fullName" name="fullName" class="glass-input" required>
+          <!-- Profile Completeness Indicator -->
+          <div class="completeness-wrapper">
+            <div class="completeness-header">
+              <span class="completeness-title">Completude do Perfil</span>
+              <span class="completeness-badge" [class.complete]="profileCompleteness() === 100">
+                {{ profileCompleteness() }}%
+              </span>
             </div>
-            <div class="input-group">
-              <label>E-mail</label>
-              <input type="email" [value]="user()?.email" class="glass-input disabled" readonly disabled>
+            <div class="completeness-track">
+              <div class="completeness-bar" [style.width.%]="profileCompleteness()"></div>
             </div>
-            <div class="input-group">
-              <label>Telefone</label>
-              <input type="text" [value]="editUser.phone || ''" (input)="onPhoneInput($event)" placeholder="(00) 00000-0000" class="glass-input">
-            </div>
-            
-            <div class="input-group">
-              <label>Data de Nascimento</label>
-              <div class="datepicker-container">
-                <input 
-                  type="text" 
-                  [value]="displayBirthDate" 
-                  readonly 
-                  (click)="toggleDatePicker($event)" 
-                  placeholder="DD/MM/AAAA" 
-                  class="glass-input clickable datepicker-trigger"
-                >
-                <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
+            <p class="completeness-tip" *ngIf="profileCompleteness() < 100">
+              Preencha seu telefone, data de nascimento e CPF para completar seu cadastro.
+            </p>
+            <p class="completeness-tip success" *ngIf="profileCompleteness() === 100">
+              Parabéns! Seu perfil está 100% preenchido.
+            </p>
+          </div>
 
-                <!-- Custom Datepicker Popup -->
-                @if (showDatePicker()) {
-                  <div class="custom-datepicker-popup">
-                    <!-- Header -->
-                    <div class="datepicker-header">
-                      <button type="button" class="nav-btn" (click)="prevMonth($event)">
-                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="15 18 9 12 15 6"></polyline>
-                        </svg>
-                      </button>
-                      
-                      <button type="button" class="month-year-label" (click)="togglePickerMode($event)">
-                        {{ currentMonthYearLabel }}
-                        <svg class="chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                      </button>
-                      
-                      <button type="button" class="nav-btn" (click)="nextMonth($event)" [disabled]="isCurrentMonthYear">
-                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                      </button>
-                    </div>
-
-                    <!-- Mode 1: Calendar View -->
-                    @if (datePickerMode() === 'calendar') {
-                      <!-- Weekdays -->
-                      <div class="weekdays-grid">
-                        @for (day of weekdays; track day) {
-                          <div class="weekday">{{ day }}</div>
-                        }
-                      </div>
-
-                      <!-- Days Grid -->
-                      <div class="days-grid">
-                        @for (cell of daysGrid; track $index) {
-                          @if (cell.isCurrentMonth) {
-                            <button 
-                              type="button" 
-                              class="day-btn" 
-                              [class.today]="cell.isToday"
-                              [class.selected]="cell.isSelected"
-                              [disabled]="cell.isFuture"
-                              (click)="selectDay(cell.day, $event)"
-                            >
-                              {{ cell.day }}
-                            </button>
-                          } @else {
-                            <div class="day-btn adjacent-month">
-                              {{ cell.day }}
-                            </div>
-                          }
-                        }
-                      </div>
-                    }
-
-                    <!-- Mode 2: Month/Year Selection View -->
-                    @if (datePickerMode() === 'month-year') {
-                      <div class="month-year-picker">
-                        <!-- Months list -->
-                        <div class="picker-column months-list">
-                          @for (m of shortMonths; let idx = $index; track m) {
-                            <button 
-                              type="button" 
-                              class="month-select-btn" 
-                              [class.selected]="viewDate.getMonth() === idx" 
-                              [disabled]="isFutureMonth(idx)"
-                              (click)="selectMonth(idx, $event)"
-                            >
-                              {{ m }}
-                            </button>
-                          }
-                        </div>
-                        
-                        <!-- Years list -->
-                        <div class="picker-column years-list">
-                          @for (y of yearsRange; track y) {
-                            <button 
-                              type="button" 
-                              class="year-select-btn" 
-                              [class.selected]="viewDate.getFullYear() === y" 
-                              (click)="selectYear(y, $event)"
-                            >
-                              {{ y }}
-                            </button>
-                          }
-                        </div>
-                      </div>
-                    }
-
-                    <!-- Footer -->
-                    <div class="datepicker-footer">
-                      <button type="button" class="footer-action-btn clear-btn" (click)="clearDate($event)">Limpar</button>
-                      <button type="button" class="footer-action-btn today-btn" (click)="selectToday($event)">Hoje</button>
-                    </div>
-                  </div>
-                }
+          <div class="form-sections-container">
+            <!-- SEÇÃO 1: Dados da Conta (Vinculados) -->
+            <div class="form-section-card">
+              <h3 class="section-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="title-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Dados da Conta
+              </h3>
+              
+              <div class="input-group">
+                <label>Nome Completo</label>
+                <input type="text" 
+                       [(ngModel)]="editUser.fullName" 
+                       name="fullName" 
+                       class="glass-input" 
+                       [class.disabled]="isGoogleUser()" 
+                       [readonly]="isGoogleUser()"
+                       required>
+                <span class="field-meta" *ngIf="isGoogleUser()">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lock-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  Vinculado à sua conta Google
+                </span>
+              </div>
+              
+              <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" [value]="user()?.email" class="glass-input disabled" readonly disabled>
+                <span class="field-meta">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lock-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  Não editável (Identificação de Acesso)
+                </span>
               </div>
             </div>
 
-            <div class="input-group">
-              <label>CPF</label>
-              <input type="text" [value]="editUser.cpf || ''" (input)="onCpfInput($event)" placeholder="000.000.000-00" class="glass-input">
+            <!-- SEÇÃO 2: Dados Complementares (Editáveis) -->
+            <div class="form-section-card">
+              <h3 class="section-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="title-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Dados Complementares
+              </h3>
+
+              <div class="form-grid">
+                <div class="input-group">
+                  <label>Telefone</label>
+                  <input type="text" [value]="editUser.phone || ''" (input)="onPhoneInput($event)" placeholder="(00) 00000-0000" class="glass-input">
+                </div>
+                
+                <div class="input-group">
+                  <label>Data de Nascimento</label>
+                  <div class="datepicker-container">
+                    <input 
+                      type="text" 
+                      [value]="displayBirthDate" 
+                      readonly 
+                      (click)="toggleDatePicker($event)" 
+                      placeholder="DD/MM/AAAA" 
+                      class="glass-input clickable datepicker-trigger"
+                    >
+                    <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+
+                    <!-- Custom Datepicker Popup -->
+                    @if (showDatePicker()) {
+                      <div class="custom-datepicker-popup">
+                        <!-- Header -->
+                        <div class="datepicker-header">
+                          <button type="button" class="nav-btn" (click)="prevMonth($event)">
+                            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                          </button>
+                          
+                          <button type="button" class="month-year-label" (click)="togglePickerMode($event)">
+                            {{ currentMonthYearLabel }}
+                            <svg class="chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                          </button>
+                          
+                          <button type="button" class="nav-btn" (click)="nextMonth($event)" [disabled]="isCurrentMonthYear">
+                            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                          </button>
+                        </div>
+
+                        <!-- Mode 1: Calendar View -->
+                        @if (datePickerMode() === 'calendar') {
+                          <!-- Weekdays -->
+                          <div class="weekdays-grid">
+                            @for (day of weekdays; track day) {
+                              <div class="weekday">{{ day }}</div>
+                            }
+                          </div>
+
+                          <!-- Days Grid -->
+                          <div class="days-grid">
+                            @for (cell of daysGrid; track $index) {
+                              @if (cell.isCurrentMonth) {
+                                <button 
+                                  type="button" 
+                                  class="day-btn" 
+                                  [class.today]="cell.isToday"
+                                  [class.selected]="cell.isSelected"
+                                  [disabled]="cell.isFuture"
+                                  (click)="selectDay(cell.day, $event)"
+                                >
+                                  {{ cell.day }}
+                                </button>
+                              } @else {
+                                <div class="day-btn adjacent-month">
+                                  {{ cell.day }}
+                                </div>
+                              }
+                            }
+                          </div>
+                        }
+
+                        <!-- Mode 2: Month/Year Selection View -->
+                        @if (datePickerMode() === 'month-year') {
+                          <div class="month-year-picker">
+                            <!-- Months list -->
+                            <div class="picker-column months-list">
+                              @for (m of shortMonths; let idx = $index; track m) {
+                                <button 
+                                  type="button" 
+                                  class="month-select-btn" 
+                                  [class.selected]="viewDate.getMonth() === idx" 
+                                  [disabled]="isFutureMonth(idx)"
+                                  (click)="selectMonth(idx, $event)"
+                                >
+                                  {{ m }}
+                                </button>
+                              }
+                            </div>
+                            
+                            <!-- Years list -->
+                            <div class="picker-column years-list">
+                              @for (y of yearsRange; track y) {
+                                <button 
+                                  type="button" 
+                                  class="year-select-btn" 
+                                  [class.selected]="viewDate.getFullYear() === y" 
+                                  (click)="selectYear(y, $event)"
+                                >
+                                  {{ y }}
+                                </button>
+                              }
+                            </div>
+                          </div>
+                        }
+
+                        <!-- Footer -->
+                        <div class="datepicker-footer">
+                          <button type="button" class="footer-action-btn clear-btn" (click)="clearDate($event)">Limpar</button>
+                          <button type="button" class="footer-action-btn today-btn" (click)="selectToday($event)">Hoje</button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="input-group">
+                  <label>CPF</label>
+                  <input type="text" [value]="editUser.cpf || ''" (input)="onCpfInput($event)" placeholder="000.000.000-00" class="glass-input">
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="actions">
-            <button type="submit" class="save-btn" [disabled]="isSaving()">
+            <button type="submit" class="save-btn clickable" [disabled]="isSaving()">
+              <div class="spinner-small" *ngIf="isSaving()"></div>
               {{ isSaving() ? 'Salvando...' : 'Salvar Alterações' }}
             </button>
           </div>
@@ -464,6 +518,144 @@ import { ToastService } from '../../core/services/toast';
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    /* Profile Completeness Styles */
+    .completeness-wrapper {
+      margin-bottom: 28px;
+      padding: 20px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      text-align: left;
+    }
+    
+    .completeness-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .completeness-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+    
+    .completeness-badge {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent);
+      padding: 4px 8px;
+      background: rgba(0, 191, 234, 0.08);
+      border-radius: var(--radius-xs);
+      
+      &.complete {
+        color: var(--success);
+        background: rgba(16, 185, 129, 0.08);
+      }
+    }
+    
+    .completeness-track {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    
+    .completeness-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.3s ease-out;
+    }
+    
+    .completeness-tip {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-secondary);
+      
+      &.success {
+        color: var(--success);
+        font-weight: 600;
+      }
+    }
+    
+    /* Layout cards & sections */
+    .form-sections-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+    
+    .form-section-card {
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      text-align: left;
+    }
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      
+      .title-icon {
+        color: var(--accent);
+      }
+    }
+    
+    .field-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-top: 6px;
+      
+      .lock-icon {
+        stroke: var(--text-muted);
+      }
+    }
+    
+    .glass-input.disabled {
+      background-color: var(--surface-secondary) !important;
+      border-color: var(--border) !important;
+      color: var(--text-muted) !important;
+      cursor: not-allowed !important;
+      opacity: 0.8 !important;
+    }
+    
+    /* Button loading spinner */
+    .save-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .spinner-small {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
 
     /* Avatar Actions Under Name/Email */
@@ -1230,6 +1422,23 @@ export class ProfileComponent implements OnInit {
     editUser: Partial<User> = {};
     isSaving = signal(false);
 
+    isGoogleUser = computed(() => {
+        const photo = this.originalGooglePhoto() || this.user()?.profileImageUrl;
+        return !!photo && (photo.includes('googleusercontent.com') || photo.includes('google'));
+    });
+
+    profileCompleteness = computed(() => {
+        const fields = [
+            !!this.editUser.fullName,
+            !!this.user()?.email,
+            !!this.editUser.phone,
+            !!this.editUser.cpf,
+            !!this.editUser.birthDate
+        ];
+        const filled = fields.filter(Boolean).length;
+        return Math.round((filled / fields.length) * 100);
+    });
+
     // Avatar Cropper & Photo Management State
     showCropModal = signal(false);
     cropImageSrc = signal<string>('');
@@ -1281,6 +1490,24 @@ export class ProfileComponent implements OnInit {
     }
 
     save() {
+        // Validate Phone (optional but must be valid if filled)
+        if (this.editUser.phone) {
+            const cleanPhone = this.editUser.phone.replace(/\D/g, '');
+            if (cleanPhone.length > 0 && (cleanPhone.length < 10 || cleanPhone.length > 11)) {
+                this.toast.error('Telefone inválido. Formato esperado: (99) 99999-9999');
+                return;
+            }
+        }
+        
+        // Validate CPF (optional but must be valid if filled)
+        if (this.editUser.cpf) {
+            const cleanCPF = this.editUser.cpf.replace(/\D/g, '');
+            if (cleanCPF.length > 0 && cleanCPF.length !== 11) {
+                this.toast.error('CPF inválido. Deve conter 11 dígitos.');
+                return;
+            }
+        }
+
         this.isSaving.set(true);
         this.authService.updateMe(this.editUser).subscribe({
             next: () => {
