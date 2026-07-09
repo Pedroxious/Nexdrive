@@ -14,9 +14,20 @@ import { ToastService } from '../../core/services/toast';
       <!-- BLOCO 1 — Dados Pessoais -->
       <div class="profile-card">
         <div class="profile-header">
-          <div class="avatar-edit" (click)="fileInput.click()">
-            <img [src]="editUser.profileImageUrl || 'https://ui-avatars.com/api/?name=' + user()?.fullName" alt="Avatar">
-            <div class="avatar-hover-overlay">
+          <div class="avatar-edit" 
+               (click)="fileInput.click()"
+               (dragover)="onDragOver($event)"
+               (dragleave)="onDragLeave($event)"
+               (drop)="onDrop($event)">
+            
+            <div class="avatar-spinner-overlay" *ngIf="isSaving()">
+              <div class="spinner"></div>
+            </div>
+
+            <img [src]="editUser.profileImageUrl || 'https://ui-avatars.com/api/?name=' + user()?.fullName" alt="Avatar" *ngIf="!isSaving()">
+            
+            <div class="avatar-hover-overlay" *ngIf="!isSaving()">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
               <span>Alterar Foto</span>
             </div>
           </div>
@@ -24,6 +35,21 @@ import { ToastService } from '../../core/services/toast';
           <div class="profile-title-group">
             <h1>{{ editUser.fullName || user()?.fullName }}</h1>
             <p class="profile-subtitle">{{ user()?.email }}</p>
+            
+            <div class="avatar-actions">
+              <button type="button" class="btn-action clickable" (click)="fileInput.click()">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Alterar Foto
+              </button>
+              <button type="button" class="btn-action danger clickable" *ngIf="editUser.profileImageUrl" (click)="removePhoto()">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Remover Foto
+              </button>
+              <button type="button" class="btn-action primary clickable" *ngIf="hasGooglePhoto()" (click)="restoreGooglePhoto()">
+                <svg width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1H12v2.7h5.38c-.24 1.28-.96 2.37-2.01 3.07v2.55h3.24c1.9-1.75 3-4.32 3-7.32 0-.63-.06-1.23-.27-2.0zM12 21c2.43 0 4.47-.8 5.96-2.18l-3.24-2.55c-.9.6-2.05.96-3.72.96-2.86 0-5.28-1.93-6.14-4.52H1.61v2.63C3.09 18.25 7.23 21 12 21zM5.86 12.71c-.22-.67-.34-1.38-.34-2.11s.12-1.44.34-2.11V5.86H1.61C.58 7.92 0 10.21 0 12.71s.58 4.79 1.61 6.85l4.25-3.0zM12 5.72c1.32 0 2.5.45 3.44 1.35l2.58-2.58C16.46 3.03 14.43 2.25 12 2.25 7.23 2.25 3.09 5 1.61 7.89l4.25 3.0C6.72 8.35 9.14 5.72 12 5.72z"/></svg>
+                Usar Foto do Google
+              </button>
+            </div>
           </div>
         </div>
 
@@ -253,8 +279,63 @@ import { ToastService } from '../../core/services/toast';
           </div>
         </div>
       </div>
+
+      <!-- Cropper Modal Overlay -->
+      <div class="cropper-overlay" *ngIf="showCropModal()">
+        <div class="cropper-container">
+          <div class="cropper-card-header">
+            <h3>Ajustar Foto de Perfil</h3>
+            <button type="button" class="close-btn" (click)="closeCropModal()">&times;</button>
+          </div>
+          
+          <div class="crop-area-wrapper">
+            <div class="crop-viewport" 
+                 (mousedown)="startDrag($event)" 
+                 (mousemove)="onDrag($event)" 
+                 (mouseup)="endDrag()" 
+                 (mouseleave)="endDrag()"
+                 (touchstart)="startDrag($event)"
+                 (touchmove)="onDrag($event)"
+                 (touchend)="endDrag()"
+                 (wheel)="onWheel($event)">
+              
+              <img [src]="cropImageSrc()" 
+                   [style.width.px]="imgWidth" 
+                   [style.height.px]="imgHeight"
+                   [style.transform]="getImageTransform()" 
+                   class="crop-image"
+                   alt="Crop Image"
+                   draggable="false">
+              
+              <!-- Circle Mask Overlay -->
+              <div class="crop-mask"></div>
+            </div>
+          </div>
+          
+          <div class="cropper-controls">
+            <div class="zoom-control">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+              <input type="range" 
+                     [min]="minZoom()" 
+                     [max]="maxZoom()" 
+                     step="0.01" 
+                     [value]="zoomLevel()" 
+                     (input)="onZoomSliderChange($event)"
+                     class="zoom-slider">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+            </div>
+            
+            <p class="crop-instructions">Dica: Arraste a foto para reposicionar ou use a roda do mouse para dar zoom.</p>
+          </div>
+          
+          <div class="cropper-actions">
+            <button type="button" class="btn-cancel clickable" (click)="closeCropModal()">Cancelar</button>
+            <button type="button" class="btn-confirm clickable" (click)="confirmCrop()">Confirmar e Recortar</button>
+          </div>
+        </div>
+      </div>
     </div>
-  `,
+  `,,StartLine:281,TargetContent:
     styles: [`
     .profile-page-wrapper {
       max-width: 800px;
@@ -322,11 +403,17 @@ import { ToastService } from '../../core/services/toast';
         object-fit: cover;
       }
       
+      &.drag-over {
+        border-color: var(--accent);
+        box-shadow: 0 0 12px var(--accent);
+        transform: scale(1.05);
+      }
+      
       &:hover {
         border-color: var(--accent);
         
         img {
-          filter: brightness(0.6);
+          filter: brightness(0.4);
         }
         
         .avatar-hover-overlay {
@@ -338,16 +425,270 @@ import { ToastService } from '../../core/services/toast';
         position: absolute;
         inset: 0;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 6px;
         color: var(--text-inverse);
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         opacity: 0;
         transition: opacity 0.3s ease;
         text-align: center;
         pointer-events: none;
-        background: rgba(10, 22, 40, 0.4);
+        background: rgba(10, 22, 40, 0.6);
+        
+        .camera-icon {
+          stroke: var(--text-inverse);
+        }
+      }
+
+      .avatar-spinner-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(10, 22, 40, 0.7);
+        
+        .spinner {
+          width: 24px;
+          height: 24px;
+          border: 3px solid rgba(255, 255, 255, 0.2);
+          border-top-color: var(--accent);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+      }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Avatar Actions Under Name/Email */
+    .avatar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      cursor: pointer;
+      background-color: var(--surface-secondary);
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: var(--border);
+        color: var(--text-primary);
+        border-color: var(--text-secondary);
+      }
+      
+      &.danger {
+        border-color: rgba(239, 68, 68, 0.3);
+        background-color: rgba(239, 68, 68, 0.05);
+        color: #ef4444;
+        
+        &:hover {
+          background-color: #ef4444;
+          color: white;
+          border-color: #ef4444;
+        }
+      }
+      
+      &.primary {
+        border-color: rgba(0, 191, 234, 0.3);
+        background-color: rgba(0, 191, 234, 0.05);
+        color: var(--accent);
+        
+        &:hover {
+          background-color: var(--accent);
+          color: white;
+          border-color: var(--accent);
+        }
+      }
+      
+      svg {
+        flex-shrink: 0;
+      }
+    }
+
+    /* Cropper Modal Styles */
+    .cropper-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .cropper-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .cropper-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      
+      .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        
+        &:hover {
+          color: var(--text-primary);
+        }
+      }
+    }
+    
+    .crop-area-wrapper {
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #090e18;
+    }
+    
+    .crop-viewport {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      overflow: hidden;
+      cursor: move;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      box-shadow: 0 0 0 9999px rgba(9, 14, 24, 0.7);
+    }
+    
+    .crop-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      max-width: none;
+      max-height: none;
+      pointer-events: none;
+      transform-origin: center center;
+    }
+    
+    .crop-mask {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      pointer-events: none;
+      box-sizing: border-box;
+      box-shadow: 0 0 20px rgba(0, 191, 234, 0.4);
+    }
+    
+    .cropper-controls {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .zoom-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-secondary);
+      
+      .zoom-slider {
+        flex-grow: 1;
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        outline: none;
+        -webkit-appearance: none;
+        accent-color: var(--accent);
+        
+        &::-webkit-slider-runnable-track {
+          cursor: pointer;
+        }
+      }
+    }
+    
+    .crop-instructions {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+    
+    .cropper-actions {
+      padding: 16px 20px;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      background: var(--surface-secondary);
+      
+      button {
+        padding: 10px 18px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: var(--radius-md);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      
+      .btn-cancel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        
+        &:hover {
+          background: var(--border);
+        }
+      }
+      
+      .btn-confirm {
+        background: var(--accent);
+        color: white;
+        
+        &:hover {
+          background: var(--accent-hover);
+          box-shadow: 0 0 10px rgba(0, 191, 234, 0.3);
+        }
       }
     }
     
@@ -889,6 +1230,27 @@ export class ProfileComponent implements OnInit {
     editUser: Partial<User> = {};
     isSaving = signal(false);
 
+    // Avatar Cropper & Photo Management State
+    showCropModal = signal(false);
+    cropImageSrc = signal<string>('');
+    zoomLevel = signal<number>(1);
+    minZoom = signal<number>(1);
+    maxZoom = signal<number>(3);
+    offsetX = signal<number>(0);
+    offsetY = signal<number>(0);
+    originalGooglePhoto = signal<string | null>(null);
+
+    // Viewport constant
+    private readonly V = 300;
+    baseScale = 1;
+    imgWidth = 0;
+    imgHeight = 0;
+
+    // Drag state
+    private isDragging = false;
+    private startX = 0;
+    private startY = 0;
+
     // Password State
     currentPassword = signal('');
     newPassword = signal('');
@@ -909,6 +1271,11 @@ export class ProfileComponent implements OnInit {
     ngOnInit() {
         if (this.user()) {
             this.editUser = { ...this.user() };
+            // Capture Google Photo if it's not base64 and not localhost
+            const currentPhoto = this.user()?.profileImageUrl;
+            if (currentPhoto && (currentPhoto.startsWith('http://') || currentPhoto.startsWith('https://')) && !currentPhoto.includes('localhost')) {
+                this.originalGooglePhoto.set(currentPhoto);
+            }
         }
         this.loadSessions();
     }
@@ -928,20 +1295,202 @@ export class ProfileComponent implements OnInit {
         });
     }
 
+    // Drag & Drop
+    onDragOver(event: DragEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        const element = event.currentTarget as HTMLElement;
+        element.classList.add('drag-over');
+    }
+
+    onDragLeave(event: DragEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        const element = event.currentTarget as HTMLElement;
+        element.classList.remove('drag-over');
+    }
+
+    onDrop(event: DragEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        const element = event.currentTarget as HTMLElement;
+        element.classList.remove('drag-over');
+        
+        const file = event.dataTransfer?.files?.[0];
+        if (file) {
+            this.handleFile(file);
+        }
+    }
+
     onFileSelected(event: any) {
         const file = event.target.files?.[0];
+        this.handleFile(file);
+    }
+
+    handleFile(file: File) {
         if (!file) return;
 
-        if (file.size > 2 * 1024 * 1024) {
-            this.toast.error('A imagem deve ter no máximo 2MB.');
+        // Validation
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            this.toast.error('Formato não suportado! Envie apenas JPG, PNG ou WEBP.');
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            this.toast.error('A imagem excede o tamanho máximo de 5MB.');
             return;
         }
 
         const reader = new FileReader();
         reader.onload = () => {
-            this.editUser.profileImageUrl = reader.result as string;
+            const dataUrl = reader.result as string;
+            
+            const img = new Image();
+            img.onload = () => {
+                const w = img.width;
+                const h = img.height;
+                
+                this.baseScale = Math.max(this.V / w, this.V / h);
+                this.imgWidth = w * this.baseScale;
+                this.imgHeight = h * this.baseScale;
+                
+                this.offsetX.set(0);
+                this.offsetY.set(0);
+                this.zoomLevel.set(1);
+                this.minZoom.set(1);
+                this.maxZoom.set(3);
+                
+                this.cropImageSrc.set(dataUrl);
+                this.showCropModal.set(true);
+            };
+            img.src = dataUrl;
         };
         reader.readAsDataURL(file);
+    }
+
+    closeCropModal() {
+        this.showCropModal.set(false);
+        this.cropImageSrc.set('');
+    }
+
+    confirmCrop() {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+            
+            if (ctx) {
+                const zoom = this.zoomLevel();
+                const sActual = this.baseScale * zoom;
+                
+                const wActual = this.imgWidth * zoom;
+                const hActual = this.imgHeight * zoom;
+                
+                const xCrop = (wActual / 2) - 150 - this.offsetX();
+                const yCrop = (hActual / 2) - 150 - this.offsetY();
+                
+                const sx = xCrop / sActual;
+                const sy = yCrop / sActual;
+                const sSize = this.V / sActual;
+                
+                ctx.drawImage(img, sx, sy, sSize, sSize, 0, 0, 400, 400);
+                
+                const base64 = canvas.toDataURL('image/jpeg', 0.9);
+                this.editUser.profileImageUrl = base64;
+                this.closeCropModal();
+                this.toast.success('Foto recortada! Lembre-se de salvar as alterações.');
+            }
+        };
+        img.src = this.cropImageSrc();
+    }
+
+    removePhoto() {
+        this.editUser.profileImageUrl = '';
+        this.toast.success('Foto removida! Lembre-se de salvar as alterações.');
+    }
+
+    hasGooglePhoto(): boolean {
+        const googlePhoto = this.originalGooglePhoto();
+        return !!googlePhoto && this.editUser.profileImageUrl !== googlePhoto;
+    }
+
+    restoreGooglePhoto() {
+        const googlePhoto = this.originalGooglePhoto();
+        if (googlePhoto) {
+            this.editUser.profileImageUrl = googlePhoto;
+            this.toast.success('Foto do Google selecionada! Lembre-se de salvar as alterações.');
+        }
+    }
+
+    // Drag-drag interactions for Crop Canvas
+    startDrag(event: any) {
+        event.preventDefault();
+        this.isDragging = true;
+        const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+        const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+        this.startX = clientX - this.offsetX();
+        this.startY = clientY - this.offsetY();
+    }
+
+    onDrag(event: any) {
+        if (!this.isDragging) return;
+        const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+        const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+        
+        let newX = clientX - this.startX;
+        let newY = clientY - this.startY;
+        
+        const zoom = this.zoomLevel();
+        const wActual = this.imgWidth * zoom;
+        const hActual = this.imgHeight * zoom;
+        
+        const limitX = Math.max(0, (wActual - this.V) / 2);
+        const limitY = Math.max(0, (hActual - this.V) / 2);
+        
+        newX = Math.min(limitX, Math.max(-limitX, newX));
+        newY = Math.min(limitY, Math.max(-limitY, newY));
+        
+        this.offsetX.set(newX);
+        this.offsetY.set(newY);
+    }
+
+    endDrag() {
+        this.isDragging = false;
+    }
+
+    onZoomSliderChange(event: any) {
+        const val = parseFloat(event.target.value);
+        this.setZoom(val);
+    }
+
+    onWheel(event: WheelEvent) {
+        event.preventDefault();
+        const delta = event.deltaY < 0 ? 0.05 : -0.05;
+        const newZoom = Math.min(this.maxZoom(), Math.max(this.minZoom(), this.zoomLevel() + delta));
+        this.setZoom(newZoom);
+    }
+
+    private setZoom(newZoom: number) {
+        this.zoomLevel.set(newZoom);
+        
+        const wActual = this.imgWidth * newZoom;
+        const hActual = this.imgHeight * newZoom;
+        
+        const limitX = Math.max(0, (wActual - this.V) / 2);
+        const limitY = Math.max(0, (hActual - this.V) / 2);
+        
+        const currentX = Math.min(limitX, Math.max(-limitX, this.offsetX()));
+        const currentY = Math.min(limitY, Math.max(-limitY, this.offsetY()));
+        
+        this.offsetX.set(currentX);
+        this.offsetY.set(currentY);
+    }
+
+    getImageTransform() {
+        return `translate(calc(-50% + ${this.offsetX()}px), calc(-50% + ${this.offsetY()}px)) scale(${this.zoomLevel()})`;
     }
 
     // CPF Mask Formatting
