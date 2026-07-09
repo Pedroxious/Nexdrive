@@ -64,6 +64,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                             .profileImageUrl(picture)
                             .password(passwordEncoder.encode(UUID.randomUUID().toString()))
                             .role(UserRole.USER)
+                            .lastLoginAt(LocalDateTime.now())
                             .build();
                     return userRepository.save(newUser);
                 });
