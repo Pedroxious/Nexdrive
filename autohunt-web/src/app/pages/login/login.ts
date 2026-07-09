@@ -12,6 +12,12 @@ import { ToastService } from '../../core/services/toast';
   template: `
     <div class="auth-page">
       <div class="auth-card animate-in">
+        <div class="auth-loading-overlay animate-fade-in" *ngIf="isLoading()">
+           <div class="spinner-container">
+              <div class="loading-spinner"></div>
+              <p class="loading-text">Conectando à sua conta...</p>
+           </div>
+        </div>
         <div class="logo-wrapper">
           <span class="logo-text">Nex<span class="logo-accent">drive</span></span>
         </div>
@@ -83,6 +89,8 @@ import { ToastService } from '../../core/services/toast';
     }
     
     .auth-card { 
+      position: relative;
+      overflow: hidden;
       width: 100%; 
       max-width: 440px; 
       padding: 48px; 
@@ -92,6 +100,54 @@ import { ToastService } from '../../core/services/toast';
       box-shadow: var(--shadow-lg);
       text-align: center;
       transition: all 0.3s ease;
+    }
+    
+    .auth-loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background: rgba(15, 24, 41, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .spinner-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    .loading-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      margin: 0;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     
     .logo-wrapper { 
@@ -340,6 +396,7 @@ export class LoginComponent implements OnInit {
   }
 
   loginWithGoogle() {
-    window.location.href = '/oauth2/authorization/google';
+    this.isLoading.set(true);
+    window.location.replace('/oauth2/authorization/google');
   }
 }
