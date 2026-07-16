@@ -20,8 +20,7 @@ export const routes: Routes = [
     },
     {
         path: 'rent/:id',
-        loadComponent: () => import('./pages/rental-wizard/rental-wizard').then(m => m.RentalWizardComponent),
-        canActivate: [authGuard]
+        loadComponent: () => import('./pages/rental-wizard/rental-wizard').then(m => m.RentalWizardComponent)
     },
     {
         path: 'favorites',
