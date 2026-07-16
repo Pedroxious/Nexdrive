@@ -30,16 +30,21 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+    # V-16 fix: show-sql disabled — logs full queries including bound parameter values,
+    # which can expose CPF, phone numbers and other PII in platform logs.
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
 application:
   security:
     jwt:
       secret-key: ${JWT_SECRET}
-      expiration: ${JWT_EXPIRATION:86400000}
+      # V-04 fix: access token lifetime reduced to 15 minutes (900000 ms).
+      # Short-lived tokens drastically reduce the impact of stolen tokens.
+      # The refresh token (7 days) rotates on each use and is stored in httpOnly cookie.
+      expiration: ${JWT_EXPIRATION:900000}
     seed:
       admin-password: ${ADMIN_SEED_PASS}
       user-password: ${USER_SEED_PASS}
@@ -50,8 +55,11 @@ server:
   port: ${PORT:8080}
   error:
     include-stacktrace: never
+    include-message: never   # never send Spring error messages to client
 
 logging:
   level:
     br.com.unipaulistana.rentacar: INFO
-    org.hibernate.SQL: INFO
+    # Keep SQL logging OFF in production (set to DEBUG locally via env override if needed)
+    org.hibernate.SQL: WARN
+    org.springframework.security: WARN

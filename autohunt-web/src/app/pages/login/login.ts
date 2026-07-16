@@ -343,38 +343,41 @@ export class LoginComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
+  /**
+   * V-08 fix: whitelist of safe error codes from the backend OAuth2 failure handler.
+   * Raw error messages from the URL are NEVER displayed — only friendly mapped strings.
+   */
+  private readonly oauthErrorMessages: Record<string, string> = {
+    no_email:      'Nao foi possivel obter seu e-mail do Google. Verifique as permissoes.',
+    access_denied: 'Acesso negado pelo provedor. Tente novamente.',
+    invalid_token: 'Token de autenticacao invalido. Tente novamente.',
+    auth_failed:   'Falha na autenticacao com o Google. Tente novamente.',
+  };
+
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      const token = params['token'];
       const oauth2 = params['oauth2'];
-      const error = params['error'];
+      const errorCode = params['error'];
 
-      if (error) {
-        this.toast.error('Falha na autenticação: ' + error);
+      // V-08 fix: map error code to safe message via whitelist — never display raw param value
+      if (errorCode) {
+        const safeMessage = this.oauthErrorMessages[errorCode]
+          ?? 'Falha na autenticacao. Tente novamente.';
+        this.toast.error(safeMessage);
       }
 
-      if (oauth2 === 'success' || token) {
+      if (oauth2 === 'success') {
+        // OAuth2 success: the server already set the httpOnly cookie.
+        // Call /api/auth/me to load user data into the signal.
         this.isLoading.set(true);
-        
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        this.auth.token.set(null);
-        this.auth.currentUser.set(null);
-        this.auth.isLoggedIn.set(false);
-
-        if (token) {
-          localStorage.setItem('token', token);
-          this.auth.token.set(token);
-        }
         this.auth.getMe().subscribe({
           next: () => {
             this.toast.success('Login realizado com sucesso!');
             this.router.navigate(['/']);
           },
-          error: (err) => {
-            this.toast.error('Erro ao autenticar com o Google');
+          error: () => {
+            this.toast.error('Erro ao autenticar com o Google. Tente novamente.');
             this.isLoading.set(false);
-            localStorage.removeItem('token');
           }
         });
       }
@@ -389,7 +392,10 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/']);
       },
       error: (err) => {
-        this.toast.error(err.status === 401 ? 'E-mail ou senha incorretos' : 'Erro no servidor');
+        // Generic message — never differentiate "email not found" vs "wrong password"
+        this.toast.error(err.status === 429
+          ? 'Muitas tentativas. Aguarde 15 minutos.'
+          : 'E-mail ou senha incorretos.');
         this.isLoading.set(false);
       }
     });
@@ -400,3 +406,4 @@ export class LoginComponent implements OnInit {
     window.location.replace('/oauth2/authorization/google');
   }
 }
+

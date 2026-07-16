@@ -4,6 +4,8 @@ import br.com.unipaulistana.rentacar.backend.config.JwtService;
 import br.com.unipaulistana.rentacar.backend.domain.User;
 import br.com.unipaulistana.rentacar.backend.domain.UserRole;
 import br.com.unipaulistana.rentacar.backend.domain.UserSession;
+import br.com.unipaulistana.rentacar.backend.dto.RegisterRequestDto;
+import br.com.unipaulistana.rentacar.backend.dto.UserResponseDto;
 import br.com.unipaulistana.rentacar.backend.repository.UserRepository;
 import br.com.unipaulistana.rentacar.backend.repository.UserSessionRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +15,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,61 +31,85 @@ public class AuthService {
     private final UserSessionRepository sessionRepository;
     private final HttpServletRequest request;
 
-    public Map<String, Object> register(User userRequest) {
+    public Map<String, Object> register(RegisterRequestDto dto) {
+        if (repository.findByEmail(dto.email()).isPresent()) {
+            throw new IllegalArgumentException("E-mail já cadastrado.");
+        }
+
         User user = User.builder()
-                .fullName(userRequest.getFullName())
-                .email(userRequest.getEmail())
-                .password(passwordEncoder.encode(userRequest.getPassword()))
-                .phone(userRequest.getPhone())
-                .cpf(userRequest.getCpf())
-                .birthDate(userRequest.getBirthDate())
+                .fullName(dto.fullName().strip())
+                .email(dto.email().toLowerCase().strip())
+                .password(passwordEncoder.encode(dto.password()))
+                .phone(dto.phone())
+                .cpf(dto.cpf())
+                .birthDate(dto.birthDate())
                 .role(UserRole.USER)
                 .build();
         repository.save(user);
-        
+
         String token = jwtService.generateToken(user);
-        String refreshToken = java.util.UUID.randomUUID().toString();
-        java.time.LocalDateTime expiresAt = java.time.LocalDateTime.now().plusDays(7);
-        createSession(user, token, refreshToken, expiresAt);
-        return Map.of("token", token, "refreshToken", refreshToken, "user", user);
+        String refreshToken = UUID.randomUUID().toString();
+        LocalDateTime refreshExpiresAt = LocalDateTime.now().plusDays(7);
+        createSession(user, token, refreshToken, refreshExpiresAt);
+
+        // V-01 fix: return UserResponseDto, never the User entity
+        return Map.of(
+                "token", token,
+                "refreshToken", refreshToken,
+                "user", UserResponseDto.from(user)
+        );
     }
 
     public Map<String, Object> login(String email, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
         User user = repository.findByEmail(email).orElseThrow();
-        
+
         String token = jwtService.generateToken(user);
-        String refreshToken = java.util.UUID.randomUUID().toString();
-        java.time.LocalDateTime expiresAt = java.time.LocalDateTime.now().plusDays(7);
-        createSession(user, token, refreshToken, expiresAt);
-        return Map.of("token", token, "refreshToken", refreshToken, "user", user);
+        String refreshToken = UUID.randomUUID().toString();
+        LocalDateTime refreshExpiresAt = LocalDateTime.now().plusDays(7);
+        createSession(user, token, refreshToken, refreshExpiresAt);
+
+        // V-01 fix: return UserResponseDto, never the User entity
+        return Map.of(
+                "token", token,
+                "refreshToken", refreshToken,
+                "user", UserResponseDto.from(user)
+        );
     }
 
     public Map<String, Object> refreshToken(String refreshToken) {
         UserSession session = sessionRepository.findByRefreshTokenAndActiveTrue(refreshToken)
-                .orElseThrow(() -> new org.springframework.security.authentication.BadCredentialsException("Refresh token inválido ou inativo"));
-        
-        if (session.getRefreshTokenExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+                .orElseThrow(() -> new org.springframework.security.authentication.BadCredentialsException(
+                        "Token de sessão inválido ou expirado."));
+
+        if (session.getRefreshTokenExpiresAt().isBefore(LocalDateTime.now())) {
             session.setActive(false);
             sessionRepository.save(session);
-            throw new org.springframework.security.authentication.BadCredentialsException("Refresh token expirado");
+            throw new org.springframework.security.authentication.BadCredentialsException(
+                    "Token de sessão inválido ou expirado.");
         }
 
         User user = session.getUser();
         String newToken = jwtService.generateToken(user);
-        String newRefreshToken = java.util.UUID.randomUUID().toString();
-        java.time.LocalDateTime expiresAt = java.time.LocalDateTime.now().plusDays(7);
+        String newRefreshToken = UUID.randomUUID().toString();
+        LocalDateTime newExpiresAt = LocalDateTime.now().plusDays(7);
 
+        // V-04 fix: rotate refresh token — invalidate old one by updating in place
         session.setToken(newToken);
         session.setRefreshToken(newRefreshToken);
-        session.setRefreshTokenExpiresAt(expiresAt);
+        session.setRefreshTokenExpiresAt(newExpiresAt);
         sessionRepository.save(session);
 
-        return Map.of("token", newToken, "refreshToken", newRefreshToken, "user", user);
+        // V-01 fix: return UserResponseDto, never the User entity
+        return Map.of(
+                "token", newToken,
+                "refreshToken", newRefreshToken,
+                "user", UserResponseDto.from(user)
+        );
     }
 
     public void logout(String jwt) {
-        if (jwt != null) {
+        if (jwt != null && !jwt.isBlank()) {
             sessionRepository.findByTokenAndActiveTrue(jwt).ifPresent(session -> {
                 session.setActive(false);
                 sessionRepository.save(session);
@@ -89,30 +117,29 @@ public class AuthService {
         }
     }
 
-    private void createSession(User user, String token, String refreshToken, java.time.LocalDateTime refreshTokenExpiresAt) {
-        String userAgent = request.getHeader("User-Agent");
-        String device = getDeviceFromUserAgent(userAgent);
-        
+    private void createSession(User user, String token, String refreshToken, LocalDateTime refreshTokenExpiresAt) {
+        String device = getDeviceFromUserAgent(request.getHeader("User-Agent"));
         UserSession session = UserSession.builder()
                 .user(user)
                 .token(token)
                 .device(device)
                 .refreshToken(refreshToken)
                 .refreshTokenExpiresAt(refreshTokenExpiresAt)
-                .createdAt(java.time.LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .active(true)
                 .build();
         sessionRepository.save(session);
-        
-        user.setLastLoginAt(java.time.LocalDateTime.now());
+
+        user.setLastLoginAt(LocalDateTime.now());
         repository.save(user);
     }
 
-    private String getDeviceFromUserAgent(String userAgent) {
-        if (userAgent == null || userAgent.isEmpty()) {
+    public static String getDeviceFromUserAgent(String userAgent) {
+        if (userAgent == null || userAgent.isBlank()) {
             return "Dispositivo desconhecido";
         }
         String ua = userAgent.toLowerCase();
+
         String browser = "Navegador Desconhecido";
         if (ua.contains("chrome") && !ua.contains("edg") && !ua.contains("opr")) {
             browser = "Chrome";

@@ -36,6 +36,8 @@ public class ApplicationConfig {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
+        // V-12 fix: hide whether the user exists from the exception type to prevent user enumeration
+        authProvider.setHideUserNotFoundExceptions(true);
         return authProvider;
     }
 

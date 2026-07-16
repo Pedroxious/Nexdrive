@@ -1,10 +1,11 @@
-import { Component, inject, signal, HostListener } from '@angular/core';
+import { Component, inject, signal, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { LucideAngularModule, MessageCircle, X, Mail } from 'lucide-angular';
 import { NavbarComponent } from './components/navbar/navbar';
 import { FooterComponent } from './components/footer/footer';
 import { ToastService } from './core/services/toast';
+import { AuthService } from './core/services/auth';
 
 @Component({
     selector: 'app-root',
@@ -305,9 +306,17 @@ import { ToastService } from './core/services/toast';
     }
   `]
 })
-export class AppComponent {
-    toastService = inject(ToastService);
+export class AppComponent implements OnInit {
+    toastService  = inject(ToastService);
+    private authService = inject(AuthService);
     showContactPopup = signal(false);
+
+    ngOnInit() {
+        // Restore session from httpOnly cookie on app startup.
+        // If the cookie is valid, currentUser signal is populated.
+        // If not, we stay in logged-out state silently.
+        this.authService.restoreSession().subscribe();
+    }
 
     getIcon(type: string) {
         switch (type) {
