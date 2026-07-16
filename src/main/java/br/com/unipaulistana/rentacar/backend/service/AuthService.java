@@ -33,7 +33,7 @@ public class AuthService {
 
     public Map<String, Object> register(RegisterRequestDto dto) {
         if (repository.findByEmail(dto.email()).isPresent()) {
-            throw new IllegalArgumentException("E-mail já cadastrado.");
+            throw new IllegalArgumentException("Erro ao processar o cadastro. Verifique os dados fornecidos.");
         }
 
         User user = User.builder()
@@ -79,8 +79,15 @@ public class AuthService {
 
     public Map<String, Object> refreshToken(String refreshToken) {
         UserSession session = sessionRepository.findByRefreshTokenAndActiveTrue(refreshToken)
-                .orElseThrow(() -> new org.springframework.security.authentication.BadCredentialsException(
-                        "Token de sessão inválido ou expirado."));
+                .orElseThrow(() -> {
+                    // V-19: detect refresh token reuse / compromise
+                    sessionRepository.findByRefreshToken(refreshToken).ifPresent(inactiveSession -> {
+                        User user = inactiveSession.getUser();
+                        sessionRepository.deactivateAllByUser(user);
+                    });
+                    return new org.springframework.security.authentication.BadCredentialsException(
+                            "Token de sessão inválido ou expirado.");
+                });
 
         if (session.getRefreshTokenExpiresAt().isBefore(LocalDateTime.now())) {
             session.setActive(false);
@@ -94,11 +101,20 @@ public class AuthService {
         String newRefreshToken = UUID.randomUUID().toString();
         LocalDateTime newExpiresAt = LocalDateTime.now().plusDays(7);
 
-        // V-04 fix: rotate refresh token — invalidate old one by updating in place
-        session.setToken(newToken);
-        session.setRefreshToken(newRefreshToken);
-        session.setRefreshTokenExpiresAt(newExpiresAt);
+        // V-19 rotation: deactivate old session and save a new one to preserve the old refresh token record for reuse detection
+        session.setActive(false);
         sessionRepository.save(session);
+
+        UserSession newSession = UserSession.builder()
+                .user(user)
+                .token(newToken)
+                .device(session.getDevice())
+                .refreshToken(newRefreshToken)
+                .refreshTokenExpiresAt(newExpiresAt)
+                .createdAt(LocalDateTime.now())
+                .active(true)
+                .build();
+        sessionRepository.save(newSession);
 
         // V-01 fix: return UserResponseDto, never the User entity
         return Map.of(

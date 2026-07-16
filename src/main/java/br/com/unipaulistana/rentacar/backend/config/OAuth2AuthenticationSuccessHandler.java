@@ -103,19 +103,19 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         int refreshTokenMaxAge = 60 * 60 * 24 * 7; // 7 days in seconds
 
         response.addHeader(HttpHeaders.SET_COOKIE,
-                buildCookie("token", token, accessTokenMaxAge).toString());
+                buildCookie("token", token, accessTokenMaxAge, "/").toString());
         response.addHeader(HttpHeaders.SET_COOKIE,
-                buildCookie("refreshToken", refreshToken, refreshTokenMaxAge).toString());
+                buildCookie("refreshToken", refreshToken, refreshTokenMaxAge, "/api/auth/refresh").toString());
 
         log.info("OAuth2 cookies set. Redirecting to /login?oauth2=success");
         response.sendRedirect("/login?oauth2=success");
     }
 
-    private ResponseCookie buildCookie(String name, String value, int maxAge) {
+    private ResponseCookie buildCookie(String name, String value, int maxAge, String path) {
         return ResponseCookie.from(name, value)
                 .httpOnly(true)
                 .secure(true)
-                .path("/")
+                .path(path)
                 .maxAge(maxAge)
                 .sameSite("Lax")
                 .build();

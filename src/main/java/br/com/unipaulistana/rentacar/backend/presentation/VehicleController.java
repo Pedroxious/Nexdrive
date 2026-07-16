@@ -38,9 +38,26 @@ public class VehicleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
             @RequestParam(defaultValue = "pricePerDay,asc") String sort) {
+        if (sort == null || !sort.contains(",")) {
+            throw new IllegalArgumentException("Parâmetro de ordenação inválido. Use o formato: campo,direção");
+        }
         String[] sortParts = sort.split(",");
-        Sort sortOrder = Sort.by(sortParts[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
-                sortParts[0]);
+        if (sortParts.length != 2) {
+            throw new IllegalArgumentException("Parâmetro de ordenação inválido. Use o formato: campo,direção");
+        }
+        String sortField = sortParts[0].trim();
+        String sortDir = sortParts[1].trim();
+
+        if (!sortDir.equalsIgnoreCase("asc") && !sortDir.equalsIgnoreCase("desc")) {
+            throw new IllegalArgumentException("Direção de ordenação inválida. Use 'asc' ou 'desc'.");
+        }
+
+        java.util.Set<String> allowedFields = java.util.Set.of("pricePerDay", "salePrice", "year", "mileage", "id");
+        if (!allowedFields.contains(sortField)) {
+            throw new IllegalArgumentException("Ordenação pelo campo '" + sortField + "' não é permitida.");
+        }
+
+        Sort sortOrder = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortField);
 
         return ResponseEntity.ok(service.getAll(
                 brands, category, fuelType, transmission, seats, minPrice, maxPrice,

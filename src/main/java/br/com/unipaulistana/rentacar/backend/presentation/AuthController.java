@@ -33,14 +33,27 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequestDto dto,
+            jakarta.servlet.http.HttpServletRequest httpRequest,
             jakarta.servlet.http.HttpServletResponse response) {
+        String ip = httpRequest.getRemoteAddr();
+
+        if (rateLimiterService.isBlocked(ip)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("error", "Muitas tentativas de cadastro. Tente novamente em 15 minutos."));
+        }
+
         try {
             Map<String, Object> authData = authService.register(dto);
+            rateLimiterService.loginSucceeded(ip);
             setAuthCookies(response, (String) authData.get("token"), (String) authData.get("refreshToken"));
             // Return only the user DTO — no token in body (it's in httpOnly cookie)
             return ResponseEntity.ok(Map.of("user", authData.get("user")));
         } catch (IllegalArgumentException e) {
+            rateLimiterService.loginFailed(ip);
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            rateLimiterService.loginFailed(ip);
+            throw e;
         }
     }
 
@@ -140,20 +153,20 @@ public class AuthController {
     // ── Cookie helpers ────────────────────────────────────────────────────────
 
     private void setAuthCookies(jakarta.servlet.http.HttpServletResponse response, String token, String refreshToken) {
-        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie("token", token, ACCESS_TOKEN_MAX_AGE).toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie("refreshToken", refreshToken, REFRESH_TOKEN_MAX_AGE).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie("token", token, ACCESS_TOKEN_MAX_AGE, "/").toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie("refreshToken", refreshToken, REFRESH_TOKEN_MAX_AGE, "/api/auth/refresh").toString());
     }
 
     private void clearAuthCookies(jakarta.servlet.http.HttpServletResponse response) {
-        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie("token", "", 0).toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie("refreshToken", "", 0).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie("token", "", 0, "/").toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie("refreshToken", "", 0, "/api/auth/refresh").toString());
     }
 
-    private ResponseCookie buildCookie(String name, String value, int maxAge) {
+    private ResponseCookie buildCookie(String name, String value, int maxAge, String path) {
         return ResponseCookie.from(name, value)
                 .httpOnly(true)
                 .secure(true)
-                .path("/")
+                .path(path)
                 .maxAge(maxAge)
                 .sameSite("Lax")
                 .build();

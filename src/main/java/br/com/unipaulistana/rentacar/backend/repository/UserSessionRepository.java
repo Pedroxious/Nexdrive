@@ -23,6 +23,8 @@ public interface UserSessionRepository extends JpaRepository<UserSession, Long> 
 
     Optional<UserSession> findByIdAndUser(Long id, User user);
 
+    Optional<UserSession> findByRefreshToken(String refreshToken);
+
     /**
      * Bulk-invalidates all active sessions for a given user.
      * Used after password change to revoke all existing sessions.
