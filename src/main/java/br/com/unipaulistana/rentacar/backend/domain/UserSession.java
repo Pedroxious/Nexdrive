@@ -25,4 +25,7 @@ public class UserSession {
     private String device;
     private LocalDateTime createdAt;
     private boolean active;
+
+    private String refreshToken;
+    private LocalDateTime refreshTokenExpiresAt;
 }

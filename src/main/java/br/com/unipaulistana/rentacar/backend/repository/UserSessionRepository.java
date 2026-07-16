@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface UserSessionRepository extends JpaRepository<UserSession, Long> {
     Optional<UserSession> findByTokenAndActiveTrue(String token);
+    Optional<UserSession> findByRefreshTokenAndActiveTrue(String refreshToken);
     List<UserSession> findByUserAndActiveTrueOrderByCreatedAtDesc(User user);
     Optional<UserSession> findByIdAndUser(Long id, User user);
 }

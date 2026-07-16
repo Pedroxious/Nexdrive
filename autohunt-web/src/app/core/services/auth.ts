@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs';
+import { tap, throwError } from 'rxjs';
 
 export interface User {
   id?: number;
@@ -26,6 +26,7 @@ export class AuthService {
 
   isLoggedIn = signal<boolean>(!!this.currentUser());
   token = signal<string | null>(localStorage.getItem('token'));
+  refreshToken = signal<string | null>(localStorage.getItem('refreshToken'));
 
   login(credentials: { email: string; password: string }) {
     return this.http.post<any>(`${this.apiUrl}/login`, {
@@ -33,7 +34,7 @@ export class AuthService {
       password: credentials.password
     }).pipe(
       tap(res => {
-        this.setSession(res.token, res.user);
+        this.setSession(res.token, res.refreshToken, res.user);
       })
     );
   }
@@ -65,17 +66,40 @@ export class AuthService {
     this.currentUser.set(null);
     this.isLoggedIn.set(false);
     this.token.set(null);
+    this.refreshToken.set(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe();
     this.router.navigate(['/']);
   }
 
-  private setSession(token: string, user: User) {
+  refreshAccessToken() {
+    const refreshToken = this.refreshToken();
+    if (!refreshToken) {
+      this.logout();
+      return throwError(() => new Error('Refresh token não encontrado'));
+    }
+
+    return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
+      tap({
+        next: (res) => {
+          this.setSession(res.token, res.refreshToken, res.user);
+        },
+        error: (err) => {
+          this.logout();
+        }
+      })
+    );
+  }
+
+  private setSession(token: string, refreshToken: string, user: User) {
     this.token.set(token);
+    this.refreshToken.set(refreshToken);
     this.currentUser.set(user);
     this.isLoggedIn.set(true);
     localStorage.setItem('token', token);
+    localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
   }
 }

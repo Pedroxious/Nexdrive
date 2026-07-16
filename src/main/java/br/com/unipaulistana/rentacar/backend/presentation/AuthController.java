@@ -20,9 +20,33 @@ public class AuthController {
     private final br.com.unipaulistana.rentacar.backend.service.LoginRateLimiterService rateLimiterService;
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> register(@RequestBody User user) {
-        String token = authService.register(user);
-        return ResponseEntity.ok(Map.of("token", token));
+    public ResponseEntity<?> register(
+            @RequestBody User user,
+            jakarta.servlet.http.HttpServletResponse response) {
+        Map<String, Object> authData = authService.register(user);
+        
+        String token = (String) authData.get("token");
+        String refreshToken = (String) authData.get("refreshToken");
+        
+        org.springframework.http.ResponseCookie responseCookie = org.springframework.http.ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(86400)
+                .sameSite("Lax")
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, responseCookie.toString());
+
+        org.springframework.http.ResponseCookie refreshCookie = org.springframework.http.ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(604800)
+                .sameSite("Lax")
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        return ResponseEntity.ok(authData);
     }
 
     @PostMapping("/login")
@@ -47,6 +71,8 @@ public class AuthController {
             }
 
             String token = (String) authData.get("token");
+            String refreshToken = (String) authData.get("refreshToken");
+
             org.springframework.http.ResponseCookie responseCookie = org.springframework.http.ResponseCookie.from("token", token)
                     .httpOnly(true)
                     .secure(true)
@@ -56,6 +82,15 @@ public class AuthController {
                     .build();
             response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, responseCookie.toString());
 
+            org.springframework.http.ResponseCookie refreshCookie = org.springframework.http.ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(604800)
+                    .sameSite("Lax")
+                    .build();
+            response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
             return ResponseEntity.ok(authData);
         } catch (Exception e) {
             rateLimiterService.loginFailed(ip);
@@ -63,6 +98,65 @@ public class AuthController {
                 rateLimiterService.loginFailed(email);
             }
             throw e;
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(
+            @RequestBody(required = false) Map<String, String> bodyRequest,
+            jakarta.servlet.http.HttpServletRequest httpRequest,
+            jakarta.servlet.http.HttpServletResponse response) {
+        
+        String refreshToken = null;
+        if (bodyRequest != null) {
+            refreshToken = bodyRequest.get("refreshToken");
+        }
+        
+        if (refreshToken == null) {
+            jakarta.servlet.http.Cookie[] cookies = httpRequest.getCookies();
+            if (cookies != null) {
+                for (jakarta.servlet.http.Cookie cookie : cookies) {
+                    if ("refreshToken".equals(cookie.getName())) {
+                        refreshToken = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (refreshToken == null) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Refresh token ausente"));
+        }
+        
+        try {
+            Map<String, Object> authData = authService.refreshToken(refreshToken);
+            
+            String token = (String) authData.get("token");
+            String newRefreshToken = (String) authData.get("refreshToken");
+            
+            org.springframework.http.ResponseCookie responseCookie = org.springframework.http.ResponseCookie.from("token", token)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(86400)
+                    .sameSite("Lax")
+                    .build();
+            response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, responseCookie.toString());
+
+            org.springframework.http.ResponseCookie refreshCookie = org.springframework.http.ResponseCookie.from("refreshToken", newRefreshToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(604800)
+                    .sameSite("Lax")
+                    .build();
+            response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, refreshCookie.toString());
+            
+            return ResponseEntity.ok(authData);
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -101,6 +195,16 @@ public class AuthController {
                 .sameSite("Lax")
                 .build();
         response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, responseCookie.toString());
+
+        org.springframework.http.ResponseCookie refreshCookie = org.springframework.http.ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        
         return ResponseEntity.ok().build();
     }
 }

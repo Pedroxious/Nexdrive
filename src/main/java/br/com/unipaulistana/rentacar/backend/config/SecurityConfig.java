@@ -42,6 +42,27 @@ public class SecurityConfig {
                         .referrerPolicy(referrer -> referrer
                                 .policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
                 )
+                .addFilterBefore(new org.springframework.web.filter.OncePerRequestFilter() {
+                    @Override
+                    protected void doFilterInternal(
+                            jakarta.servlet.http.HttpServletRequest request,
+                            jakarta.servlet.http.HttpServletResponse response,
+                            jakarta.servlet.FilterChain filterChain) throws jakarta.servlet.ServletException, java.io.IOException {
+                        String uri = request.getRequestURI();
+                        if (uri.startsWith("/oauth2/authorization/")) {
+                            if (org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() != null &&
+                                    org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
+                                    !(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
+                                response.sendRedirect("/");
+                                return;
+                            }
+                        } else if (uri.equals("/oauth2-login")) {
+                            response.sendRedirect("/login");
+                            return;
+                        }
+                        filterChain.doFilter(request, response);
+                    }
+                }, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         // Static resources (Angular build output)
                         .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
@@ -52,7 +73,7 @@ public class SecurityConfig {
                                 "/buy", "/rent", "/rent/**", "/car/**",
                                 "/favorites", "/my-rentals", "/profile", "/sell-car",
                                 "/about", "/faq", "/contact", "/privacy", "/terms",
-                                "/login", "/register", "/404"
+                                "/login", "/register", "/404", "/oauth2-login"
                         ).permitAll()
                         // Public API endpoints
                         .requestMatchers(
@@ -69,11 +90,17 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/rentals").hasRole("ADMIN")
                         // All other API requests require authentication
                         .anyRequest().authenticated())
+                .exceptionHandling(exceptions -> exceptions
+                        .defaultAuthenticationEntryPointFor(
+                                new org.springframework.security.web.authentication.HttpStatusEntryPoint(org.springframework.http.HttpStatus.UNAUTHORIZED),
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")
+                        )
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
+                        .loginPage("/oauth2-login")
                         .successHandler(oAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
                             String errorMessage = exception != null ? exception.getMessage() : "unknown";

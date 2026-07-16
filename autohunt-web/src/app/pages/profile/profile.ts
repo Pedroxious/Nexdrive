@@ -10,116 +10,193 @@ import { ToastService } from '../../core/services/toast';
     standalone: true,
     imports: [CommonModule, FormsModule],
     template: `
-    <div class="profile-page-wrapper">
-      <!-- BLOCO 1 — Dados Pessoais -->
-      <div class="profile-card">
-        <div class="profile-header">
-          <div class="avatar-edit" 
-               (click)="fileInput.click()"
-               (dragover)="onDragOver($event)"
-               (dragleave)="onDragLeave($event)"
-               (drop)="onDrop($event)">
-            
-            <div class="avatar-spinner-overlay" *ngIf="isSaving()">
-              <div class="spinner"></div>
+    <div class="account-settings-container animate-in">
+      <!-- SIDEBAR MENU -->
+      <aside class="sidebar-nav">
+        <button type="button" class="nav-item-btn" 
+                [class.active]="activeSection() === 'inicio'"
+                (click)="activeSection.set('inicio')">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          Página inicial
+        </button>
+        <button type="button" class="nav-item-btn" 
+                [class.active]="activeSection() === 'dados'"
+                (click)="activeSection.set('dados')">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          Dados pessoais
+        </button>
+        <button type="button" class="nav-item-btn" 
+                [class.active]="activeSection() === 'seguranca'"
+                (click)="activeSection.set('seguranca')">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          Segurança
+        </button>
+        <button type="button" class="nav-item-btn" 
+                [class.active]="activeSection() === 'privacidade'"
+                (click)="activeSection.set('privacidade')">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          Privacidade e dados
+        </button>
+      </aside>
+
+      <!-- MAIN CONTENT COLUMN -->
+      <main class="content-panel">
+        
+        <!-- ==================== TAB 1: PAGINA INICIAL ==================== -->
+        @if (activeSection() === 'inicio') {
+          <section class="tab-content-section animate-in">
+            <div class="welcome-header">
+              <h1>Olá, {{ editUser.fullName || user()?.fullName }}!</h1>
+              <p class="subtitle-text">Gerencie as informações, segurança e privacidade da sua conta Nexdrive.</p>
             </div>
 
-            <img [src]="editUser.profileImageUrl || 'https://ui-avatars.com/api/?name=' + user()?.fullName" alt="Avatar" *ngIf="!isSaving()">
-            
-            <div class="avatar-hover-overlay" *ngIf="!isSaving()">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-              <span>Alterar Foto</span>
-            </div>
-          </div>
-          <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
-          <div class="profile-title-group">
-            <h1>{{ editUser.fullName || user()?.fullName }}</h1>
-            <p class="profile-subtitle">{{ user()?.email }}</p>
-            
-            <div class="avatar-actions">
-              <button type="button" class="btn-action clickable" (click)="fileInput.click()">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                Alterar Foto
-              </button>
-              <button type="button" class="btn-action danger clickable" *ngIf="editUser.profileImageUrl" (click)="removePhoto()">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                Remover Foto
-              </button>
-              <button type="button" class="btn-action primary clickable" *ngIf="hasGooglePhoto()" (click)="restoreGooglePhoto()">
-                <svg width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1H12v2.7h5.38c-.24 1.28-.96 2.37-2.01 3.07v2.55h3.24c1.9-1.75 3-4.32 3-7.32 0-.63-.06-1.23-.27-2.0zM12 21c2.43 0 4.47-.8 5.96-2.18l-3.24-2.55c-.9.6-2.05.96-3.72.96-2.86 0-5.28-1.93-6.14-4.52H1.61v2.63C3.09 18.25 7.23 21 12 21zM5.86 12.71c-.22-.67-.34-1.38-.34-2.11s.12-1.44.34-2.11V5.86H1.61C.58 7.92 0 10.21 0 12.71s.58 4.79 1.61 6.85l4.25-3.0zM12 5.72c1.32 0 2.5.45 3.44 1.35l2.58-2.58C16.46 3.03 14.43 2.25 12 2.25 7.23 2.25 3.09 5 1.61 7.89l4.25 3.0C6.72 8.35 9.14 5.72 12 5.72z"/></svg>
-                Usar Foto do Google
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <form (ngSubmit)="save()" #profileForm="ngForm" class="profile-form">
-          <!-- Profile Completeness Indicator -->
-          <div class="completeness-wrapper">
-            <div class="completeness-header">
-              <span class="completeness-title">Completude do Perfil</span>
-              <span class="completeness-badge" [class.complete]="profileCompleteness() === 100">
-                {{ profileCompleteness() }}%
-              </span>
-            </div>
-            <div class="completeness-track">
-              <div class="completeness-bar" [style.width.%]="profileCompleteness()"></div>
-            </div>
-            <p class="completeness-tip" *ngIf="profileCompleteness() < 100">
-              Preencha seu telefone, data de nascimento e CPF para completar seu cadastro.
-            </p>
-            <p class="completeness-tip success" *ngIf="profileCompleteness() === 100">
-              Parabéns! Seu perfil está 100% preenchido.
-            </p>
-          </div>
-
-          <div class="form-sections-container">
-            <!-- SEÇÃO 1: Dados da Conta (Vinculados) -->
-            <div class="form-section-card">
-              <h3 class="section-title">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="title-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                Dados da Conta
-              </h3>
-              
-              <div class="input-group">
-                <label>Nome Completo</label>
-                <input type="text" 
-                       [(ngModel)]="editUser.fullName" 
-                       name="fullName" 
-                       class="glass-input" 
-                       [class.disabled]="isGoogleUser()" 
-                       [readonly]="isGoogleUser()"
-                       required>
-                <span class="field-meta" *ngIf="isGoogleUser()">
-                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lock-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                  Vinculado à sua conta Google
+            <!-- Profile Completeness Card -->
+            <div class="completeness-dashboard-card">
+              <div class="completeness-header">
+                <span class="completeness-title">Completude do Perfil</span>
+                <span class="completeness-badge" [class.complete]="profileCompleteness() === 100">
+                  {{ profileCompleteness() }}%
                 </span>
               </div>
-              
-              <div class="input-group">
-                <label>E-mail</label>
-                <input type="email" [value]="user()?.email" class="glass-input disabled" readonly disabled>
-                <span class="field-meta">
-                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lock-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                  Não editável (Identificação de Acesso)
-                </span>
+              <div class="completeness-track">
+                <div class="completeness-bar" [style.width.%]="profileCompleteness()"></div>
               </div>
+              <p class="completeness-tip" *ngIf="profileCompleteness() < 100">
+                Preencha seu telefone, data de nascimento e CPF na aba de Dados Pessoais para completar seu cadastro.
+              </p>
+              <p class="completeness-tip success" *ngIf="profileCompleteness() === 100">
+                Parabéns! Seu perfil está 100% preenchido.
+              </p>
             </div>
 
-            <!-- SEÇÃO 2: Dados Complementares (Editáveis) -->
-            <div class="form-section-card">
-              <h3 class="section-title">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="title-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                Dados Complementares
-              </h3>
-
-              <div class="form-grid">
-                <div class="input-group">
-                  <label>Telefone</label>
-                  <input type="text" [value]="editUser.phone || ''" (input)="onPhoneInput($event)" placeholder="(00) 00000-0000" class="glass-input">
+            <!-- Account Dashboard Shortcuts -->
+            <div class="dashboard-grid">
+              <div class="dashboard-shortcut-card clickable" (click)="activeSection.set('dados')">
+                <div class="shortcut-icon-wrapper">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 </div>
+                <div class="shortcut-details">
+                  <h3>Dados pessoais</h3>
+                  <p>Veja e edite suas informações básicas, como nome, telefone, data de nascimento e CPF, além da sua foto de perfil.</p>
+                  <span class="shortcut-action">Gerenciar dados pessoais &rarr;</span>
+                </div>
+              </div>
+
+              <div class="dashboard-shortcut-card clickable" (click)="activeSection.set('seguranca')">
+                <div class="shortcut-icon-wrapper">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <div class="shortcut-details">
+                  <h3>Segurança</h3>
+                  <p>Acesse chaves de segurança, altere sua senha, gerencie a autenticação em duas etapas e desconecte sessões ativas.</p>
+                  <span class="shortcut-action">Configurar segurança &rarr;</span>
+                </div>
+              </div>
+
+              <div class="dashboard-shortcut-card clickable" (click)="activeSection.set('privacidade')">
+                <div class="shortcut-icon-wrapper">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </div>
+                <div class="shortcut-details">
+                  <h3>Privacidade e dados</h3>
+                  <p>Controle as permissões de aplicativos de terceiros, gerencie preferências de comunicação e acesse a central de privacidade.</p>
+                  <span class="shortcut-action">Acessar privacidade &rarr;</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        }
+
+        <!-- ==================== TAB 2: DADOS PESSOAIS ==================== -->
+        @if (activeSection() === 'dados') {
+          <section class="tab-content-section animate-in">
+            <div class="section-header-uber">
+              <h1>Dados pessoais</h1>
+              <p class="subtitle-text">Informações básicas sobre você usadas no Nexdrive</p>
+            </div>
+
+            <!-- Avatar Upload Area -->
+            <div class="avatar-settings-card">
+              <div class="avatar-edit" 
+                   (click)="fileInput.click()"
+                   (dragover)="onDragOver($event)"
+                   (dragleave)="onDragLeave($event)"
+                   (drop)="onDrop($event)">
                 
-                <div class="input-group">
+                <div class="avatar-spinner-overlay" *ngIf="isSaving()">
+                  <div class="spinner"></div>
+                </div>
+
+                <img [src]="editUser.profileImageUrl || 'https://ui-avatars.com/api/?name=' + user()?.fullName" alt="Avatar" *ngIf="!isSaving()">
+                
+                <div class="avatar-hover-overlay" *ngIf="!isSaving()">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  <span>Alterar Foto</span>
+                </div>
+              </div>
+              <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+              
+              <div class="avatar-meta-group">
+                <h3>Foto de perfil</h3>
+                <p>Arraste uma foto ou clique no avatar para selecionar um arquivo. Recomendamos uma foto quadrada 1:1.</p>
+                <div class="avatar-actions">
+                  <button type="button" class="btn-action clickable" (click)="fileInput.click()">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    Alterar Foto
+                  </button>
+                  <button type="button" class="btn-action danger clickable" *ngIf="editUser.profileImageUrl" (click)="removePhoto()">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    Remover Foto
+                  </button>
+                  <button type="button" class="btn-action primary clickable" *ngIf="hasGooglePhoto()" (click)="restoreGooglePhoto()">
+                    <svg width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1H12v2.7h5.38c-.24 1.28-.96 2.37-2.01 3.07v2.55h3.24c1.9-1.75 3-4.32 3-7.32 0-.63-.06-1.23-.27-2.0zM12 21c2.43 0 4.47-.8 5.96-2.18l-3.24-2.55c-.9.6-2.05.96-3.72.96-2.86 0-5.28-1.93-6.14-4.52H1.61v2.63C3.09 18.25 7.23 21 12 21zM5.86 12.71c-.22-.67-.34-1.38-.34-2.11s.12-1.44.34-2.11V5.86H1.61C.58 7.92 0 10.21 0 12.71s.58 4.79 1.61 6.85l4.25-3.0zM12 5.72c1.32 0 2.5.45 3.44 1.35l2.58-2.58C16.46 3.03 14.43 2.25 12 2.25 7.23 2.25 3.09 5 1.61 7.89l4.25 3.0C6.72 8.35 9.14 5.72 12 5.72z"/></svg>
+                    Usar Foto do Google
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Fields Form -->
+            <form (ngSubmit)="save()" #profileForm="ngForm" class="profile-form-uber">
+              <div class="form-grid-uber">
+                <!-- Nome Completo (Google Locked conditional) -->
+                <div class="input-group-uber">
+                  <label>Nome Completo</label>
+                  <div class="input-with-icon-wrapper">
+                    <input type="text" 
+                           [(ngModel)]="editUser.fullName" 
+                           name="fullName" 
+                           class="uber-input" 
+                           [class.disabled]="isGoogleUser()" 
+                           [readonly]="isGoogleUser()"
+                           required>
+                    <svg *ngIf="isGoogleUser()" class="input-lock-icon google" viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.2-5.136 4.2A5.67 5.67 0 0 1 8.3 12.915a5.67 5.67 0 0 1 5.69-5.685c1.47 0 2.82.55 3.84 1.485l3.235-3.236A10.15 10.15 0 0 0 13.99 2.25c-5.69 0-10.3 4.61-10.3 10.3s4.61 10.3 10.3 10.3c6.04 0 10.375-4.25 10.375-10.56 0-.66-.08-1.28-.225-1.805H12.24z"/></svg>
+                  </div>
+                  <span class="field-meta" *ngIf="isGoogleUser()">
+                    Vinculado à sua conta Google (não editável)
+                  </span>
+                </div>
+
+                <!-- E-mail (Always read-only/locked) -->
+                <div class="input-group-uber">
+                  <label>E-mail</label>
+                  <div class="input-with-icon-wrapper">
+                    <input type="email" [value]="user()?.email" class="uber-input disabled" readonly disabled>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" class="input-lock-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  </div>
+                  <span class="field-meta">
+                    Identificação de acesso da conta (não editável)
+                  </span>
+                </div>
+
+                <!-- Telefone -->
+                <div class="input-group-uber">
+                  <label>Telefone</label>
+                  <input type="text" [value]="editUser.phone || ''" (input)="onPhoneInput($event)" placeholder="(00) 00000-0000" class="uber-input">
+                </div>
+
+                <!-- Data de Nascimento -->
+                <div class="input-group-uber">
                   <label>Data de Nascimento</label>
                   <div class="datepicker-container">
                     <input 
@@ -128,7 +205,7 @@ import { ToastService } from '../../core/services/toast';
                       readonly 
                       (click)="toggleDatePicker($event)" 
                       placeholder="DD/MM/AAAA" 
-                      class="glass-input clickable datepicker-trigger"
+                      class="uber-input clickable datepicker-trigger"
                     >
                     <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -143,20 +220,20 @@ import { ToastService } from '../../core/services/toast';
                         <!-- Header -->
                         <div class="datepicker-header">
                           <button type="button" class="nav-btn" (click)="prevMonth($event)">
-                            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <polyline points="15 18 9 12 15 6"></polyline>
                             </svg>
                           </button>
                           
                           <button type="button" class="month-year-label" (click)="togglePickerMode($event)">
                             {{ currentMonthYearLabel }}
-                            <svg class="chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                           </button>
                           
                           <button type="button" class="nav-btn" (click)="nextMonth($event)" [disabled]="isCurrentMonthYear">
-                            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <polyline points="9 18 15 12 9 6"></polyline>
                             </svg>
                           </button>
@@ -164,14 +241,12 @@ import { ToastService } from '../../core/services/toast';
 
                         <!-- Mode 1: Calendar View -->
                         @if (datePickerMode() === 'calendar') {
-                          <!-- Weekdays -->
                           <div class="weekdays-grid">
                             @for (day of weekdays; track day) {
                               <div class="weekday">{{ day }}</div>
                             }
                           </div>
 
-                          <!-- Days Grid -->
                           <div class="days-grid">
                             @for (cell of daysGrid; track $index) {
                               @if (cell.isCurrentMonth) {
@@ -197,7 +272,6 @@ import { ToastService } from '../../core/services/toast';
                         <!-- Mode 2: Month/Year Selection View -->
                         @if (datePickerMode() === 'month-year') {
                           <div class="month-year-picker">
-                            <!-- Months list -->
                             <div class="picker-column months-list">
                               @for (m of shortMonths; let idx = $index; track m) {
                                 <button 
@@ -212,7 +286,6 @@ import { ToastService } from '../../core/services/toast';
                               }
                             </div>
                             
-                            <!-- Years list -->
                             <div class="picker-column years-list">
                               @for (y of yearsRange; track y) {
                                 <button 
@@ -238,105 +311,305 @@ import { ToastService } from '../../core/services/toast';
                   </div>
                 </div>
 
-                <div class="input-group">
+                <!-- CPF -->
+                <div class="input-group-uber">
                   <label>CPF</label>
-                  <input type="text" [value]="editUser.cpf || ''" (input)="onCpfInput($event)" placeholder="000.000.000-00" class="glass-input">
+                  <input type="text" [value]="editUser.cpf || ''" (input)="onCpfInput($event)" placeholder="000.000.000-00" class="uber-input">
                 </div>
               </div>
+
+              <div class="form-actions-uber">
+                <button type="submit" class="save-btn-uber clickable" [disabled]="isSaving()">
+                  <div class="spinner-small" *ngIf="isSaving()"></div>
+                  {{ isSaving() ? 'Salvando...' : 'Salvar Alterações' }}
+                </button>
+              </div>
+            </form>
+          </section>
+        }
+
+        <!-- ==================== TAB 3: SEGURANÇA ==================== -->
+        @if (activeSection() === 'seguranca') {
+          <section class="tab-content-section animate-in">
+            <div class="section-header-uber">
+              <h1>Segurança</h1>
+              <p class="subtitle-text">Fazer login na Nexdrive</p>
             </div>
-          </div>
 
-          <div class="actions">
-            <button type="submit" class="save-btn clickable" [disabled]="isSaving()">
-              <div class="spinner-small" *ngIf="isSaving()"></div>
-              {{ isSaving() ? 'Salvando...' : 'Salvar Alterações' }}
-            </button>
-          </div>
-        </form>
-      </div>
+            <!-- Clean list group (Uber clean list style with beautiful left-hand icons) -->
+            <div class="uber-clean-list">
+              
+              <!-- Chaves de acesso -->
+              <div class="uber-list-item clickable" (click)="showInfoToast('Chaves de acesso')">
+                <div class="item-left-group">
+                  <div class="item-icon-box passkey">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Chaves de acesso</span>
+                    <span class="item-description">As chaves de acesso são mais práticas e seguras do que as senhas.</span>
+                  </div>
+                </div>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
 
-      <!-- BLOCO 2 — Segurança -->
-      <div class="profile-card">
-        <div class="profile-header no-avatar">
-          <h1>Segurança</h1>
-          <p class="profile-subtitle">Gerencie suas credenciais de acesso e sessões ativas</p>
-        </div>
+              <!-- Senha (Toggles Form) -->
+              <div class="uber-list-item-collapsible">
+                <div class="uber-list-item clickable" (click)="togglePasswordForm()">
+                  <div class="item-left-group">
+                    <div class="item-icon-box password">
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </div>
+                    <div class="item-content">
+                      <span class="item-title">Senha</span>
+                      <span class="item-description">•••••••• {{ user()?.lastLoginAt ? '(Última alteração: ' + formatSessionDate(user()!.lastLoginAt!) + ')' : '' }}</span>
+                    </div>
+                  </div>
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon" [class.rotated]="showPasswordForm()"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
 
-        <form (ngSubmit)="changePassword()" class="profile-form">
-          <div class="form-grid single-column">
-            <div class="input-group">
-              <label>Senha Atual</label>
-              <input type="password" [(ngModel)]="currentPassword" name="currentPassword" class="glass-input" required>
+                <!-- Password Form Panel -->
+                @if (showPasswordForm()) {
+                  <div class="password-form-panel animate-in">
+                    <form (ngSubmit)="changePassword()" class="inner-password-form">
+                      <div class="form-grid-uber single-column">
+                        <div class="input-group-uber">
+                          <label>Senha Atual</label>
+                          <input type="password" [(ngModel)]="currentPassword" name="currentPassword" class="uber-input" required>
+                        </div>
+                        <div class="input-group-uber">
+                          <label>Nova Senha</label>
+                          <input type="password" [ngModel]="newPassword()" (ngModelChange)="onNewPasswordChange($event)" name="newPassword" class="uber-input" required>
+                          <div class="strength-bar-container">
+                            <div class="strength-bar" [class]="passwordStrength()"></div>
+                          </div>
+                        </div>
+                        <div class="input-group-uber">
+                          <label>Confirmar Nova Senha</label>
+                          <input type="password" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" name="confirmPassword" class="uber-input" required>
+                          @if (newPassword() && confirmPassword() && newPassword() !== confirmPassword()) {
+                            <span class="error-text">As senhas não coincidem.</span>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="form-actions-uber">
+                        <button type="submit" class="save-btn-uber" [disabled]="isSavingPassword() || (newPassword() !== confirmPassword()) || !newPassword()">
+                          {{ isSavingPassword() ? 'Alterando...' : 'Alterar Senha' }}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                }
+              </div>
+
+              <!-- App de autenticação -->
+              <div class="uber-list-item clickable" (click)="showInfoToast('App de autenticação')">
+                <div class="item-left-group">
+                  <div class="item-icon-box mfa">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">App de autenticação</span>
+                    <span class="item-description">Configure seu app de autenticação para aumentar a segurança.</span>
+                  </div>
+                </div>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
+
+              <!-- Verificação em duas etapas -->
+              <div class="uber-list-item">
+                <div class="item-left-group">
+                  <div class="item-icon-box double-factor">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Verificação em duas etapas</span>
+                    <span class="item-description">Adicione mais segurança à sua conta com a verificação em duas etapas.</span>
+                  </div>
+                </div>
+                <label class="switch-item clickable">
+                  <input type="checkbox" [checked]="twoFactorEnabled()" (change)="twoFactorEnabled.set(!twoFactorEnabled())">
+                  <span class="switch"></span>
+                </label>
+              </div>
+
+              <!-- Telefone para recuperação -->
+              <div class="uber-list-item clickable" (click)="showInfoToast('Telefone para recuperação')">
+                <div class="item-left-group">
+                  <div class="item-icon-box phone">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Telefone para recuperação</span>
+                    <span class="item-description">Adicione um número de telefone alternativo para acessar sua conta.</span>
+                  </div>
+                </div>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
+
             </div>
-            <div class="input-group">
-              <label>Nova Senha</label>
-              <input type="password" [ngModel]="newPassword()" (ngModelChange)="onNewPasswordChange($event)" name="newPassword" class="glass-input" required>
-              <div class="strength-bar-container">
-                <div class="strength-bar" [class]="passwordStrength()"></div>
+
+            <!-- Social Connected Section -->
+            <div class="uber-section-divider"></div>
+            
+            <div class="section-subheader-uber">
+              <h2>Apps de redes sociais conectados</h2>
+              <p class="subtitle-text">Gerencie seus apps de redes sociais para se conectar à conta da Nexdrive aqui.</p>
+            </div>
+
+            <div class="uber-clean-list no-top-border">
+              
+              <!-- Apple Connect -->
+              <div class="social-connect-row">
+                <div class="social-branding">
+                  <div class="social-logo-box apple">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-.96.04-2.13.64-2.82 1.45-.6.7-1.13 1.84-.99 2.94.1.08.2.12.3.12.87 0 1.96-.58 2.52-1.45"/></svg>
+                  </div>
+                  <span class="social-name">Apple</span>
+                </div>
+                <button type="button" class="btn-uber-action" (click)="toggleAppleConnection()">
+                  {{ appleConnected() ? 'Desconectar' : 'Conectar-se' }}
+                </button>
+              </div>
+
+              <!-- Google Connect -->
+              <div class="social-connect-row">
+                <div class="social-branding">
+                  <div class="social-logo-box google">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21.35 11.1H12v2.7h5.38c-.24 1.28-.96 2.37-2.01 3.07v2.55h3.24c1.9-1.75 3-4.32 3-7.32 0-.63-.06-1.23-.27-2.0zM12 21c2.43 0 4.47-.8 5.96-2.18l-3.24-2.55c-.9.6-2.05.96-3.72.96-2.86 0-5.28-1.93-6.14-4.52H1.61v2.63C3.09 18.25 7.23 21 12 21zM5.86 12.71c-.22-.67-.34-1.38-.34-2.11s.12-1.44.34-2.11V5.86H1.61C.58 7.92 0 10.21 0 12.71s.58 4.79 1.61 6.85l4.25-3.0zM12 5.72c1.32 0 2.5.45 3.44 1.35l2.58-2.58C16.46 3.03 14.43 2.25 12 2.25 7.23 2.25 3.09 5 1.61 7.89l4.25 3.0C6.72 8.35 9.14 5.72 12 5.72z"/></svg>
+                  </div>
+                  <span class="social-name">Google</span>
+                </div>
+                <button type="button" class="btn-uber-action" (click)="toggleGoogleConnection()">
+                  {{ isGoogleUser() ? 'Desconectar' : 'Conectar-se' }}
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Login Activity Section -->
+            <div class="uber-section-divider"></div>
+            
+            <div class="section-subheader-uber">
+              <h2>Atividade de login</h2>
+              <p class="subtitle-text">Você fez login nesses dispositivos nos últimos 30 dias. Podem aparecer vários logins do mesmo dispositivo.</p>
+            </div>
+
+            <!-- Current Active Session Card -->
+            <div class="current-session-card-uber">
+              <div class="device-icon-box">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              </div>
+              <div class="session-details">
+                <div class="session-title-row">
+                  <h3>Chrome on Windows</h3>
+                  <span class="badge-current-dot"></span>
+                  <span class="badge-current-text">Seu login atual</span>
+                </div>
+                <p class="geo-info">São Paulo, Brasil</p>
+                <p class="platform-info">Página da plataforma do Nexdrive</p>
               </div>
             </div>
-            <div class="input-group">
-              <label>Confirmar Nova Senha</label>
-              <input type="password" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" name="confirmPassword" class="glass-input" required>
-              @if (newPassword() && confirmPassword() && newPassword() !== confirmPassword()) {
-                <span class="error-text">As senhas não coincidem.</span>
+
+            <!-- Other Sessions List -->
+            <div class="uber-clean-list no-top-border">
+              @for (session of sessions(); track session.id) {
+                @if (!session.isCurrent) {
+                  <div class="uber-list-item session-row">
+                    <div class="item-left-group">
+                      <div class="device-icon-box other-device">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                      </div>
+                      <div class="item-content">
+                        <span class="item-title">{{ session.device }}</span>
+                        <span class="item-description">Iniciado em: {{ formatSessionDate(session.createdAt) }} &bull; São Paulo, Brasil</span>
+                      </div>
+                    </div>
+                    <button type="button" class="btn-terminate-session-uber" (click)="terminateSession(session.id)">Encerrar</button>
+                  </div>
+                }
               }
             </div>
-          </div>
 
-          <div class="actions">
-            <button type="submit" class="save-btn" [disabled]="isSavingPassword() || (newPassword() !== confirmPassword()) || !newPassword()">
-              {{ isSavingPassword() ? 'Alterando...' : 'Alterar Senha' }}
-            </button>
-          </div>
-        </form>
-
-        <div class="security-meta">
-          <p class="last-access-text">{{ formatLastLogin(user()?.lastLoginAt) }}</p>
-        </div>
-
-        <!-- Sessões Ativas -->
-        <div class="sessions-section">
-          <h3>Sessões Ativas</h3>
-          <div class="sessions-list">
-            @for (session of sessions(); track session.id) {
-              <div class="session-item">
-                <div class="session-info">
-                  <span class="session-device">{{ session.device }}</span>
-                  <span class="session-date">Início: {{ formatSessionDate(session.createdAt) }}</span>
-                </div>
-                <div class="session-actions">
-                  @if (session.isCurrent) {
-                    <span class="current-session-badge">Sessão atual</span>
-                  } @else {
-                    <button type="button" class="terminate-btn clickable" (click)="terminateSession(session.id)">Encerrar</button>
-                  }
-                </div>
+            <!-- Terminate All Actions -->
+            <div class="terminate-all-action-row clickable" (click)="terminateAllSessions()">
+              <div class="terminate-icon-box">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
               </div>
-            } @empty {
-              <p class="no-sessions-text">Nenhuma sessão ativa encontrada.</p>
-            }
-          </div>
-        </div>
-
-        <!-- 2FA -->
-        <div class="two-factor-card-section">
-          <div class="settings-row">
-            <div class="settings-text">
-              <span class="settings-title">Autenticação em dois fatores (2FA)</span>
-              <span class="settings-desc">Adicione uma camada extra de segurança à sua conta</span>
+              <div class="terminate-details">
+                <span class="title">Terminar sessão em todos os dispositivos</span>
+                <span class="description">Todos, exceto seu login atual</span>
+              </div>
             </div>
-            <label class="switch-item clickable">
-              <input type="checkbox" [checked]="twoFactorEnabled()" (change)="twoFactorEnabled.set(!twoFactorEnabled())">
-              <span class="switch"></span>
-            </label>
-          </div>
-        </div>
-      </div>
+
+          </section>
+        }
+
+        <!-- ==================== TAB 4: PRIVACIDADE E DADOS ==================== -->
+        @if (activeSection() === 'privacidade') {
+          <section class="tab-content-section animate-in">
+            <div class="section-header-uber">
+              <h1>Privacidade e dados</h1>
+              <p class="subtitle-text">Privacidade</p>
+            </div>
+
+            <div class="uber-clean-list">
+              
+              <!-- Central de privacidade -->
+              <div class="uber-list-item clickable" (click)="showInfoToast('Central de privacidade')">
+                <div class="item-left-group">
+                  <div class="item-icon-box privacy">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Central de privacidade</span>
+                    <span class="item-description">Controle a privacidade dos seus dados pessoais e descubra como os protegemos.</span>
+                  </div>
+                </div>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="chevron-icon"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
+
+              <!-- Preferências de comunicação -->
+              <div class="uber-list-item clickable" (click)="showInfoToast('Preferências de comunicação')">
+                <div class="item-left-group">
+                  <div class="item-icon-box communication">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                  </div>
+                  <div class="item-content">
+                    <span class="item-title">Preferências de comunicação</span>
+                    <span class="item-description">Gerencie como o Nexdrive entra em contato com você.</span>
+                  </div>
+                </div>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="chevron-icon"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
+
+            </div>
+
+            <!-- Apps de terceiros com acesso -->
+            <div class="uber-section-divider"></div>
+            
+            <div class="section-subheader-uber">
+              <h2>Apps de terceiros com acesso à conta</h2>
+              <p class="subtitle-text">
+                Os apps de terceiros com permissão de acesso à sua conta aparecem aqui. 
+                <a href="javascript:void(0)" class="cyan-link" (click)="saibaMaisPrivacidade()">Saiba mais</a>
+              </p>
+            </div>
+            
+            <div class="empty-third-party-box">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" class="box-icon"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              <p>Nenhum aplicativo de terceiros tem permissão de acesso à sua conta atualmente.</p>
+            </div>
+
+          </section>
+        }
+
+      </main>
 
       <!-- Cropper Modal Overlay -->
       <div class="cropper-overlay" *ngIf="showCropModal()">
-        <div class="cropper-container">
+        <div class="cropper-container animate-in">
           <div class="cropper-card-header">
             <h3>Ajustar Foto de Perfil</h3>
             <button type="button" class="close-btn" (click)="closeCropModal()">&times;</button>
@@ -361,14 +634,13 @@ import { ToastService } from '../../core/services/toast';
                    alt="Crop Image"
                    draggable="false">
               
-              <!-- Circle Mask Overlay -->
               <div class="crop-mask"></div>
             </div>
           </div>
           
           <div class="cropper-controls">
             <div class="zoom-control">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
               <input type="range" 
                      [min]="minZoom()" 
                      [max]="maxZoom()" 
@@ -376,7 +648,7 @@ import { ToastService } from '../../core/services/toast';
                      [value]="zoomLevel()" 
                      (input)="onZoomSliderChange($event)"
                      class="zoom-slider">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
             </div>
             
             <p class="crop-instructions">Dica: Arraste a foto para reposicionar ou use a roda do mouse para dar zoom.</p>
@@ -390,51 +662,339 @@ import { ToastService } from '../../core/services/toast';
       </div>
     </div>
   `,
+
     styles: [`
-    .profile-page-wrapper {
-      max-width: 800px;
+    .account-settings-container {
+      display: flex;
+      max-width: 1150px;
       margin: 40px auto;
+      gap: 48px;
+      padding: 0 24px;
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 24px;
+        margin: 16px auto;
+        padding: 0 16px;
+      }
+    }
+    
+    .sidebar-nav {
+      width: 250px;
       display: flex;
       flex-direction: column;
-      gap: 30px;
-      padding: 0 20px;
+      gap: 8px;
+      flex-shrink: 0;
+      
+      @media (max-width: 768px) {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        border-bottom: 1.5px solid var(--border);
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+          display: none;
+        }
+      }
     }
-    .profile-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 40px;
-      box-shadow: var(--shadow-sm);
-    }
-    .profile-header {
+    
+    .nav-item-btn {
       display: flex;
       align-items: center;
-      gap: 24px;
-      margin-bottom: 36px;
+      gap: 14px;
+      width: 100%;
+      padding: 14px 20px;
+      background: transparent;
+      border: none;
+      border-left: 4px solid transparent;
+      color: var(--text-secondary);
+      font-size: 14.5px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      opacity: 0.85;
       
-      &.no-avatar {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 8px;
+      .nav-icon {
+        color: var(--text-muted);
+        transition: all 0.25s ease;
       }
       
-      .profile-title-group {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
+      &:hover {
+        opacity: 1;
+        color: var(--text-primary);
+        background-color: var(--surface-secondary);
+        border-left-color: var(--border);
+        transform: translateX(4px);
+        
+        .nav-icon {
+          color: var(--accent);
+          transform: scale(1.1);
+        }
       }
       
+      &.active {
+        opacity: 1;
+        color: var(--accent);
+        background-color: var(--surface-secondary);
+        border-left-color: var(--accent);
+        font-weight: 700;
+        box-shadow: var(--shadow-xs);
+        
+        .nav-icon {
+          color: var(--accent);
+          transform: scale(1.1);
+        }
+      }
+      
+      @media (max-width: 768px) {
+        width: auto;
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 3.5px solid transparent;
+        border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+        padding: 12px 18px;
+        
+        &:hover {
+          transform: none;
+        }
+        
+        &.active {
+          border-bottom-color: var(--accent);
+          box-shadow: none;
+        }
+      }
+    }
+    
+    .content-panel {
+      flex-grow: 1;
+      min-width: 0;
+    }
+    
+    .tab-content-section {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      text-align: left;
+    }
+    
+    .welcome-header, .section-header-uber {
       h1 {
-        font-size: 26px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 32px;
         font-weight: 800;
         color: var(--text-primary);
-        margin: 0;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.8px;
+        line-height: 1.2;
       }
       
-      .profile-subtitle {
+      .subtitle-text {
+        font-size: 15px;
+        color: var(--text-secondary);
+        margin: 0;
+        line-height: 1.6;
+      }
+    }
+    
+    .section-subheader-uber {
+      text-align: left;
+      h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 8px 0;
+        letter-spacing: -0.4px;
+      }
+      
+      .subtitle-text {
         font-size: 14px;
         color: var(--text-secondary);
         margin: 0;
+        line-height: 1.6;
+      }
+    }
+    
+    /* Completeness card */
+    .completeness-dashboard-card {
+      padding: 26px;
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-secondary) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 120px;
+        height: 100%;
+        background: radial-gradient(circle at 100% 0%, var(--accent-light) 0%, transparent 70%);
+        pointer-events: none;
+      }
+    }
+    
+    .completeness-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    
+    .completeness-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .completeness-badge {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--accent);
+      padding: 5px 10px;
+      background: rgba(0, 191, 234, 0.12);
+      border-radius: var(--radius-xs);
+      border: 1px solid rgba(0, 191, 234, 0.18);
+      
+      &.complete {
+        color: var(--success);
+        background: rgba(16, 185, 129, 0.12);
+        border-color: rgba(16, 185, 129, 0.2);
+      }
+    }
+    
+    .completeness-track {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    
+    .completeness-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent) 0%, #00e5a8 100%);
+      border-radius: var(--radius-full);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .completeness-tip {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      
+      &.success {
+        color: var(--success);
+        font-weight: 600;
+      }
+    }
+    
+    /* Shortcuts grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+    
+    .dashboard-shortcut-card {
+      padding: 26px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-sm);
+      
+      .shortcut-icon-wrapper {
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        background: var(--surface-secondary);
+        border-radius: var(--radius-md);
+        border: 1.5px solid var(--border);
+        transition: all 0.3s ease;
+      }
+      
+      .shortcut-details {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex-grow: 1;
+        
+        h3 {
+          margin: 0;
+          font-size: 17px;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+        
+        p {
+          margin: 0;
+          font-size: 13.5px;
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+      }
+      
+      .shortcut-action {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent);
+        margin-top: auto;
+        display: inline-block;
+        transition: transform 0.25s ease;
+      }
+      
+      &.clickable {
+        cursor: pointer;
+        
+        &:hover {
+          border-color: var(--accent);
+          box-shadow: var(--shadow-md), 0 0 0 1px var(--accent-light);
+          transform: translateY(-4px);
+          
+          .shortcut-icon-wrapper {
+            background-color: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--accent);
+          }
+          
+          .shortcut-action {
+            transform: translateX(6px);
+          }
+        }
+      }
+    }
+    
+    /* Avatar Edit Panel */
+    .avatar-settings-card {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      
+      @media (max-width: 600px) {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px;
       }
     }
     
@@ -446,9 +1006,11 @@ import { ToastService } from '../../core/services/toast';
       cursor: pointer;
       overflow: hidden;
       flex-shrink: 0;
-      border: 4px solid var(--border);
-      box-shadow: var(--shadow-sm);
-      transition: all 0.3s ease;
+      border: 4px solid var(--surface-secondary);
+      outline: 2px dashed rgba(0, 191, 234, 0.25);
+      outline-offset: 4px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       
       img {
         width: 100%;
@@ -457,17 +1019,12 @@ import { ToastService } from '../../core/services/toast';
         object-fit: cover;
       }
       
-      &.drag-over {
-        border-color: var(--accent);
-        box-shadow: 0 0 12px var(--accent);
-        transform: scale(1.05);
-      }
-      
       &:hover {
-        border-color: var(--accent);
+        outline-color: var(--accent);
+        transform: scale(1.02);
         
         img {
-          filter: brightness(0.4);
+          filter: brightness(0.4) blur(1px);
         }
         
         .avatar-hover-overlay {
@@ -484,13 +1041,12 @@ import { ToastService } from '../../core/services/toast';
         justify-content: center;
         gap: 6px;
         color: var(--text-inverse);
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.25s ease;
         text-align: center;
-        pointer-events: none;
-        background: rgba(10, 22, 40, 0.6);
+        background: rgba(10, 22, 40, 0.7);
         
         .camera-icon {
           stroke: var(--text-inverse);
@@ -503,11 +1059,11 @@ import { ToastService } from '../../core/services/toast';
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(10, 22, 40, 0.7);
+        background: rgba(10, 22, 40, 0.75);
         
         .spinner {
-          width: 24px;
-          height: 24px;
+          width: 28px;
+          height: 28px;
           border: 3px solid rgba(255, 255, 255, 0.2);
           border-top-color: var(--accent);
           border-radius: 50%;
@@ -515,182 +1071,69 @@ import { ToastService } from '../../core/services/toast';
         }
       }
     }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Profile Completeness Styles */
-    .completeness-wrapper {
-      margin-bottom: 28px;
-      padding: 20px;
-      background: var(--surface-secondary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      text-align: left;
-    }
     
-    .completeness-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    
-    .completeness-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-secondary);
-    }
-    
-    .completeness-badge {
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--accent);
-      padding: 4px 8px;
-      background: rgba(0, 191, 234, 0.08);
-      border-radius: var(--radius-xs);
-      
-      &.complete {
-        color: var(--success);
-        background: rgba(16, 185, 129, 0.08);
-      }
-    }
-    
-    .completeness-track {
-      width: 100%;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-    
-    .completeness-bar {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 3px;
-      transition: width 0.3s ease-out;
-    }
-    
-    .completeness-tip {
-      margin: 0;
-      font-size: 11px;
-      color: var(--text-secondary);
-      
-      &.success {
-        color: var(--success);
-        font-weight: 600;
-      }
-    }
-    
-    /* Layout cards & sections */
-    .form-sections-container {
+    .avatar-meta-group {
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      margin-bottom: 30px;
-    }
-    
-    .form-section-card {
-      padding: 24px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      gap: 8px;
       text-align: left;
-    }
-    
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
       
-      .title-icon {
-        color: var(--accent);
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      
+      p {
+        margin: 0;
+        font-size: 13.5px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        max-width: 480px;
+      }
+      
+      @media (max-width: 600px) {
+        text-align: center;
+        align-items: center;
       }
     }
     
-    .field-meta {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-top: 6px;
-      
-      .lock-icon {
-        stroke: var(--text-muted);
-      }
-    }
-    
-    .glass-input.disabled {
-      background-color: var(--surface-secondary) !important;
-      border-color: var(--border) !important;
-      color: var(--text-muted) !important;
-      cursor: not-allowed !important;
-      opacity: 0.8 !important;
-    }
-    
-    /* Button loading spinner */
-    .save-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
-    .spinner-small {
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    /* Avatar Actions Under Name/Email */
     .avatar-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       margin-top: 12px;
+      
+      @media (max-width: 600px) {
+        justify-content: center;
+      }
     }
     
     .btn-action {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       background: none;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       color: var(--text-secondary);
       font-family: inherit;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
-      padding: 6px 12px;
+      padding: 8px 16px;
       cursor: pointer;
       background-color: var(--surface-secondary);
-      transition: all 0.2s ease;
+      transition: all 0.25s ease;
       
       &:hover {
         background-color: var(--border);
         color: var(--text-primary);
-        border-color: var(--text-secondary);
       }
       
       &.danger {
-        border-color: rgba(239, 68, 68, 0.3);
-        background-color: rgba(239, 68, 68, 0.05);
+        border-color: rgba(239, 68, 68, 0.2);
+        background-color: rgba(239, 68, 68, 0.04);
         color: #ef4444;
         
         &:hover {
@@ -701,243 +1144,92 @@ import { ToastService } from '../../core/services/toast';
       }
       
       &.primary {
-        border-color: rgba(0, 191, 234, 0.3);
-        background-color: rgba(0, 191, 234, 0.05);
+        border-color: rgba(0, 191, 234, 0.25);
+        background-color: rgba(0, 191, 234, 0.04);
         color: var(--accent);
         
         &:hover {
           background-color: var(--accent);
-          color: white;
+          color: var(--bg-navbar);
           border-color: var(--accent);
         }
       }
-      
-      svg {
-        flex-shrink: 0;
-      }
-    }
-
-    /* Cropper Modal Styles */
-    .cropper-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
     }
     
-    .cropper-container {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      width: 100%;
-      max-width: 440px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-      overflow: hidden;
+    /* Uber Form Styles */
+    .profile-form-uber {
       display: flex;
       flex-direction: column;
+      gap: 32px;
     }
     
-    .cropper-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--text-primary);
-      }
-      
-      .close-btn {
-        background: none;
-        border: none;
-        color: var(--text-secondary);
-        font-size: 24px;
-        cursor: pointer;
-        padding: 0;
-        line-height: 1;
-        
-        &:hover {
-          color: var(--text-primary);
-        }
-      }
-    }
-    
-    .crop-area-wrapper {
-      padding: 24px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #090e18;
-    }
-    
-    .crop-viewport {
-      position: relative;
-      width: 300px;
-      height: 300px;
-      overflow: hidden;
-      cursor: move;
-      border: 2px dashed rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      box-shadow: 0 0 0 9999px rgba(9, 14, 24, 0.7);
-    }
-    
-    .crop-image {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      max-width: none;
-      max-height: none;
-      pointer-events: none;
-      transform-origin: center center;
-    }
-    
-    .crop-mask {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 2px solid var(--accent);
-      pointer-events: none;
-      box-sizing: border-box;
-      box-shadow: 0 0 20px rgba(0, 191, 234, 0.4);
-    }
-    
-    .cropper-controls {
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    
-    .zoom-control {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--text-secondary);
-      
-      .zoom-slider {
-        flex-grow: 1;
-        height: 6px;
-        background: var(--border);
-        border-radius: 3px;
-        outline: none;
-        -webkit-appearance: none;
-        accent-color: var(--accent);
-        
-        &::-webkit-slider-runnable-track {
-          cursor: pointer;
-        }
-      }
-    }
-    
-    .crop-instructions {
-      margin: 0;
-      font-size: 11px;
-      color: var(--text-secondary);
-      text-align: center;
-    }
-    
-    .cropper-actions {
-      padding: 16px 20px;
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      background: var(--surface-secondary);
-      
-      button {
-        padding: 10px 18px;
-        font-size: 13px;
-        font-weight: 600;
-        border-radius: var(--radius-md);
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      
-      .btn-cancel {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        color: var(--text-primary);
-        
-        &:hover {
-          background: var(--border);
-        }
-      }
-      
-      .btn-confirm {
-        background: var(--accent);
-        color: white;
-        
-        &:hover {
-          background: var(--accent-hover);
-          box-shadow: 0 0 10px rgba(0, 191, 234, 0.3);
-        }
-      }
-    }
-    
-    .form-grid {
+    .form-grid-uber {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 30px;
+      gap: 28px;
       
       &.single-column {
         grid-template-columns: 1fr;
         max-width: 480px;
         gap: 20px;
       }
+      
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
     }
     
-    .input-group {
+    .input-group-uber {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       
       label {
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 700;
         color: var(--text-secondary);
+        letter-spacing: 0.2px;
       }
       
-      .glass-input {
+      .uber-input {
         width: 100%;
-        height: 48px;
-        padding: 12px 16px;
+        height: 52px;
+        padding: 14px 18px;
         background: var(--surface-secondary);
         border: 1.5px solid var(--border);
         border-radius: var(--radius-md);
         color: var(--text-primary);
-        font-size: 14px;
+        font-size: 14.5px;
         font-weight: 500;
         font-family: inherit;
         outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+        transition: all 0.25s ease;
         box-sizing: border-box;
-
+        
         &::placeholder {
           color: var(--text-muted);
         }
         
-        &:focus {
+        &:focus:not(:disabled) {
           border-color: var(--accent);
-          box-shadow: 0 0 0 3px var(--accent-light);
+          box-shadow: 0 0 0 4px var(--accent-light);
           background: var(--surface);
         }
         
         &:disabled, &.disabled {
-          opacity: 0.55;
+          background-color: var(--surface-secondary) !important;
+          border-color: var(--border) !important;
+          color: var(--text-secondary) !important;
+          opacity: 0.75;
           cursor: not-allowed;
-          background: var(--surface-secondary);
         }
+      }
+      
+      .field-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 4px;
+        font-weight: 500;
       }
       
       .error-text {
@@ -948,7 +1240,477 @@ import { ToastService } from '../../core/services/toast';
       }
     }
     
-    /* Custom Datepicker styles */
+    .input-with-icon-wrapper {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      
+      .uber-input {
+        padding-right: 48px;
+      }
+      
+      .input-lock-icon {
+        position: absolute;
+        right: 18px;
+        color: var(--text-muted);
+        pointer-events: none;
+        
+        &.google {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+    
+    .form-actions-uber {
+      display: flex;
+      justify-content: flex-end;
+    }
+    
+    .save-btn-uber {
+      padding: 14px 32px;
+      background: var(--accent);
+      color: var(--bg-navbar);
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 14.5px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
+      
+      &:hover:not(:disabled) {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md), var(--shadow-accent);
+      }
+      
+      &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+    }
+    
+    /* Uber Clean List Styles (Fine lines, modern icons on left) */
+    .uber-clean-list {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--border);
+      
+      &.no-top-border {
+        border-top: none;
+      }
+    }
+    
+    .uber-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 8px;
+      border-bottom: 1px solid var(--border);
+      transition: all 0.25s ease;
+      
+      .item-left-group {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      
+      .item-icon-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-sm);
+        border: 1.5px solid var(--border);
+        color: var(--text-secondary);
+        background: var(--surface-secondary);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        flex-shrink: 0;
+      }
+      
+      .item-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        text-align: left;
+      }
+      
+      .item-title {
+        font-size: 16.5px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      
+      .item-description {
+        font-size: 13.5px;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+      
+      .chevron-icon {
+        color: var(--text-muted);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        
+        &.rotated {
+          transform: rotate(90deg);
+        }
+      }
+      
+      &.clickable {
+        cursor: pointer;
+        
+        &:hover {
+          background-color: var(--surface-hover);
+          padding-left: 16px;
+          padding-right: 16px;
+          border-radius: var(--radius-md);
+          border-color: transparent;
+          
+          .item-icon-box {
+            background-color: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: scale(1.05);
+          }
+          
+          .chevron-icon {
+            color: var(--text-primary);
+            transform: translateX(4px);
+          }
+        }
+      }
+    }
+    
+    .uber-list-item-collapsible {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .password-form-panel {
+      padding: 28px;
+      background-color: var(--surface-secondary);
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border);
+      margin: 8px 8px 24px 8px;
+    }
+    
+    .uber-section-divider {
+      height: 1.5px;
+      background-color: var(--border);
+      margin: 40px 0;
+    }
+    
+    /* Switch / Toggle styles */
+    .switch-item {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      
+      input {
+        display: none;
+      }
+      
+      .switch {
+        width: 48px;
+        height: 28px;
+        background: var(--border);
+        border-radius: var(--radius-full);
+        position: relative;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1.5px solid var(--border);
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: 3px;
+          left: 3px;
+          width: 19px;
+          height: 19px;
+          background: var(--surface);
+          border-radius: 50%;
+          box-shadow: var(--shadow-sm);
+          transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+      }
+      
+      input:checked + .switch {
+        background-color: var(--accent);
+        border-color: var(--accent);
+        
+        &::after {
+          transform: translateX(20px);
+        }
+      }
+    }
+    
+    /* Social Connected branding styles */
+    .social-connect-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 8px;
+      border-bottom: 1px solid var(--border);
+      
+      .social-branding {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      
+      .social-logo-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        color: var(--text-primary);
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s;
+        
+        &.apple {
+          background-color: #0f1419;
+          color: white;
+          border-color: #0f1419;
+        }
+        &.google {
+          background-color: white;
+          color: #000;
+        }
+      }
+      
+      .social-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+    }
+    
+    .btn-uber-action {
+      padding: 10px 22px;
+      background-color: var(--surface-secondary);
+      border: 1.5px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 24px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      
+      &:hover {
+        background-color: var(--border);
+        border-color: var(--text-secondary);
+        transform: translateY(-1px);
+      }
+    }
+    
+    /* Active sessions activity styles */
+    .current-session-card-uber {
+      display: flex;
+      gap: 20px;
+      padding: 26px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      background-color: var(--surface);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 12px;
+      align-items: flex-start;
+      
+      .device-icon-box {
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        background-color: var(--accent-light);
+        border-radius: var(--radius-sm);
+        border: 1.5px solid var(--accent);
+        flex-shrink: 0;
+        
+        &.other-device {
+          background-color: var(--surface-secondary);
+          border-color: var(--border);
+          color: var(--text-secondary);
+        }
+      }
+      
+      .session-details {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        text-align: left;
+        
+        h3 {
+          margin: 0;
+          font-size: 17px;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+        
+        .session-title-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        
+        .badge-current-dot {
+          width: 8px;
+          height: 8px;
+          background-color: var(--success);
+          border-radius: 50%;
+          display: inline-block;
+          box-shadow: 0 0 8px var(--success);
+          animation: pulse-success 2s infinite;
+        }
+        
+        .badge-current-text {
+          font-size: 12px;
+          font-weight: 800;
+          color: var(--success);
+        }
+        
+        .geo-info {
+          font-size: 14px;
+          color: var(--text-primary);
+          margin: 0;
+          font-weight: 600;
+        }
+        
+        .platform-info {
+          font-size: 13px;
+          color: var(--text-secondary);
+          margin: 0;
+        }
+      }
+    }
+    
+    @keyframes pulse-success {
+      0% { opacity: 0.6; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      70% { opacity: 1; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { opacity: 0.6; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    
+    .session-row {
+      .btn-terminate-session-uber {
+        background: transparent;
+        border: 1.5px solid var(--error);
+        color: var(--error);
+        padding: 8px 18px;
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        
+        &:hover {
+          background-color: var(--error);
+          color: white;
+        }
+      }
+    }
+    
+    .terminate-all-action-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px 8px;
+      cursor: pointer;
+      color: var(--error);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.25s ease;
+      
+      .terminate-icon-box {
+        color: var(--error);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        background-color: rgba(239, 68, 68, 0.05);
+        border-radius: var(--radius-sm);
+        border: 1.5px solid rgba(239, 68, 68, 0.2);
+        transition: all 0.2s;
+      }
+      
+      .terminate-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        text-align: left;
+        
+        .title {
+          font-size: 16px;
+          font-weight: 700;
+        }
+        
+        .description {
+          font-size: 12.5px;
+          color: var(--text-secondary);
+        }
+      }
+      
+      &:hover {
+        background-color: rgba(239, 68, 68, 0.03);
+        padding-left: 16px;
+        border-radius: var(--radius-md);
+        border-color: transparent;
+        
+        .terminate-icon-box {
+          background-color: #ef4444;
+          color: white;
+          border-color: #ef4444;
+        }
+      }
+    }
+    
+    .empty-third-party-box {
+      padding: 56px;
+      text-align: center;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      background-color: var(--surface-secondary);
+      
+      .box-icon {
+        color: var(--text-muted);
+      }
+      
+      p {
+        margin: 0;
+        font-size: 14.5px;
+        max-width: 400px;
+        line-height: 1.6;
+      }
+    }
+    
+    .cyan-link {
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    
+    /* Datepicker styling overlays */
     .datepicker-container {
       position: relative;
       width: 100%;
@@ -957,14 +1719,14 @@ import { ToastService } from '../../core/services/toast';
       
       .calendar-icon {
         position: absolute;
-        right: 16px;
+        right: 18px;
         width: 18px;
         height: 18px;
         color: var(--text-secondary);
         pointer-events: none;
       }
       
-      .glass-input {
+      .uber-input {
         padding-right: 48px;
         cursor: pointer;
       }
@@ -974,16 +1736,16 @@ import { ToastService } from '../../core/services/toast';
       position: absolute;
       top: calc(100% + 8px);
       left: 0;
-      width: 320px;
+      width: 328px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-lg);
-      padding: 20px;
+      padding: 22px;
       z-index: 100;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
       box-sizing: border-box;
     }
     
@@ -993,8 +1755,8 @@ import { ToastService } from '../../core/services/toast';
       align-items: center;
       
       .nav-btn {
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1003,7 +1765,7 @@ import { ToastService } from '../../core/services/toast';
         background: transparent;
         color: var(--text-primary);
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.25s;
         
         &:hover:not(:disabled) {
           background: var(--surface-secondary);
@@ -1023,7 +1785,7 @@ import { ToastService } from '../../core/services/toast';
       
       .month-year-label {
         font-family: 'Outfit', sans-serif;
-        font-size: 15px;
+        font-size: 15.5px;
         font-weight: 700;
         color: var(--text-primary);
         background: transparent;
@@ -1032,7 +1794,7 @@ import { ToastService } from '../../core/services/toast';
         display: flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 8px;
+        padding: 6px 12px;
         border-radius: var(--radius-sm);
         
         &:hover {
@@ -1055,8 +1817,8 @@ import { ToastService } from '../../core/services/toast';
       .weekday {
         font-size: 12px;
         font-weight: 700;
-        color: var(--text-secondary);
-        padding-bottom: 8px;
+        color: var(--text-muted);
+        padding-bottom: 10px;
       }
     }
     
@@ -1066,43 +1828,45 @@ import { ToastService } from '../../core/services/toast';
       gap: 4px;
       
       .day-btn {
-        height: 36px;
+        height: 38px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: var(--radius-sm);
-        font-size: 13px;
+        border-radius: 50%;
+        font-size: 13.5px;
         font-weight: 600;
         background: transparent;
         border: none;
         color: var(--text-primary);
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: all 0.2s ease;
         
         &:hover:not(:disabled):not(.adjacent-month) {
-          background: var(--surface-secondary);
-          color: var(--text-primary);
+          background: var(--accent-light);
+          color: var(--accent);
         }
         
         &.today {
           border: 1.5px solid var(--accent);
+          color: var(--accent);
         }
         
         &.selected {
           background: var(--accent) !important;
           color: var(--bg-navbar) !important;
           font-weight: 700;
+          box-shadow: var(--shadow-sm), var(--shadow-accent);
         }
         
         &.adjacent-month {
           color: var(--text-muted);
-          opacity: 0.45;
+          opacity: 0.35;
           cursor: default;
           pointer-events: none;
         }
         
         &:disabled {
-          opacity: 0.3;
+          opacity: 0.25;
           cursor: not-allowed;
         }
       }
@@ -1136,14 +1900,14 @@ import { ToastService } from '../../core/services/toast';
         width: 100%;
         padding: 8px;
         text-align: center;
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 600;
         border-radius: var(--radius-sm);
         background: transparent;
         border: none;
         color: var(--text-primary);
         cursor: pointer;
-        transition: all 0.15s;
+        transition: all 0.2s;
         
         &:hover:not(:disabled) {
           background: var(--surface-secondary);
@@ -1165,18 +1929,18 @@ import { ToastService } from '../../core/services/toast';
     .datepicker-footer {
       display: flex;
       justify-content: space-between;
-      padding-top: 12px;
+      padding-top: 14px;
       border-top: 1px solid var(--border);
       
       .footer-action-btn {
         background: transparent;
         border: none;
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 700;
         cursor: pointer;
-        padding: 6px 12px;
+        padding: 6px 14px;
         border-radius: var(--radius-sm);
-        transition: all 0.2s;
+        transition: all 0.25s;
         
         &.clear-btn {
           color: var(--error);
@@ -1193,48 +1957,14 @@ import { ToastService } from '../../core/services/toast';
         }
       }
     }
-
-    .actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 24px;
-    }
-    
-    .save-btn {
-      padding: 12px 28px;
-      background: var(--accent);
-      color: var(--bg-navbar);
-      border-radius: var(--radius-md);
-      font-weight: 700;
-      font-size: 14px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: var(--shadow-sm);
-      
-      &:hover:not(:disabled) {
-        background: var(--accent-hover);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-md);
-      }
-      
-      &:active:not(:disabled) {
-        transform: translateY(0);
-      }
-      
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-    }
     
     .strength-bar-container {
       width: 100%;
-      height: 4px;
+      height: 5px;
       background: var(--border);
       border-radius: var(--radius-full);
       overflow: hidden;
-      margin-top: 6px;
+      margin-top: 8px;
     }
     
     .strength-bar {
@@ -1247,173 +1977,253 @@ import { ToastService } from '../../core/services/toast';
       &.strong { width: 100%; background: var(--success); }
     }
     
-    .security-meta {
-      margin-top: 36px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      
-      .last-access-text {
-        font-size: 13px;
-        color: var(--text-secondary);
-        margin: 0;
-      }
-    }
-    
-    .sessions-section {
-      margin-top: 36px;
-      
-      h3 {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 16px;
-      }
-      
-      .sessions-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      
-      .session-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 20px;
-        background: var(--surface-secondary);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-md);
-      }
-      
-      .session-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-      
-      .session-device {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text-primary);
-      }
-      
-      .session-date {
-        font-size: 12px;
-        color: var(--text-secondary);
-      }
-      
-      .current-session-badge {
-        font-size: 12px;
-        font-weight: 700;
-        color: var(--success);
-        background: rgba(16, 185, 129, 0.08);
-        border: 1px solid rgba(16, 185, 129, 0.2);
-        padding: 6px 12px;
-        border-radius: var(--radius-sm);
-      }
-      
-      .terminate-btn {
-        background: transparent;
-        border: 1.5px solid var(--error);
-        color: var(--error);
-        padding: 6px 14px;
-        border-radius: var(--radius-sm);
-        font-size: 12px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        
-        &:hover {
-          background: var(--error);
-          color: var(--text-inverse);
-        }
-      }
-      
-      .no-sessions-text {
-        font-size: 13px;
-        color: var(--text-muted);
-        font-style: italic;
-      }
-    }
-    
-    .two-factor-card-section {
-      margin-top: 36px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
-    }
-    
-    .settings-row {
+    .cropper-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(4, 9, 20, 0.85);
+      backdrop-filter: blur(12px);
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      gap: 20px;
+      justify-content: center;
+      padding: 20px;
     }
     
-    .settings-text {
+    .cropper-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 4px;
     }
     
-    .settings-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    
-    .settings-desc {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-    
-    .switch-item {
+    .cropper-card-header {
       display: flex;
       align-items: center;
-      cursor: pointer;
-      position: relative;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
       
-      input {
-        display: none;
+      h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text-primary);
       }
       
-      .switch {
-        width: 46px;
-        height: 26px;
-        background: var(--border);
-        border-radius: var(--radius-full);
-        position: relative;
-        transition: background-color 0.2s ease;
-        border: 1px solid var(--border);
+      .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 26px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        transition: color 0.2s;
         
-        &::after {
-          content: '';
-          position: absolute;
-          top: 3px;
-          left: 3px;
-          width: 18px;
-          height: 18px;
-          background: var(--surface);
-          border-radius: 50%;
-          box-shadow: var(--shadow-sm);
-          transition: transform 0.2s ease;
-        }
-      }
-      
-      input:checked + .switch {
-        background-color: var(--accent);
-        border-color: var(--accent);
-        
-        &::after {
-          transform: translateX(20px);
+        &:hover {
+          color: var(--text-primary);
         }
       }
     }
-    @media (max-width: 600px) {
-      .form-grid { grid-template-columns: 1fr; }
+    
+    .crop-area-wrapper {
+      padding: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #050a14;
+    }
+    
+    .crop-viewport {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      overflow: hidden;
+      cursor: move;
+      border: 2.5px dashed rgba(255, 255, 255, 0.35);
+      border-radius: 50%;
+      box-shadow: 0 0 0 9999px rgba(5, 10, 20, 0.75);
+    }
+    
+    .crop-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      max-width: none;
+      max-height: none;
+      pointer-events: none;
+      transform-origin: center center;
+    }
+    
+    .crop-mask {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      pointer-events: none;
+      box-sizing: border-box;
+      box-shadow: 0 0 20px rgba(0, 191, 234, 0.45);
+    }
+    
+    .cropper-controls {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    
+    .zoom-control {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-secondary);
+      
+      .zoom-slider {
+        flex-grow: 1;
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        outline: none;
+        -webkit-appearance: none;
+        accent-color: var(--accent);
+        
+        &::-webkit-slider-runnable-track {
+          cursor: pointer;
+        }
+      }
+    }
+    
+    .crop-instructions {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    
+    .cropper-actions {
+      padding: 18px 24px;
+      display: flex;
+      gap: 14px;
+      justify-content: flex-end;
+      background: var(--surface-secondary);
+      
+      button {
+        padding: 12px 22px;
+        font-size: 13.5px;
+        font-weight: 600;
+        border-radius: var(--radius-md);
+        border: none;
+        cursor: pointer;
+        transition: all 0.25s ease;
+      }
+      
+      .btn-cancel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        
+        &:hover {
+          background: var(--border);
+        }
+      }
+      
+      .btn-confirm {
+        background: var(--accent);
+        color: var(--bg-navbar);
+        font-weight: 700;
+        
+        &:hover {
+          background: var(--accent-hover);
+          box-shadow: 0 4px 14px rgba(0, 191, 234, 0.35);
+        }
+      }
+    }
+    
+    .animate-in {
+      animation: accountIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    @keyframes accountIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   `]
 })
 export class ProfileComponent implements OnInit {
+  activeSection = signal<'inicio' | 'dados' | 'seguranca' | 'privacidade'>('inicio');
+  showPasswordForm = signal(false);
+  appleConnected = signal(false);
+
+  togglePasswordForm() {
+    this.showPasswordForm.set(!this.showPasswordForm());
+  }
+
+  toggleAppleConnection() {
+    if (this.appleConnected()) {
+      this.appleConnected.set(false);
+      this.toast.success('Conta Apple desconectada com sucesso.');
+    } else {
+      this.appleConnected.set(true);
+      this.toast.success('Conta Apple conectada com sucesso!');
+    }
+  }
+
+  toggleGoogleConnection() {
+    if (this.isGoogleUser()) {
+      this.toast.warning('Sua conta de login principal do Google não pode ser desconectada.');
+    } else {
+      this.toast.info('Autenticação com o Google já está pronta para uso.');
+    }
+  }
+
+  terminateAllSessions() {
+    const nonCurrent = this.sessions().filter(s => !s.isCurrent);
+    if (nonCurrent.length === 0) {
+      this.toast.info('Não há outras sessões ativas para encerrar.');
+      return;
+    }
+    
+    this.isSaving.set(true);
+    let count = 0;
+    nonCurrent.forEach(s => {
+      this.http.delete(`/api/users/me/sessions/${s.id}`).subscribe({
+        next: () => {
+          count++;
+          if (count === nonCurrent.length) {
+            this.toast.success('Todas as outras sessões foram encerradas com sucesso.');
+            this.loadSessions();
+            this.isSaving.set(false);
+          }
+        },
+        error: () => {
+          count++;
+          if (count === nonCurrent.length) {
+            this.loadSessions();
+            this.isSaving.set(false);
+          }
+        }
+      });
+    });
+  }
+
+  saibaMaisPrivacidade() {
+    this.toast.info('Para saber mais sobre a privacidade de seus dados, consulte nossos termos de uso.');
+  }
+
+  showInfoToast(title: string) {
+    this.toast.info(title + ': Funcionalidade de demonstração.');
+  }
+
     authService = inject(AuthService);
     toast = inject(ToastService);
     http = inject(HttpClient);

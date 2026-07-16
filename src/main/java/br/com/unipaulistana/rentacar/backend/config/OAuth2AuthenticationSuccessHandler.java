@@ -74,7 +74,10 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String token = jwtService.generateToken(user);
         log.info("OAuth2: JWT token generated. Starts with: {}", token.substring(0, Math.min(10, token.length())));
 
-        createSession(user, token, request.getHeader("User-Agent"));
+        String refreshToken = UUID.randomUUID().toString();
+        LocalDateTime expiresAt = LocalDateTime.now().plusDays(7);
+
+        createSession(user, token, refreshToken, expiresAt, request.getHeader("User-Agent"));
         log.info("OAuth2: Session registered successfully for user ID: {}", user.getId());
 
         org.springframework.http.ResponseCookie responseCookie = org.springframework.http.ResponseCookie.from("token", token)
@@ -86,16 +89,27 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                 .build();
         response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, responseCookie.toString());
 
-        log.info("OAuth2: Successfully wrote HTTP-Only cookie. Redirecting to /login?oauth2=success");
+        org.springframework.http.ResponseCookie refreshCookie = org.springframework.http.ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(604800)
+                .sameSite("Lax")
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        log.info("OAuth2: Successfully wrote HTTP-Only cookies. Redirecting to /login?oauth2=success");
         response.sendRedirect("/login?oauth2=success");
     }
 
-    private void createSession(User user, String token, String userAgent) {
+    private void createSession(User user, String token, String refreshToken, LocalDateTime refreshTokenExpiresAt, String userAgent) {
         String device = getDeviceFromUserAgent(userAgent);
         UserSession session = UserSession.builder()
                 .user(user)
                 .token(token)
                 .device(device)
+                .refreshToken(refreshToken)
+                .refreshTokenExpiresAt(refreshTokenExpiresAt)
                 .createdAt(LocalDateTime.now())
                 .active(true)
                 .build();
