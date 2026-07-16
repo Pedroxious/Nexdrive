@@ -20,8 +20,18 @@ public class DataSourceMonitoringConfig {
 
     private final DataSource dataSource;
 
+    @org.springframework.beans.factory.annotation.Value("${DB_HOST:localhost}")
+    private String dbHost;
+
+    @org.springframework.beans.factory.annotation.Value("${DB_PORT:5432}")
+    private String dbPort;
+
+    @org.springframework.beans.factory.annotation.Value("${DB_NAME:neondb}")
+    private String dbName;
+
     @PostConstruct
     public void testConnection() {
+        log.info("[DIAGNOSTICO DATABASE] Tentando alcancar o banco de dados no endereco {}:{} (Banco: {})...", dbHost, dbPort, dbName);
         log.info("[DIAGNOSTICO DATABASE] Iniciando tentativa de conexao com o banco de dados...");
         
         try (Connection connection = dataSource.getConnection()) {
