@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" fill="none">
+  <rect width="400" height="250" fill="#0d1526"/>
+  <rect x="60" y="100" width="280" height="100" rx="18" fill="#1a2540"/>
+  <!-- wheels -->
+  <circle cx="120" cy="200" r="28" fill="#0d1526" stroke="#1e2d4a" stroke-width="6"/>
+  <circle cx="120" cy="200" r="14" fill="#1a2540"/>
+  <circle cx="280" cy="200" r="28" fill="#0d1526" stroke="#1e2d4a" stroke-width="6"/>
+  <circle cx="280" cy="200" r="14" fill="#1a2540"/>
+  <!-- body -->
+  <path d="M80 160 Q100 110 140 100 L260 100 Q300 110 320 160 Z" fill="#1e2d4a"/>
+  <!-- windows -->
+  <path d="M150 105 Q160 125 200 128 Q240 125 250 105 Z" fill="#00b8f422"/>
+  <!-- accent line -->
+  <line x1="60" y1="175" x2="340" y2="175" stroke="#00b8f4" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.4"/>
+  <!-- icon label -->
+  <text x="200" y="58" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#4a6080" letter-spacing="2">SEM IMAGEM</text>
+</svg>

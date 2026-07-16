@@ -128,7 +128,7 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
         <section class="main-content">
           <div class="results-info">
             <div class="results-count">
-              <h2>{{ isLoading() ? 'Buscando veiculos...' : totalElements() + ' Veiculos Encontrados' }}</h2>
+              <h2>{{ isLoading() ? 'Buscando veiculos...' : isError() ? 'Erro ao carregar' : totalElements() + ' Veiculos Encontrados' }}</h2>
             </div>
             <div class="sort-controls">
               <span class="sort-label">Ordenar por:</span>
@@ -178,10 +178,11 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
 
           <div class="car-grid" *ngIf="!isLoading()">
             @for (car of vehicles(); track car.id; let idx = $index) {
-              <app-car-card 
-                [car]="car" 
-                class="animate-card" 
-                [style.animation-delay]="idx * 40 + 'ms'" 
+              <app-car-card
+                [car]="car"
+                [priority]="idx < 4"
+                class="animate-card"
+                [style.animation-delay]="idx * 40 + 'ms'"
               />
             }
           </div>
@@ -205,7 +206,17 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
             </button>
           </nav>
 
-          <div class="empty-state" *ngIf="!isLoading() && vehicles().length === 0">
+          <!-- Error state -->
+          <div class="error-state" *ngIf="!isLoading() && isError()">
+            <div class="error-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="48" height="48"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h3>Nao foi possivel carregar os veiculos</h3>
+            <p>Verifique sua conexao ou tente novamente em instantes.</p>
+            <button class="retry-btn clickable" (click)="loadCars()">Tentar novamente</button>
+          </div>
+
+          <div class="empty-state" *ngIf="!isLoading() && !isError() && vehicles().length === 0">
             <span class="icon">&#128269;</span>
             <h3>Nenhum veiculo encontrado</h3>
             <p>Tente ajustar seus filtros para encontrar o que procura.</p>
@@ -658,6 +669,25 @@ import { ActiveFiltersComponent, ActiveFilter } from '../../components/active-fi
       }
     }
 
+    .error-state {
+      text-align: center; padding: 80px 24px; background: var(--surface);
+      border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-lg);
+      box-shadow: 0 0 32px rgba(239, 68, 68, 0.06);
+      .error-icon {
+        margin-bottom: 20px;
+        svg { color: #EF4444; opacity: 0.85; }
+      }
+      h3 { font-family: 'Outfit', sans-serif; font-size: 20px; margin-bottom: 8px; color: var(--text-primary); }
+      p { font-family: 'Inter', sans-serif; color: var(--text-secondary); margin-bottom: 24px; font-size: 14px; }
+      .retry-btn {
+        background: var(--accent); color: var(--text-inverse); border: none; padding: 12px 28px;
+        border-radius: var(--radius-full); font-weight: 700; font-size: 14px;
+        transition: background-color 0.2s, transform 0.1s;
+        &:hover { background-color: var(--accent-hover); }
+        &:active { transform: scale(0.98); }
+      }
+    }
+
     /* ── Mobile Brand Filter Strip ── */
     .mobile-brand-strip {
       display: none;
@@ -907,6 +937,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Pagination & Loading
   vehicles = signal<Vehicle[]>([]);
   isLoading = signal(true);
+  isError = signal(false);
   currentPage = signal(0);
   totalPages = signal(0);
   totalElements = signal(0);
@@ -982,6 +1013,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadCars() {
     this.isLoading.set(true);
+    this.isError.set(false);
 
     const filters: any = {
       page: this.currentPage(),
@@ -1033,9 +1065,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.vehicles.set(res.content);
         this.totalPages.set(res.totalPages);
         this.totalElements.set(res.totalElements);
+        this.isError.set(false);
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: (err) => {
+        console.error('[NexDrive] Falha ao carregar veiculos:', err);
+        this.vehicles.set([]);
+        this.totalElements.set(0);
+        this.totalPages.set(0);
+        this.isError.set(true);
+        this.isLoading.set(false);
+      }
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Fuel, Settings2, Users, Heart, ArrowRight } from 'lucide-angular';
@@ -18,11 +18,22 @@ import { ToastService } from '../../core/services/toast';
         {{ formatBadge(car.badge) }}
       </div>
 
-      <!-- Image -->
+      <!-- Image with shimmer skeleton -->
       <div class="card-image">
-        <img [src]="car.imageUrl" [alt]="car.brand + ' ' + car.model" loading="eager">
-        <button class="fav-btn" (click)="toggleFavorite($event)" [class.active]="isFavorited()">
+        <!-- Shimmer placeholder — hidden once image loads -->
+        <div class="img-shimmer" [class.hidden]="imageLoaded()"></div>
 
+        <img
+          [src]="imgSrc()"
+          [alt]="car.brand + ' ' + car.model"
+          [loading]="priority ? 'eager' : 'lazy'"
+          decoding="async"
+          [class.img-visible]="imageLoaded()"
+          (load)="imageLoaded.set(true)"
+          (error)="onImageError($event)"
+        >
+
+        <button class="fav-btn" (click)="toggleFavorite($event)" [class.active]="isFavorited()">
           <lucide-icon name="heart" [size]="18" [class.filled]="isFavorited()"></lucide-icon>
         </button>
       </div>
@@ -102,17 +113,55 @@ import { ToastService } from '../../core/services/toast';
       &.free_test_drive { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
     }
 
-    /* ── Image — separate hover ── */
+    /* ── Image container ── */
     .card-image {
-      height: 200px; overflow: hidden; position: relative;
+      height: 200px;
+      overflow: hidden;
+      position: relative;
       background: var(--surface-secondary);
-      img {
-        width: 100%; height: 100%; object-fit: cover;
-        transition: transform 0.5s ease, filter 0.3s ease;
+
+      &:hover img { transform: scale(1.06); filter: brightness(1.08); }
+    }
+
+    /* Shimmer skeleton for image */
+    .img-shimmer {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        var(--surface-secondary) 25%,
+        color-mix(in srgb, var(--surface-secondary) 70%, var(--border) 30%) 50%,
+        var(--surface-secondary) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmerSlide 1.4s ease-in-out infinite;
+      z-index: 2;
+      transition: opacity 0.3s ease;
+
+      &.hidden {
+        opacity: 0;
+        pointer-events: none;
       }
-      &:hover img {
-        transform: scale(1.06);
-        filter: brightness(1.08);
+    }
+
+    @keyframes shimmerSlide {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Image — starts invisible, fades in on load */
+    .card-image img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.35s ease, transform 0.5s ease, filter 0.3s ease;
+      z-index: 1;
+
+      &.img-visible {
+        opacity: 1;
       }
     }
 
@@ -123,6 +172,7 @@ import { ToastService } from '../../core/services/toast';
       display: flex; align-items: center; justify-content: center;
       transition: all 0.2s; border: none; cursor: pointer;
       color: #fff;
+      z-index: 6;
       lucide-icon { transition: all 0.2s; }
       &:hover { background: rgba(0,0,0,0.55); transform: scale(1.1); }
       &.active {
@@ -225,24 +275,45 @@ import { ToastService } from '../../core/services/toast';
     }
   `]
 })
-export class CarCardComponent {
+export class CarCardComponent implements OnInit {
   @Input({ required: true }) car!: Vehicle;
   @Input() showRentPrice: boolean = false;
+  /** Set to true for above-the-fold cards (first row) to skip lazy loading. */
+  @Input() priority: boolean = false;
 
   private favoriteService = inject(FavoriteService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
 
+  /** True once the car image has successfully loaded. Drives shimmer visibility. */
+  imageLoaded = signal(false);
+
+  /** The current image source — can be swapped to placeholder on error. */
+  imgSrc = signal('');
+
+  ngOnInit() {
+    this.imgSrc.set(this.car.imageUrl || '');
+  }
+
+  onImageError(event: Event) {
+    // Swap to a branded placeholder so the card never shows a broken image icon
+    const placeholder = '/assets/placeholder-car.svg';
+    if (this.imgSrc() !== placeholder) {
+      this.imgSrc.set(placeholder);
+    } else {
+      // If even the placeholder fails, just reveal the shimmer background
+      this.imageLoaded.set(true);
+    }
+  }
+
   isFavorited() {
-    // This could optionally call favoriteService.checkFavorite, but for performance 
-    // it's better if favorited status is part of the car object from backend.
     return false;
   }
 
   toggleFavorite(event: Event) {
     event.stopPropagation();
     if (!this.authService.isLoggedIn()) {
-      this.toastService.warning('Faça login para favoritar veículos');
+      this.toastService.warning('Faca login para favoritar veiculos');
       return;
     }
     this.favoriteService.toggleFavorite(this.car.id).subscribe(() => {
@@ -256,15 +327,18 @@ export class CarCardComponent {
 
   translateCategory(cat: string) {
     const cats: any = {
-      'ECONOMY': 'Econômico', 'COMPACT': 'Compacto', 'SUV': 'SUV',
+      'ECONOMY': 'Economico', 'COMPACT': 'Compacto', 'SUV': 'SUV',
       'LUXURY': 'Luxo', 'SPORT': 'Esportivo', 'VAN': 'Van',
-      'SEDAN': 'Sedã', 'HATCH': 'Hatch', 'PICKUP': 'Picape'
+      'SEDAN': 'Seda', 'HATCH': 'Hatch', 'PICKUP': 'Picape'
     };
     return cats[cat] || cat;
   }
 
   translateFuel(fuel: string) {
-    const map: any = { 'FLEX': 'Flex', 'GASOLINE': 'Gasolina', 'DIESEL': 'Diesel', 'ELECTRIC': 'Elétrico', 'HYBRID': 'Híbrido', 'ETHANOL': 'Etanol' };
+    const map: any = {
+      'FLEX': 'Flex', 'GASOLINE': 'Gasolina', 'DIESEL': 'Diesel',
+      'ELECTRIC': 'Eletrico', 'HYBRID': 'Hibrido', 'ETHANOL': 'Etanol'
+    };
     return map[fuel] || fuel;
   }
 

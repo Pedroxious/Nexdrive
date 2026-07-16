@@ -10,7 +10,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 @Entity
-@Table(name = "VEHICLES")
+@Table(name = "VEHICLES", indexes = {
+    @Index(name = "idx_vehicle_brand",      columnList = "brand"),
+    @Index(name = "idx_vehicle_city_state",  columnList = "city, state"),
+    @Index(name = "idx_vehicle_available",   columnList = "available")
+})
 @Data
 @Builder
 @NoArgsConstructor
@@ -61,6 +65,8 @@ public class Vehicle {
     @OrderBy("position ASC")
     @JsonManagedReference
     @Fetch(FetchMode.SUBSELECT)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @Builder.Default
     private List<VehicleImage> galleryImages = new ArrayList<>();
 }

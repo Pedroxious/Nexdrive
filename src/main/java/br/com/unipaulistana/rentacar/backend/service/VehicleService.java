@@ -1,17 +1,20 @@
 package br.com.unipaulistana.rentacar.backend.service;
 
+import br.com.unipaulistana.rentacar.backend.config.VehicleSpecification;
 import br.com.unipaulistana.rentacar.backend.domain.Vehicle;
 import br.com.unipaulistana.rentacar.backend.domain.VehicleBadge;
 import br.com.unipaulistana.rentacar.backend.domain.VehicleCategory;
 import br.com.unipaulistana.rentacar.backend.domain.FuelType;
 import br.com.unipaulistana.rentacar.backend.domain.Transmission;
 import br.com.unipaulistana.rentacar.backend.domain.VehicleImage;
+import br.com.unipaulistana.rentacar.backend.dto.VehicleSummaryDto;
 import br.com.unipaulistana.rentacar.backend.exception.VehicleNotFoundException;
 import br.com.unipaulistana.rentacar.backend.repository.VehicleImageRepository;
 import br.com.unipaulistana.rentacar.backend.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,24 +29,35 @@ public class VehicleService {
     private final VehicleImageRepository vehicleImageRepository;
 
     public List<VehicleImage> getGalleryImages(Long vehicleId) {
-        // First verify that vehicle exists
         if (!repository.existsById(vehicleId)) {
             throw new VehicleNotFoundException("Vehicle not found with id: " + vehicleId);
         }
         return vehicleImageRepository.findByVehicleIdOrderByPositionAsc(vehicleId);
     }
 
-    public Page<Vehicle> getAll(
-            List<String> brands, VehicleCategory category, FuelType fuelType, Transmission transmission,
-            Integer seats, BigDecimal minPrice, BigDecimal maxPrice, String city, String state,
-            Boolean isNew, Boolean freeTestDrive, Boolean available, VehicleBadge badge,
-            Pageable pageable) {
-        List<String> effectiveBrands = (brands == null || brands.isEmpty()) ? null : brands;
-        return repository.findAllWithFilters(
-                effectiveBrands, category, fuelType, transmission, seats, minPrice, maxPrice,
-                city, state, isNew, freeTestDrive, available, badge, pageable);
+    /**
+     * Returns a lightweight {@link VehicleSummaryDto} page for the listing view.
+     * Using JPA Specifications avoids the Hibernate instability with the
+     * {@code :brands IS NULL OR v.brand IN :brands} JPQL pattern when
+     * the collection parameter is a non-null empty list.
+     */
+    public Page<VehicleSummaryDto> getAll(
+            List<String> brands, VehicleCategory category, FuelType fuelType,
+            Transmission transmission, Integer seats, BigDecimal minPrice,
+            BigDecimal maxPrice, String city, String state,
+            Boolean isNew, Boolean freeTestDrive, Boolean available,
+            VehicleBadge badge, Pageable pageable) {
+
+        Specification<Vehicle> spec = VehicleSpecification.withFilters(
+                brands, category, fuelType, transmission, seats,
+                minPrice, maxPrice, city, state,
+                isNew, freeTestDrive, available, badge);
+
+        // .map() runs before Jackson serializes — galleryImages are never accessed
+        return repository.findAll(spec, pageable).map(VehicleSummaryDto::from);
     }
 
+    /** Returns the full entity (with galleryImages) for the detail page. */
     public Vehicle getById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new VehicleNotFoundException("Vehicle not found with id: " + id));
@@ -67,10 +81,8 @@ public class VehicleService {
 
     public Vehicle update(Long id, Vehicle vehicleRequest) {
         Vehicle vehicle = getById(id);
-        // Map updates (simplified for this task)
         vehicle.setAvailable(vehicleRequest.isAvailable());
         vehicle.setPricePerDay(vehicleRequest.getPricePerDay());
-        // ... other fields
         return repository.save(vehicle);
     }
 
@@ -78,3 +90,5 @@ public class VehicleService {
         repository.deleteById(id);
     }
 }
+
+

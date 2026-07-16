@@ -1,6 +1,7 @@
 package br.com.unipaulistana.rentacar.backend.presentation;
 
 import br.com.unipaulistana.rentacar.backend.domain.*;
+import br.com.unipaulistana.rentacar.backend.dto.VehicleSummaryDto;
 import br.com.unipaulistana.rentacar.backend.service.VehicleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public class VehicleController {
     private final VehicleService service;
 
     @GetMapping
-    public ResponseEntity<Page<Vehicle>> getAll(
+    public ResponseEntity<Page<VehicleSummaryDto>> getAll(
             @RequestParam(required = false) List<String> brands,
             @RequestParam(required = false) VehicleCategory category,
             @RequestParam(required = false) FuelType fuelType,
