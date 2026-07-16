@@ -53,6 +53,18 @@ public class RentalService {
     public Rental createRental(User user, Long vehicleId, LocalDate start, LocalDate end,
             String pickup, String returnLoc, boolean insurance, boolean addDriver) {
 
+        // V-26: business rule validations not expressible as Bean Validation annotations
+        if (end.isBefore(start) || end.isEqual(start)) {
+            throw new InvalidDateRangeException("A data de término deve ser posterior à data de início.");
+        }
+        long days = ChronoUnit.DAYS.between(start, end);
+        if (days > br.com.unipaulistana.rentacar.backend.dto.CreateRentalRequestDto.MAX_RENTAL_DAYS) {
+            throw new InvalidDateRangeException(
+                    "O período máximo de aluguel é de "
+                    + br.com.unipaulistana.rentacar.backend.dto.CreateRentalRequestDto.MAX_RENTAL_DAYS
+                    + " dias.");
+        }
+
         if (repository.existsOverlapping(vehicleId, start, end)) {
             throw new VehicleNotAvailableException("Vehicle not available for selected dates");
         }
@@ -66,8 +78,8 @@ public class RentalService {
                 .startDate(start)
                 .endDate(end)
                 .totalDays((int) pricing.get("totalDays"))
-                .totalPrice((BigDecimal) pricing.get("totalCost"))
-                .status(RentalStatus.PENDING)
+                .totalPrice((java.math.BigDecimal) pricing.get("totalCost"))
+                .status(br.com.unipaulistana.rentacar.backend.domain.RentalStatus.PENDING)
                 .pickupLocation(pickup)
                 .returnLocation(returnLoc)
                 .insurance(insurance)
@@ -81,12 +93,24 @@ public class RentalService {
         return repository.findByUserOrderByCreatedAtDesc(user);
     }
 
+    /**
+     * V-23 fix: Ownership check before any state mutation.
+     * Both "not found" and "belongs to another user" throw AccessDeniedException,
+     * returning the same 403 response — callers cannot infer whether the id exists.
+     */
     @Transactional
-    public void cancelRental(Long id) {
-        Rental rental = repository.findById(id).orElseThrow();
+    public void cancelRental(Long id, User currentUser) {
+        Rental rental = repository.findById(id)
+                .orElseThrow(() -> new org.springframework.security.access.AccessDeniedException("Acesso negado."));
+
+        if (!rental.getUser().getId().equals(currentUser.getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("Acesso negado.");
+        }
+
         if (rental.getStatus() == RentalStatus.PENDING || rental.getStatus() == RentalStatus.CONFIRMED) {
             rental.setStatus(RentalStatus.CANCELLED);
             repository.save(rental);
         }
     }
 }
+

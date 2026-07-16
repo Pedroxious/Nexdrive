@@ -89,19 +89,28 @@ public class SecurityConfig {
                                 "/about", "/faq", "/contact", "/privacy", "/terms",
                                 "/login", "/register", "/404", "/oauth2-login"
                         ).permitAll()
-                        // Public API endpoints
+                        // Swagger / OpenAPI (consider restricting in production)
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        // Public auth endpoints
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/logout",
-                                "/api/auth/refresh",        // V-04 fix: refresh must be public (access token is expired when called)
-                                "/api/vehicles",
-                                "/api/vehicles/**",
-                                "/api/reviews/vehicle/**"
+                                "/api/auth/refresh",        // V-04: refresh is public — access token is expired when called
+                                "/api/reviews/vehicle/**"   // Reading reviews is public
                         ).permitAll()
-                        // Swagger / OpenAPI (consider restricting in production)
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                        // V-02 fix: Admin-only endpoints declared at SecurityConfig level (defense-in-depth with @PreAuthorize)
+                        // V-22 fix: vehicle CATALOG is public, but READ-ONLY (GET only).
+                        // This rule is declared with an explicit method constraint so it does NOT
+                        // shadow the ADMIN rules for POST/PUT/DELETE below.
+                        // Rule evaluation order: Spring Security uses first-match. By putting the
+                        // method-specific GET rule here and the ADMIN write rules after, we guarantee:
+                        //   GET  /api/vehicles    → permitAll  (catalog listing/search, public)
+                        //   POST /api/vehicles    → hasRole(ADMIN)  (create vehicle)
+                        //   PUT  /api/vehicles/** → hasRole(ADMIN)  (update vehicle)
+                        //   DELETE /api/vehicles/** → hasRole(ADMIN) (delete vehicle)
+                        .requestMatchers(HttpMethod.GET, "/api/vehicles", "/api/vehicles/**").permitAll()
+                        // V-02 fix: Admin-only endpoints — declared AFTER the public GET rule above
+                        // so the more-specific method+path combination is reached correctly.
                         .requestMatchers(HttpMethod.GET, "/api/rentals").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/vehicles").hasRole("ADMIN")
