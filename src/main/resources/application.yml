@@ -22,9 +22,16 @@ spring:
     username: ${DB_USER:neondb_owner}
     password: ${DB_PASS:}
     hikari:
-      connection-timeout: 30000
+      # connection-timeout: Maximum milliseconds to wait for a connection from the pool.
+      # Reduced to 10 seconds to fail fast rather than hanging the application startup.
+      connection-timeout: 10000
       maximum-pool-size: 10
       max-lifetime: 600000
+      # initialization-fail-timeout: Controls whether the pool fails fast during pool initialization.
+      # Set to 10 seconds so that if the serverless Neon DB is unreachable or sleeping, the application
+      # throws an exception and crashes within 10s. This surfaces the exact connection stacktrace
+      # in Render logs, well before Render's 120s port-scan healthcheck times out.
+      initialization-fail-timeout: 10000
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
