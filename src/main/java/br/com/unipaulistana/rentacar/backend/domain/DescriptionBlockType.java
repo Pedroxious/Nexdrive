@@ -8,5 +8,9 @@ public enum DescriptionBlockType {
     TECHNOLOGY,     // Conectividade, multimídia, recursos tecnológicos
     SAFETY,         // Sistemas de segurança, freios, estabilidade
     DIFFERENTIALS,  // Opcionais exclusivos, valorização, diferenciais
-    CLOSING         // Encerramento, chamada para ação, disponibilidade
+    CLOSING,        // Encerramento, chamada para ação, disponibilidade
+
+    // Retained for backward compatibility with existing DB rows
+    INTRO,
+    OUTRO
 }
