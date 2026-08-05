@@ -107,6 +107,14 @@ const AUTH_TIMEOUT_MS = 10_000;
 
                 <!-- SUCCESS -->
                 <div class="panel-content" *ngIf="activePanel() === 'success'">
+                  <div class="confetti-container">
+                    <div class="confetti c1"></div>
+                    <div class="confetti c2"></div>
+                    <div class="confetti c3"></div>
+                    <div class="confetti c4"></div>
+                    <div class="confetti c5"></div>
+                    <div class="confetti c6"></div>
+                  </div>
                   <div class="state-icon-wrap">
                     <div class="icon-ring icon-ring-success">
                       <svg viewBox="0 0 24 24" fill="none" width="28" height="28" aria-hidden="true">
@@ -640,6 +648,45 @@ const AUTH_TIMEOUT_MS = 10_000;
       border: 2px solid rgba(16, 185, 129, 0.45);
       animation: ringBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
+    }
+
+    /* Confetti Celebration */
+    .confetti-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      opacity: 0;
+      animation: confettiPop 1.1s ease-out forwards;
+    }
+
+    .c1 { background: var(--accent); top: 35%; left: 35%; animation-delay: 0.1s; --tx: -50px; --ty: -70px; }
+    .c2 { background: var(--success); top: 25%; left: 60%; animation-delay: 0.2s; --tx: 50px; --ty: -80px; }
+    .c3 { background: #F59E0B; top: 50%; left: 20%; animation-delay: 0.3s; --tx: -70px; --ty: -20px; }
+    .c4 { background: #EF4444; top: 40%; left: 75%; animation-delay: 0.2s; --tx: 70px; --ty: -30px; }
+    .c5 { background: var(--accent); top: 65%; left: 40%; animation-delay: 0.4s; --tx: -30px; --ty: 50px; }
+    .c6 { background: var(--success); top: 60%; left: 70%; animation-delay: 0.3s; --tx: 50px; --ty: 40px; }
+
+    @keyframes confettiPop {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx, 20px), var(--ty, -50px)) scale(1.8);
+      }
     }
 
     .icon-ring-error {
@@ -1377,7 +1424,7 @@ export class LoginComponent implements OnInit {
         } catch {}
       }
       this.router.navigate(['/']);
-    }, 650);
+    }, 1200);
   }
 
   private handleLoginError(err: any) {
