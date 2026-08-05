@@ -86,6 +86,43 @@ public class VehicleService {
         return repository.save(vehicle);
     }
 
+    public Vehicle createListing(br.com.unipaulistana.rentacar.backend.dto.CreateVehicleListingDto dto, String username) {
+        Vehicle vehicle = Vehicle.builder()
+                .brand(dto.brand())
+                .model(dto.model())
+                .year(dto.year())
+                .category(dto.category())
+                .fuelType(dto.fuelType())
+                .transmission(dto.transmission())
+                .color(dto.color())
+                .mileage(dto.mileage())
+                .pricePerDay(dto.pricePerDay())
+                .salePrice(dto.salePrice())
+                .city(dto.city())
+                .state(dto.state())
+                .description(dto.description())
+                .seats(dto.seats())
+                .doors(dto.doors())
+                .isNew(dto.isNew())
+                .freeTestDrive(dto.freeTestDrive())
+                .imageUrl(dto.imageUrl())
+                .available(true)
+                .build();
+
+        if (dto.galleryImages() != null && !dto.galleryImages().isEmpty()) {
+            for (int i = 0; i < dto.galleryImages().size(); i++) {
+                br.com.unipaulistana.rentacar.backend.domain.VehicleImage img = br.com.unipaulistana.rentacar.backend.domain.VehicleImage.builder()
+                        .imageUrl(dto.galleryImages().get(i))
+                        .position(i)
+                        .vehicle(vehicle)
+                        .build();
+                vehicle.getGalleryImages().add(img);
+            }
+        }
+
+        return repository.save(vehicle);
+    }
+
     public void delete(Long id) {
         repository.deleteById(id);
     }

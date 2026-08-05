@@ -22,6 +22,7 @@ import java.util.Set;
 public class VehicleController {
 
     private final VehicleService service;
+    private final br.com.unipaulistana.rentacar.backend.service.DescriptionGeneratorService descriptionGeneratorService;
 
     // ── Public read endpoints ─────────────────────────────────────────────────
 
@@ -123,6 +124,23 @@ public class VehicleController {
     // Since they are ADMIN-only (enforced by SecurityConfig + @PreAuthorize),
     // the mass-assignment risk is significantly mitigated, but a dedicated
     // VehicleRequestDto should be introduced in a follow-up if needed.
+
+    @PostMapping("/generate-description")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<java.util.Map<String, String>> generateDescription(@RequestBody br.com.unipaulistana.rentacar.backend.dto.GenerateDescriptionRequestDto dto) {
+        String description = descriptionGeneratorService.generateDescription(dto);
+        return ResponseEntity.ok(java.util.Map.of("description", description));
+    }
+
+    @PostMapping("/listing")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Vehicle> createListing(
+            @jakarta.validation.Valid @RequestBody br.com.unipaulistana.rentacar.backend.dto.CreateVehicleListingDto dto,
+            java.security.Principal principal) {
+        String username = (principal != null) ? principal.getName() : null;
+        Vehicle created = service.createListing(dto, username);
+        return ResponseEntity.ok(created);
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
