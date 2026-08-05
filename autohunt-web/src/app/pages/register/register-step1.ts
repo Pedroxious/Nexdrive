@@ -125,8 +125,9 @@ import { RouterLink } from '@angular/router';
             </div>
             <input type="email"
                    [ngModel]="email()"
-                   (ngModelChange)="email.set($event)"
+                   (ngModelChange)="onEmailInput($event)"
                    name="email"
+                   maxlength="255"
                    (focus)="setFocus('email')"
                    (blur)="clearFocus('email')"
                    placeholder="seu@email.com" />
@@ -154,8 +155,9 @@ import { RouterLink } from '@angular/router';
             </div>
             <input [type]="showPassword() ? 'text' : 'password'"
                    [ngModel]="password()"
-                   (ngModelChange)="password.set($event)"
+                   (ngModelChange)="onPasswordInput($event)"
                    name="password"
+                   maxlength="100"
                    (focus)="setFocus('password')"
                    (blur)="clearFocus('password')"
                    placeholder="Sua senha segura" />
@@ -210,8 +212,9 @@ import { RouterLink } from '@angular/router';
             </div>
             <input [type]="showConfirmPassword() ? 'text' : 'password'"
                    [ngModel]="confirmPassword()"
-                   (ngModelChange)="confirmPassword.set($event)"
+                   (ngModelChange)="onConfirmPasswordInput($event)"
                    name="confirmPassword"
+                   maxlength="100"
                    (focus)="setFocus('confirmPassword')"
                    (blur)="clearFocus('confirmPassword')"
                    placeholder="Confirme sua senha" />
@@ -795,8 +798,22 @@ export class RegisterStep1Component {
   }
 
   onFullNameInput(value: string) {
-    const clean = value.replace(/[0-9]/g, '');
+    // Strip digits and special characters - allow only letters, accents, apostrophes, spaces
+    const clean = value.replace(/[^A-Za-z\u00C0-\u017F'\s]/g, '');
     this.fullName.set(clean);
+  }
+
+  onEmailInput(value: string) {
+    // Strip spaces
+    this.email.set(value.replace(/\s/g, '').slice(0, 255));
+  }
+
+  onPasswordInput(value: string) {
+    this.password.set(value.slice(0, 100));
+  }
+
+  onConfirmPasswordInput(value: string) {
+    this.confirmPassword.set(value.slice(0, 100));
   }
 
   onPhoneInput(value: string) {

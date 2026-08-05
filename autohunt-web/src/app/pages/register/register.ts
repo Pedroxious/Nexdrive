@@ -151,7 +151,7 @@ import { timeout } from 'rxjs';
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 60px 56px;
+      padding: 40px 48px;
       background: var(--bg-navbar);
       overflow: hidden;
     }
@@ -191,7 +191,7 @@ import { timeout } from 'rxjs';
 
     .hero-content { position: relative; z-index: 2; }
 
-    .hero-brand { margin-bottom: 48px; }
+    .hero-brand { margin-bottom: 24px; }
 
     .brand-logo {
       font-family: 'Outfit', sans-serif;
@@ -204,11 +204,11 @@ import { timeout } from 'rxjs';
 
     .hero-headline {
       font-family: 'Outfit', sans-serif;
-      font-size: 38px;
+      font-size: 32px;
       font-weight: 800;
       line-height: 1.2;
       color: #fff;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
       letter-spacing: -0.5px;
     }
 
@@ -221,18 +221,18 @@ import { timeout } from 'rxjs';
 
     .hero-sub {
       font-family: 'Inter', sans-serif;
-      font-size: 16px;
+      font-size: 14px;
       color: rgba(255, 255, 255, 0.55);
-      line-height: 1.6;
+      line-height: 1.5;
       max-width: 440px;
-      margin-bottom: 44px;
+      margin-bottom: 20px;
     }
 
     .hero-features {
       display: flex;
       flex-direction: column;
-      gap: 22px;
-      margin-bottom: 48px;
+      gap: 14px;
+      margin-bottom: 24px;
     }
 
     .hero-feature {
@@ -241,9 +241,9 @@ import { timeout } from 'rxjs';
       gap: 16px;
 
       .feature-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
         background: rgba(0, 191, 234, 0.1);
         border: 1px solid rgba(0, 191, 234, 0.15);
         display: flex;
@@ -316,8 +316,8 @@ import { timeout } from 'rxjs';
 
     .hero-footer {
       position: absolute;
-      bottom: 32px;
-      left: 56px;
+      bottom: 20px;
+      left: 48px;
 
       p {
         font-family: 'Inter', sans-serif;
@@ -331,7 +331,7 @@ import { timeout } from 'rxjs';
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 48px;
+      padding: 24px 40px;
       background: var(--bg-main);
       overflow-y: auto;
     }

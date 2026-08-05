@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { ToastService } from '../../core/services/toast';
+import { ConfettiCanvasService } from '../../shared/animations/confetti-canvas';
 import { timeout } from 'rxjs';
 
 type OverlayPanel = 'connecting' | 'success' | 'server-error' | 'oauth-error';
@@ -107,14 +108,7 @@ const AUTH_TIMEOUT_MS = 10_000;
 
                 <!-- SUCCESS -->
                 <div class="panel-content" *ngIf="activePanel() === 'success'">
-                  <div class="confetti-container">
-                    <div class="confetti c1"></div>
-                    <div class="confetti c2"></div>
-                    <div class="confetti c3"></div>
-                    <div class="confetti c4"></div>
-                    <div class="confetti c5"></div>
-                    <div class="confetti c6"></div>
-                  </div>
+
                   <div class="state-icon-wrap">
                     <div class="icon-ring icon-ring-success">
                       <svg viewBox="0 0 24 24" fill="none" width="28" height="28" aria-hidden="true">
@@ -211,15 +205,16 @@ const AUTH_TIMEOUT_MS = 10_000;
                   <input
                     id="email-input"
                     type="email"
-                    [(ngModel)]="email"
+                    [ngModel]="email"
+                    (ngModelChange)="onEmailInput($event)"
                     name="email"
                     placeholder="seu@email.com"
                     required
+                    maxlength="255"
                     autocomplete="email"
                     class="form-input"
                     (focus)="emailFocused = true"
                     (blur)="emailFocused = false; emailTouched = true"
-                    (input)="clearCredentialError(); validateEmail()"
                   >
                   <!-- Real-time validation icon -->
                   <svg *ngIf="emailTouched && !emailError() && email.length > 0" class="validation-icon valid" viewBox="0 0 24 24" fill="none" width="18" height="18">
@@ -250,15 +245,16 @@ const AUTH_TIMEOUT_MS = 10_000;
                   <input
                     id="password-input"
                     [type]="showPassword ? 'text' : 'password'"
-                    [(ngModel)]="password"
+                    [ngModel]="password"
+                    (ngModelChange)="onPasswordInput($event)"
                     name="password"
                     placeholder="••••••••"
                     required
+                    maxlength="100"
                     autocomplete="current-password"
                     class="form-input"
                     (focus)="passwordFocused = true"
                     (blur)="passwordFocused = false; passwordTouched = true"
-                    (input)="clearCredentialError(); validatePassword()"
                   >
                   <!-- Toggle password visibility -->
                   <button type="button" class="toggle-password" (click)="showPassword = !showPassword" tabindex="-1" aria-label="Mostrar senha">
@@ -355,7 +351,7 @@ const AUTH_TIMEOUT_MS = 10_000;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 60px 56px;
+      padding: 40px 48px;
       background: var(--bg-navbar);
       overflow: hidden;
     }
@@ -413,7 +409,7 @@ const AUTH_TIMEOUT_MS = 10_000;
     }
 
     .hero-brand {
-      margin-bottom: 48px;
+      margin-bottom: 24px;
     }
 
     .brand-logo {
@@ -429,11 +425,11 @@ const AUTH_TIMEOUT_MS = 10_000;
 
     .hero-headline {
       font-family: 'Outfit', sans-serif;
-      font-size: 38px;
+      font-size: 32px;
       font-weight: 800;
       line-height: 1.2;
       color: #fff;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
       letter-spacing: -0.5px;
     }
 
@@ -446,17 +442,17 @@ const AUTH_TIMEOUT_MS = 10_000;
 
     .hero-sub {
       font-family: 'Inter', sans-serif;
-      font-size: 16px;
+      font-size: 14px;
       color: rgba(255, 255, 255, 0.55);
-      line-height: 1.6;
+      line-height: 1.5;
       max-width: 440px;
-      margin-bottom: 48px;
+      margin-bottom: 24px;
     }
 
     .hero-features {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 16px;
     }
 
     .hero-feature {
@@ -465,9 +461,9 @@ const AUTH_TIMEOUT_MS = 10_000;
       gap: 16px;
 
       .feature-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
         background: rgba(0, 191, 234, 0.1);
         border: 1px solid rgba(0, 191, 234, 0.15);
         display: flex;
@@ -497,8 +493,8 @@ const AUTH_TIMEOUT_MS = 10_000;
 
     .hero-footer {
       position: absolute;
-      bottom: 32px;
-      left: 56px;
+      bottom: 24px;
+      left: 48px;
 
       p {
         font-family: 'Inter', sans-serif;
@@ -512,7 +508,7 @@ const AUTH_TIMEOUT_MS = 10_000;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 48px;
+      padding: 24px 40px;
       background: var(--bg-main);
       overflow-y: auto;
     }
@@ -650,44 +646,7 @@ const AUTH_TIMEOUT_MS = 10_000;
       box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
     }
 
-    /* Confetti Celebration */
-    .confetti-container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-    }
 
-    .confetti {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      opacity: 0;
-      animation: confettiPop 1.1s ease-out forwards;
-    }
-
-    .c1 { background: var(--accent); top: 35%; left: 35%; animation-delay: 0.1s; --tx: -50px; --ty: -70px; }
-    .c2 { background: var(--success); top: 25%; left: 60%; animation-delay: 0.2s; --tx: 50px; --ty: -80px; }
-    .c3 { background: #F59E0B; top: 50%; left: 20%; animation-delay: 0.3s; --tx: -70px; --ty: -20px; }
-    .c4 { background: #EF4444; top: 40%; left: 75%; animation-delay: 0.2s; --tx: 70px; --ty: -30px; }
-    .c5 { background: var(--accent); top: 65%; left: 40%; animation-delay: 0.4s; --tx: -30px; --ty: 50px; }
-    .c6 { background: var(--success); top: 60%; left: 70%; animation-delay: 0.3s; --tx: 50px; --ty: 40px; }
-
-    @keyframes confettiPop {
-      0% {
-        opacity: 1;
-        transform: translate(0, 0) scale(0);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(var(--tx, 20px), var(--ty, -50px)) scale(1.8);
-      }
-    }
 
     .icon-ring-error {
       background: rgba(239, 68, 68, 0.15);
@@ -1264,11 +1223,12 @@ export class LoginComponent implements OnInit {
   private retryAction    = signal<(() => void) | null>(null);
   private oauthErrorCode = signal<string>('auth_failed');
 
-  // ── Dependencies ─────────────────────────────────────────────────────────────
-  private auth   = inject(AuthService);
-  private toast  = inject(ToastService);
-  private router = inject(Router);
-  private route  = inject(ActivatedRoute);
+  // ── Dependencies ─────────────────────────────────────────────────────────────────────
+  private auth     = inject(AuthService);
+  private toast    = inject(ToastService);
+  private router   = inject(Router);
+  private route    = inject(ActivatedRoute);
+  private confetti = inject(ConfettiCanvasService);
 
   currentYear = new Date().getFullYear();
 
@@ -1323,11 +1283,23 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // ── Real-time validation ──────────────────────────────────────────────────────
+  // ── Real-time input sanitization & validation ─────────────────────────────────
+  onEmailInput(value: string) {
+    this.email = value.replace(/\s/g, '').slice(0, 255);
+    this.clearCredentialError();
+    this.validateEmail();
+  }
+
+  onPasswordInput(value: string) {
+    this.password = value.slice(0, 100);
+    this.clearCredentialError();
+    this.validatePassword();
+  }
+
   validateEmail() {
     if (!this.email) {
       this.emailError.set('E-mail é obrigatório');
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+    } else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(this.email)) {
       this.emailError.set('Formato de e-mail inválido');
     } else {
       this.emailError.set(null);
@@ -1337,8 +1309,8 @@ export class LoginComponent implements OnInit {
   validatePassword() {
     if (!this.password) {
       this.passwordError.set('Senha é obrigatória');
-    } else if (this.password.length < 6) {
-      this.passwordError.set('Mínimo de 6 caracteres');
+    } else if (this.password.length < 8) {
+      this.passwordError.set('Mínimo de 8 caracteres');
     } else {
       this.passwordError.set(null);
     }
@@ -1409,6 +1381,9 @@ export class LoginComponent implements OnInit {
   private handleSuccess() {
     this.transitionToPanel('success');
 
+    // Launch fullscreen Canvas confetti celebration
+    this.confetti.launch(3000);
+
     // Check for pending rental wizard state
     const pendingState = sessionStorage.getItem('pending_rental_wizard_state');
 
@@ -1418,13 +1393,15 @@ export class LoginComponent implements OnInit {
         try {
           const state = JSON.parse(pendingState);
           if (state.url) {
+            this.confetti.destroy();
             this.router.navigateByUrl(state.url);
             return;
           }
         } catch {}
       }
+      this.confetti.destroy();
       this.router.navigate(['/']);
-    }, 1200);
+    }, 1800);
   }
 
   private handleLoginError(err: any) {
