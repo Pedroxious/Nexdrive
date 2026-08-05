@@ -65,8 +65,9 @@ import { RouterLink } from '@angular/router';
             </div>
             <input type="text"
                    [ngModel]="fullName()"
-                   (ngModelChange)="fullName.set($event)"
+                   (ngModelChange)="onFullNameInput($event)"
                    name="fullName"
+                   maxlength="100"
                    (focus)="setFocus('fullName')"
                    (blur)="clearFocus('fullName')"
                    placeholder="João da Silva" />
@@ -712,7 +713,9 @@ export class RegisterStep1Component {
   // Validation Computeds
   fullNameValid = computed(() => {
     const val = this.fullName().trim();
-    return val.length >= 2 && val.includes(' ') && val.split(' ').every(n => n.length > 0);
+    const noDigits = !/\d/.test(val);
+    const validFormat = /^[A-Za-zÀ-ÿ']+(?:\s+[A-Za-zÀ-ÿ']+)+$/.test(val);
+    return val.length >= 2 && val.length <= 100 && noDigits && validFormat;
   });
 
   phoneValid = computed(() => {
@@ -789,6 +792,11 @@ export class RegisterStep1Component {
 
   markTouched(field: string) {
     this.touchedFields.update(curr => ({ ...curr, [field]: true }));
+  }
+
+  onFullNameInput(value: string) {
+    const clean = value.replace(/[0-9]/g, '');
+    this.fullName.set(clean);
   }
 
   onPhoneInput(value: string) {

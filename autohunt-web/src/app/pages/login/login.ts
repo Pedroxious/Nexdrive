@@ -534,7 +534,7 @@ const AUTH_TIMEOUT_MS = 10_000;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-xl);
-      padding: 44px 40px 36px;
+      padding: 28px 32px 24px;
       box-shadow:
         var(--shadow-lg),
         0 0 0 1px rgba(0, 191, 234, 0.03);
@@ -797,22 +797,22 @@ const AUTH_TIMEOUT_MS = 10_000;
 
     /* ═══════ FORM HEADER ═══════ */
     .form-header {
-      margin-bottom: 32px;
+      margin-bottom: 20px;
       text-align: center;
 
       h1 {
         font-family: 'Outfit', sans-serif;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 800;
         color: var(--text-primary);
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         letter-spacing: -0.3px;
       }
       p {
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
+        font-size: 13px;
         color: var(--text-secondary);
-        line-height: 1.5;
+        line-height: 1.4;
       }
     }
 
@@ -822,15 +822,15 @@ const AUTH_TIMEOUT_MS = 10_000;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      padding: 13px 24px;
+      gap: 10px;
+      padding: 10px 20px;
       background: var(--surface);
       border: 1.5px solid var(--border);
       border-radius: var(--radius-md);
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13.5px;
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -858,9 +858,9 @@ const AUTH_TIMEOUT_MS = 10_000;
       display: flex;
       align-items: center;
       text-align: center;
-      margin: 24px 0;
+      margin: 16px 0;
       color: var(--text-muted);
-      font-size: 12px;
+      font-size: 11.5px;
       font-family: 'Inter', sans-serif;
       font-weight: 500;
 
@@ -869,12 +869,12 @@ const AUTH_TIMEOUT_MS = 10_000;
         flex: 1;
         border-bottom: 1px solid var(--border);
       }
-      span { padding: 0 16px; }
+      span { padding: 0 12px; }
     }
 
     /* ═══════ FORM FIELDS ═══════ */
     .field-group {
-      margin-bottom: 22px;
+      margin-bottom: 14px;
       text-align: left;
       transition: all 0.2s;
     }
@@ -954,13 +954,13 @@ const AUTH_TIMEOUT_MS = 10_000;
 
     .form-input {
       width: 100%;
-      padding: 13px 44px 13px 44px;
+      padding: 10px 40px 10px 40px;
       background: var(--surface-secondary);
       border: 1.5px solid var(--border);
       border-radius: var(--radius-md);
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 500;
       outline: none;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1028,10 +1028,10 @@ const AUTH_TIMEOUT_MS = 10_000;
     .field-message {
       display: block;
       font-family: 'Inter', sans-serif;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 500;
       color: var(--error);
-      margin-top: 6px;
+      margin-top: 4px;
       padding-left: 2px;
       animation: panelIn 0.2s ease-out;
     }
@@ -1041,14 +1041,14 @@ const AUTH_TIMEOUT_MS = 10_000;
       display: flex;
       align-items: center;
       gap: 10px;
-      margin: 0 0 20px;
-      padding: 12px 16px;
+      margin: 0 0 14px;
+      padding: 10px 14px;
       background: rgba(239, 68, 68, 0.06);
       border: 1px solid rgba(239, 68, 68, 0.18);
       border-radius: var(--radius-md);
       color: var(--error);
       font-family: 'Inter', sans-serif;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 500;
       text-align: left;
       animation: panelIn 0.22s ease-out forwards;
@@ -1056,7 +1056,7 @@ const AUTH_TIMEOUT_MS = 10_000;
 
     /* ═══════ REMEMBER ME ═══════ */
     .remember-row {
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
 
     .remember-label {
@@ -1065,7 +1065,7 @@ const AUTH_TIMEOUT_MS = 10_000;
       gap: 10px;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
-      font-size: 13px;
+      font-size: 12.5px;
       color: var(--text-secondary);
       user-select: none;
       margin: 0;
@@ -1079,10 +1079,10 @@ const AUTH_TIMEOUT_MS = 10_000;
     }
 
     .custom-checkbox {
-      width: 18px;
-      height: 18px;
+      width: 17px;
+      height: 17px;
       border: 1.5px solid var(--border);
-      border-radius: 5px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1111,14 +1111,14 @@ const AUTH_TIMEOUT_MS = 10_000;
     /* ═══════ SUBMIT BUTTON ═══════ */
     .submit-btn {
       width: 100%;
-      padding: 14px 24px;
+      padding: 11px 24px;
       background: var(--accent);
       color: var(--text-inverse);
       border: none;
       border-radius: var(--radius-md);
       font-family: 'Outfit', sans-serif;
       font-weight: 700;
-      font-size: 15px;
+      font-size: 14.5px;
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
@@ -1159,12 +1159,12 @@ const AUTH_TIMEOUT_MS = 10_000;
 
     /* ═══════ SIGN-UP FOOTER ═══════ */
     .signup-footer {
-      margin-top: 28px;
+      margin-top: 18px;
       text-align: center;
 
       p {
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
+        font-size: 13px;
         color: var(--text-secondary);
       }
       a {
@@ -1184,8 +1184,8 @@ const AUTH_TIMEOUT_MS = 10_000;
     .trust-indicators {
       display: flex;
       justify-content: center;
-      gap: 28px;
-      margin-top: 28px;
+      gap: 24px;
+      margin-top: 18px;
     }
 
     .trust-item {

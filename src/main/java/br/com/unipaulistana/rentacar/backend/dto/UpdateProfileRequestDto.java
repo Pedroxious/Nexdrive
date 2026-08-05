@@ -1,6 +1,7 @@
 package br.com.unipaulistana.rentacar.backend.dto;
 
 import jakarta.validation.constraints.*;
+import java.time.LocalDate;
 
 /**
  * Input DTO for profile updates — only mutable, non-sensitive fields.
@@ -8,19 +9,19 @@ import jakarta.validation.constraints.*;
  */
 public record UpdateProfileRequestDto(
 
-        @Size(min = 2, max = 200, message = "Nome deve ter entre 2 e 200 caracteres")
+        @Size(min = 2, max = 100, message = "Nome deve ter entre 2 e 100 caracteres")
+        @Pattern(regexp = "^$|^[A-Za-zÀ-ÿ']+(?:\\s+[A-Za-zÀ-ÿ']+)+$", message = "Nome completo inválido. Digite seu nome e sobrenome sem números")
         String fullName,
 
-        @Size(max = 20, message = "Telefone não pode exceder 20 caracteres")
-        @Pattern(regexp = "^[+\\d\\s()\\-]*$", message = "Telefone contém caracteres inválidos")
+        @Size(max = 20, message = "Telefone inválido")
+        @Pattern(regexp = "^$|^\\(\\d{2}\\)\\s?\\d{4,5}-\\d{4}$|^\\d{10,11}$", message = "Telefone inválido. Digite um número de telefone com DDD válido")
         String phone,
 
         @Size(max = 14, message = "CPF inválido")
-        @Pattern(regexp = "^\\d{3}\\.?\\d{3}\\.?\\d{3}[-\\.]?\\d{2}$", message = "CPF inválido")
+        @Pattern(regexp = "^$|^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$|^\\d{11}$", message = "CPF inválido")
         String cpf,
 
-        java.time.LocalDate birthDate,
+        LocalDate birthDate,
 
-        // profileImageUrl is validated separately (magic bytes check)
         String profileImageUrl
 ) {}

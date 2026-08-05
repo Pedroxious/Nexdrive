@@ -36,12 +36,18 @@ public class AuthService {
             throw new IllegalArgumentException("Erro ao processar o cadastro. Verifique os dados fornecidos.");
         }
 
+        if (dto.cpf() != null && !dto.cpf().isBlank()) {
+            if (!br.com.unipaulistana.rentacar.backend.util.CpfUtils.isValidCpf(dto.cpf())) {
+                throw new IllegalArgumentException("CPF inválido. Verifique os números digitados.");
+            }
+        }
+
         User user = User.builder()
-                .fullName(dto.fullName().strip())
+                .fullName(br.com.unipaulistana.rentacar.backend.util.CpfUtils.normalizeName(dto.fullName()))
                 .email(dto.email().toLowerCase().strip())
                 .password(passwordEncoder.encode(dto.password()))
-                .phone(dto.phone())
-                .cpf(dto.cpf())
+                .phone(dto.phone() != null ? dto.phone().strip() : null)
+                .cpf(dto.cpf() != null ? dto.cpf().replaceAll("\\D", "") : null)
                 .birthDate(dto.birthDate())
                 .role(UserRole.USER)
                 .build();
