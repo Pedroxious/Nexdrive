@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -19,50 +20,73 @@ public class DescriptionTemplateSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (repository.count() == 0) {
-            repository.saveAll(List.of(
-                // INTRO (5)
-                createTemplate(DescriptionBlockType.INTRO, "Conheça este incrível {brand} {model} {year}, uma excelente opção na categoria {category}.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.INTRO, "Apresentamos o {brand} {model}, um veículo espetacular do ano {year}.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.INTRO, "Procurando um {category} de respeito? O {brand} {model} {year} está pronto para te surpreender.", null, null, null, null, null, null, 2),
-                createTemplate(DescriptionBlockType.INTRO, "Chegou o momento de dirigir um {brand} {model} zero km!", null, null, null, true, null, null, 3),
-                createTemplate(DescriptionBlockType.INTRO, "Para quem busca economia na categoria {category}, o {brand} {model} {year} é a escolha perfeita.", null, null, null, null, null, null, 1),
+        // Re-seed or seed if empty / missing new categories
+        if (repository.count() < 40) {
+            repository.deleteAllInBatch();
+            List<DescriptionTemplate> templates = new ArrayList<>();
 
-                // CONDITION (5)
-                createTemplate(DescriptionBlockType.CONDITION, "O carro encontra-se em estado de zero, brilhando na cor {color}.", null, null, null, true, null, null, 2),
-                createTemplate(DescriptionBlockType.CONDITION, "Na cor {color}, este modelo possui {mileage}, comprovando seu excelente estado de conservação.", null, null, null, false, null, 50000L, 2),
-                createTemplate(DescriptionBlockType.CONDITION, "Veículo na cor {color}, super bem conservado e com {mileage} rodados.", null, null, null, false, null, null, 1),
-                createTemplate(DescriptionBlockType.CONDITION, "Impecável, com cheirinho de novo e {mileage}, pronto para a sua garagem.", null, null, null, false, null, 10000L, 3),
-                createTemplate(DescriptionBlockType.CONDITION, "Sua belíssima pintura {color} chama a atenção por onde passa, estado impecável de conservação.", null, null, null, null, null, null, 1),
+            // ─── 1. OPENING (Abertura / Apresentação) ─────────────────────────
+            templates.add(createTemplate(DescriptionBlockType.OPENING, "Conheça este incrível {brand} {model} {year}, uma referência impecável na categoria {category}.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.OPENING, "Apresentamos o {brand} {model}, um veículo espetacular do ano {year} feito para quem não abre mão de sofisticação.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.OPENING, "Procurando um {category} de alto padrão? O {brand} {model} {year} entrega exatamente o que você precisa.", null, null, null, null, null, null, 3));
+            templates.add(createTemplate(DescriptionBlockType.OPENING, "Chegou a oportunidade perfeita para você dirigir um {brand} {model} zero km!", null, null, null, true, null, null, 3));
+            templates.add(createTemplate(DescriptionBlockType.OPENING, "Para quem busca a melhor relação custo-benefício na categoria {category}, o {brand} {model} {year} é a escolha definitiva.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.OPENING, "Destaque absoluto por onde passa, o {brand} {model} {year} reúne elegância e presença marcante.", null, null, null, null, null, null, 1));
+            templates.add(createTemplate(DescriptionBlockType.OPENING, "Se você procura inovação e estilo no segmento de {category}, o {brand} {model} vai superar suas expectativas.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.OPENING, "Uma verdadeira joia automotiva: {brand} {model} {year}, pronto para proporcionar experiências inesquecíveis.", null, null, null, null, null, null, 1));
 
-                // PERFORMANCE (5)
-                createTemplate(DescriptionBlockType.PERFORMANCE, "Com câmbio {transmission} e motorização {fuelType}, ele oferece uma performance suave e econômica.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.PERFORMANCE, "O câmbio {transmission} garante o máximo de esportividade nas trocas de marcha.", null, "MANUAL", null, null, null, null, 2),
-                createTemplate(DescriptionBlockType.PERFORMANCE, "Graças ao câmbio {transmission}, você terá extremo conforto no trânsito urbano.", null, "AUTOMATIC", null, null, null, null, 2),
-                createTemplate(DescriptionBlockType.PERFORMANCE, "Movido a {fuelType}, o motor entrega potência e eficiência impecáveis.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.PERFORMANCE, "Com motor eficiente a {fuelType} e câmbio {transmission}, a dirigibilidade é o ponto forte deste carro.", null, null, null, null, null, null, 1),
+            // ─── 2. CONDITION (Conservação / Odômetro / Pintura) ─────────────
+            templates.add(createTemplate(DescriptionBlockType.CONDITION, "O veículo encontra-se em estado impecável, reluzindo na elegante cor {color}.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.CONDITION, "Na deslumbrante cor {color}, este exemplar registra apenas {mileage}, comprovando o zelo extremo na manutenção.", null, null, null, false, null, 60000L, 3));
+            templates.add(createTemplate(DescriptionBlockType.CONDITION, "Super conservado, com pintura na cor {color} sem detalhes e apenas {mileage} rodados.", null, null, null, false, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.CONDITION, "Impecável em cada centímetro, com cheirinho de novo e {mileage}, pronto para a sua garagem.", null, null, null, false, null, 15000L, 3));
+            templates.add(createTemplate(DescriptionBlockType.CONDITION, "Sua belíssima lataria na cor {color} chama a atenção pela conservação exemplar de um seminovo rigorosamente cuidado.", null, null, null, null, null, null, 1));
+            templates.add(createTemplate(DescriptionBlockType.CONDITION, "Veículo zero km, sem detalhes de uso, entregue 100% higienizado e vitrificado na cor {color}.", null, null, null, true, null, null, 3));
+            templates.add(createTemplate(DescriptionBlockType.CONDITION, "Conservação nota 10: interior preservado, lataria impecável em {color} e mecânica 100% revisada.", null, null, null, null, null, null, 2));
 
-                // COMFORT (5)
-                createTemplate(DescriptionBlockType.COMFORT, "Acomodando confortavelmente até {seats} pessoas, é perfeito para você e sua família.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.COMFORT, "O espaço interno impressiona, com {doors} portas que facilitam o acesso para os {seats} ocupantes.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.COMFORT, "O acabamento refinado e os {seats} lugares garantem uma viagem luxuosa e tranquila.", "SUV", null, null, null, null, null, 2),
-                createTemplate(DescriptionBlockType.COMFORT, "Seus {seats} lugares são envolventes e as {doors} portas proporcionam praticidade total para o dia a dia.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.COMFORT, "Muito espaço e comodidade para {seats} passageiros em qualquer tipo de trajeto.", null, null, null, null, null, null, 1),
+            // ─── 3. PERFORMANCE (Desempenho / Câmbio / Combustível) ───────────
+            templates.add(createTemplate(DescriptionBlockType.PERFORMANCE, "Equipado com câmbio {transmission} e motorização {fuelType}, oferece uma experiência de condução dinâmica e eficiente.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.PERFORMANCE, "O câmbio {transmission} garante trocas extremamente precisas e um engate esportivo a cada aceleração.", null, "MANUAL", null, null, null, null, 3));
+            templates.add(createTemplate(DescriptionBlockType.PERFORMANCE, "Graças ao eficiente câmbio {transmission}, você terá máximo conforto e fluidez tanto no trânsito urbano quanto na estrada.", null, "AUTOMATIC", null, null, null, null, 3));
+            templates.add(createTemplate(DescriptionBlockType.PERFORMANCE, "Alimentado a {fuelType}, o motor entrega resposta rápida ao acelerador aliada a excelente rendimento energético.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.PERFORMANCE, "Sua mecânica a {fuelType} atua em perfeita sintonia com a transmissão {transmission}, proporcionando um rodar silencioso e ágil.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.PERFORMANCE, "Excelente eficiência de combustível combinada com a precisão do câmbio {transmission}, perfeito para qualquer distância.", null, null, null, null, null, null, 1));
 
-                // SAFETY (5)
-                createTemplate(DescriptionBlockType.SAFETY, "Itens de segurança de série mantêm todos a bordo protegidos a todo momento.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.SAFETY, "Conta com estrutura reforçada e freios de alta performance para maior tranquilidade.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.SAFETY, "Com tecnologias avançadas, proporciona uma direção segura e confiável na categoria {category}.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.SAFETY, "Dirigir este {brand} é sinônimo de segurança, estabilidade e confiança nas estradas.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.SAFETY, "Totalmente revisado e preparado para oferecer o mais alto nível de segurança para você.", null, null, null, null, null, null, 1),
+            // ─── 4. COMFORT (Espaço Interno / Lugares / Portas) ───────────────
+            templates.add(createTemplate(DescriptionBlockType.COMFORT, "Acomodando confortavelmente até {seats} pessoas, o habitáculo foi desenhado para garantir o máximo bem-estar de todos os ocupantes.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.COMFORT, "O amplo espaço interno impressiona, com {doors} portas que facilitam a acessibilidade para os {seats} ocupantes.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.COMFORT, "O acabamento refinado e a ergonomia dos {seats} lugares garantem viagens extremamente relaxantes e silenciosas.", "SUV", null, null, null, null, null, 3));
+            templates.add(createTemplate(DescriptionBlockType.COMFORT, "Seus {seats} lugares anatômicos e as {doors} portas proporcionam praticidade incomparável para a rotina diária.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.COMFORT, "Excelente habitabilidade com porta-malas generoso e acomodação exemplar para {seats} passageiros.", null, null, null, null, null, null, 1));
+            templates.add(createTemplate(DescriptionBlockType.COMFORT, "O projeto interno privilegia o espaço das pernas e a ergonomia dos {seats} ocupantes, tornando trajetos longos um prazer.", null, null, null, null, null, null, 2));
 
-                // OUTRO (5)
-                createTemplate(DescriptionBlockType.OUTRO, "Disponível para locação por apenas {pricePerDay}, e você pode retirá-lo em {city} - {state}.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.OUTRO, "Aproveite esta oportunidade por {pricePerDay} e venha nos visitar em {city}.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.OUTRO, "Sua próxima viagem começa aqui em {city} - {state}. Reserve agora por {pricePerDay}!", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.OUTRO, "Oferecemos as melhores condições em {city} - {state}. O valor da diária é de apenas {pricePerDay}.", null, null, null, null, null, null, 1),
-                createTemplate(DescriptionBlockType.OUTRO, "Garanta já o seu {brand} {model} por {pricePerDay}. Retirada fácil na região de {city} / {state}.", null, null, null, null, null, null, 2)
-            ));
+            // ─── 5. TECHNOLOGY (Infotenimento / Conectividade) ────────────────
+            templates.add(createTemplate(DescriptionBlockType.TECHNOLOGY, "Recheado de recursos de tecnologia, traz painel digital intuitivo e conectividade completa para o seu smartphone.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.TECHNOLOGY, "Conta com central multimídia de alta resolução, comandos no volante e espelhamento sem fio.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.TECHNOLOGY, "Interface tecnológica avançada com computador de bordo completo, facilitando o acesso a todas as métricas do veículo.", null, null, null, null, null, null, 1));
+            templates.add(createTemplate(DescriptionBlockType.TECHNOLOGY, "Equipado com volante multifuncional, piloto automático e sistema de som de alta fidelidade sonora.", null, null, null, null, null, null, 2));
+
+            // ─── 6. SAFETY (Segurança / Freios / Estabilidade) ────────────────
+            templates.add(createTemplate(DescriptionBlockType.SAFETY, "Itens de segurança de última geração garantem proteção integral a todos os passageiros a bordo.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.SAFETY, "Conta com estrutura de alta rigidez torcional, controle de estabilidade e sistema de freios ABS de resposta imediata.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.SAFETY, "Com pacote de assistências avançadas, proporciona uma direção firme, previsível e extremamente segura na categoria {category}.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.SAFETY, "Dirigir este {brand} é sinônimo de tranquilidade absoluta, estabilidade exemplar nas curvas e máxima confiança.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.SAFETY, "Veículo submetido a rigorosa checagem de mais de 100 itens de segurança antes de ser colocado à disposição.", null, null, null, null, null, null, 3));
+
+            // ─── 7. DIFFERENTIALS (Diferenciais / Opcionais / Vantagens) ──────
+            templates.add(createTemplate(DescriptionBlockType.DIFFERENTIALS, "Diferencial exclusivo: laudo cautelar 100% aprovado, histórico de manutenção em dia e documentação regularizada.", null, null, null, null, null, null, 3));
+            templates.add(createTemplate(DescriptionBlockType.DIFFERENTIALS, "Excelente valorização no mercado e baixíssimo custo de manutenção para a sua categoria.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.DIFFERENTIALS, "Acompanha chave reserva, manual do proprietário carimbado e jogo de pneus em excelente estado.", null, null, null, false, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.DIFFERENTIALS, "Um exemplar diferenciado que se destaca pela procedência comprovada e estado impecável.", null, null, null, null, null, null, 1));
+
+            // ─── 8. CLOSING (Encerramento / Chamada para Ação / Valor) ────────
+            templates.add(createTemplate(DescriptionBlockType.CLOSING, "Disponível para entrega imediata por apenas {pricePerDay}, com rápida retirada na região de {city} - {state}.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.CLOSING, "Não perca esta oportunidade única por {pricePerDay}. Agende uma visita ou reserva online em {city}.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.CLOSING, "Sua próxima experiência ao volante começa aqui em {city} - {state}. Reserve agora por {pricePerDay}!", null, null, null, null, null, null, 3));
+            templates.add(createTemplate(DescriptionBlockType.CLOSING, "Oferecemos facilidade e transparência em {city} - {state}. O valor especial da diária é de apenas {pricePerDay}.", null, null, null, null, null, null, 2));
+            templates.add(createTemplate(DescriptionBlockType.CLOSING, "Garanta já o seu {brand} {model} por {pricePerDay}. Atendimento rápido e personalizado em {city} / {state}.", null, null, null, null, null, null, 3));
+
+            repository.saveAll(templates);
         }
     }
 

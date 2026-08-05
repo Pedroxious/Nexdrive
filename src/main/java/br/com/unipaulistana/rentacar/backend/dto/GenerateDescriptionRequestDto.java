@@ -6,6 +6,7 @@ import br.com.unipaulistana.rentacar.backend.domain.VehicleCategory;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class GenerateDescriptionRequestDto {
@@ -24,4 +25,9 @@ public class GenerateDescriptionRequestDto {
     private Integer seats;
     private Integer doors;
     private String description;
+    
+    /**
+     * Session history of previously generated descriptions for anti-repetition quality control.
+     */
+    private List<String> previousDescriptions;
 }

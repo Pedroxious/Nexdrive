@@ -1,10 +1,12 @@
 package br.com.unipaulistana.rentacar.backend.domain;
 
 public enum DescriptionBlockType {
-    INTRO,
-    CONDITION,
-    PERFORMANCE,
-    COMFORT,
-    SAFETY,
-    OUTRO
+    OPENING,        // Abertura e apresentação principal
+    CONDITION,      // Estado de conservação, pintura, odômetro
+    PERFORMANCE,    // Motorização, câmbio, dirigibilidade, consumo
+    COMFORT,        // Espaço interno, acabamento, capacidade
+    TECHNOLOGY,     // Conectividade, multimídia, recursos tecnológicos
+    SAFETY,         // Sistemas de segurança, freios, estabilidade
+    DIFFERENTIALS,  // Opcionais exclusivos, valorização, diferenciais
+    CLOSING         // Encerramento, chamada para ação, disponibilidade
 }
