@@ -228,6 +228,7 @@ import { LanguageService } from '../../core/services/language';
     }
     .currency { font-size: 14px; font-weight: 700; color: #00BFFF; }
     .amount { font-size: 22px; font-weight: 700; color: #00BFFF; font-family: 'Outfit', sans-serif; line-height: 1; }
+    .formatted-price { font-size: 22px; font-weight: 700; color: #00BFFF; font-family: 'Outfit', sans-serif; line-height: 1; }
     .period { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 2px; }
 
     .reserve-btn {
@@ -259,6 +260,7 @@ import { LanguageService } from '../../core/services/language';
       .spec { padding: 3px 6px; font-size: 10px; }
       .card-footer { padding-top: 10px; }
       .amount { font-size: 18px; }
+      .formatted-price { font-size: 18px; }
       .currency { font-size: 12px; }
       .period { font-size: 11px; }
       .reserve-btn { padding: 7px 12px; font-size: 11px; }
@@ -272,6 +274,7 @@ import { LanguageService } from '../../core/services/language';
       .card-body { padding: 12px 14px 16px; }
       .car-name { font-size: 15px; }
       .amount { font-size: 20px; }
+      .formatted-price { font-size: 20px; }
       .reserve-btn { padding: 8px 14px; font-size: 12px; }
     }
   `]

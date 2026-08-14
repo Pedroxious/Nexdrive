@@ -1,6 +1,8 @@
-import { Component, Input, Output, EventEmitter, signal, model } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, model, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LanguageService } from '../../core/services/language';
+import { CurrencyService } from '../../core/services/currency';
 
 @Component({
    selector: 'app-filter-sidebar',
@@ -9,23 +11,23 @@ import { FormsModule } from '@angular/forms';
    template: `
     <div class="sidebar">
       <div class="sidebar-header">
-        <h2>Filtros</h2>
-        <button class="reset-all" (click)="clearAll()">Limpar tudo</button>
+        <h2>{{ langService.t('filter.title') }}</h2>
+        <button class="reset-all" (click)="clearAll()">{{ langService.t('btn.clear_all') }}</button>
       </div>
 
       <!-- Car Type Section -->
       <div class="filter-section" [class.collapsed]="isCollapsed('type')">
         <button class="section-trigger" (click)="toggleSection('type')">
-          <span>Tipo de Veículo</span>
+          <span>{{ langService.t('filter.vehicle_type') }}</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </button>
         <div class="section-content">
           <div class="toggle-group">
-            <button [class.active]="carType() === 'all'" (click)="setCarType('all')">Todos</button>
-            <button [class.active]="carType() === 'new'" (click)="setCarType('new')">Novos</button>
-            <button [class.active]="carType() === 'used'" (click)="setCarType('used')">Seminovos</button>
+            <button [class.active]="carType() === 'all'" (click)="setCarType('all')">{{ langService.t('filter.all') }}</button>
+            <button [class.active]="carType() === 'new'" (click)="setCarType('new')">{{ langService.t('filter.new') }}</button>
+            <button [class.active]="carType() === 'used'" (click)="setCarType('used')">{{ langService.t('filter.used') }}</button>
           </div>
         </div>
       </div>
@@ -33,7 +35,7 @@ import { FormsModule } from '@angular/forms';
       <!-- Brands Section -->
       <div class="filter-section" [class.collapsed]="isCollapsed('brands')">
         <button class="section-trigger" (click)="toggleSection('brands')">
-          <span>Marcas</span>
+          <span>{{ langService.t('filter.brands') }}</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
@@ -64,14 +66,14 @@ import { FormsModule } from '@angular/forms';
       <!-- Price Section -->
       <div class="filter-section" [class.collapsed]="isCollapsed('price')">
         <button class="section-trigger" (click)="toggleSection('price')">
-          <span>Preço Diária</span>
+          <span>{{ langService.t('filter.daily_price') }}</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </button>
         <div class="section-content">
           <div class="price-info">
-            <span class="price-val">Até R$ {{ maxPrice() }}</span>
+            <span class="price-val">{{ langService.t('filter.up_to') }} {{ currency.format(maxPrice()) }}</span>
           </div>
           <input 
             type="range" 
@@ -83,8 +85,8 @@ import { FormsModule } from '@angular/forms';
             class="price-slider"
           >
           <div class="price-labels">
-            <span>R$ 0</span>
-            <span>R$ 1.000+</span>
+            <span>{{ currency.format(0) }}</span>
+            <span>{{ currency.format(1000) }}+</span>
           </div>
         </div>
       </div>
@@ -92,7 +94,7 @@ import { FormsModule } from '@angular/forms';
       <!-- Fuel Section -->
       <div class="filter-section" [class.collapsed]="isCollapsed('fuel')">
         <button class="section-trigger" (click)="toggleSection('fuel')">
-          <span>Combustível</span>
+          <span>{{ langService.t('filter.fuel') }}</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
@@ -113,7 +115,7 @@ import { FormsModule } from '@angular/forms';
       <!-- Transmission Section -->
       <div class="filter-section" [class.collapsed]="isCollapsed('transmission')">
         <button class="section-trigger" (click)="toggleSection('transmission')">
-          <span>Transmissão</span>
+          <span>{{ langService.t('filter.transmission') }}</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
@@ -134,14 +136,14 @@ import { FormsModule } from '@angular/forms';
       <!-- Options Section -->
       <div class="filter-section" [class.collapsed]="isCollapsed('options')">
         <button class="section-trigger" (click)="toggleSection('options')">
-          <span>Diferenciais</span>
+          <span>{{ langService.t('filter.extras') }}</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </button>
         <div class="section-content">
           <label class="switch-item clickable">
-            <span class="label-text">Free Test Drive</span>
+            <span class="label-text">{{ langService.t('filter.free_test_drive') }}</span>
             <input type="checkbox" [checked]="testDrive()" (change)="toggleTestDrive()">
             <span class="switch"></span>
           </label>
@@ -521,6 +523,9 @@ import { FormsModule } from '@angular/forms';
   `]
 })
 export class FilterSidebarComponent {
+   langService = inject(LanguageService);
+   currency = inject(CurrencyService);
+
    testDrive = model(false);
    carType = model('all');
    selectedBrands = model<string[]>([]);

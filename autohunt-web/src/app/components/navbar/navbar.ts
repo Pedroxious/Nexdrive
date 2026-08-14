@@ -34,17 +34,17 @@ import { LanguageService } from '../../core/services/language';
         <div class="nav-center">
           <div class="location-btn clickable" (click)="toggleLocations($event)">
             <lucide-icon name="map-pin" class="loc-icon" [size]="18"></lucide-icon>
-            <span class="loc-text">{{ carService.selectedLocation() === 'Todos' ? 'Todas as cidades' : carService.selectedLocation() }}</span>
+            <span class="loc-text">{{ carService.selectedLocation() === 'Todos' ? langService.t('nav.all_cities') : carService.selectedLocation() }}</span>
             <lucide-icon name="chevron-down" class="chevron" [size]="16"></lucide-icon>
           </div>
           <div class="loc-dropdown" *ngIf="showLocations()" (click)="$event.stopPropagation()">
-            <div class="dropdown-header">Selecione a cidade</div>
+            <div class="dropdown-header">{{ langService.t('nav.select_city') }}</div>
             @for (city of cities; track city) {
               <div class="loc-item clickable"
                    [class.active]="carService.selectedLocation() === city"
                    (click)="selectCity(city, $event)">
                 <lucide-icon name="check" [size]="16" *ngIf="carService.selectedLocation() === city"></lucide-icon>
-                {{ city === 'Todos' ? 'Todas as cidades' : city }}
+                {{ city === 'Todos' ? langService.t('nav.all_cities') : city }}
               </div>
             }
           </div>
@@ -52,14 +52,29 @@ import { LanguageService } from '../../core/services/language';
 
         <!-- Right: Actions -->
         <div class="nav-right">
-          <!-- Language Toggle (PT / EN) -->
-          <button class="lang-btn clickable" (click)="langService.toggleLanguage()" [title]="langService.t('nav.language')">
-            <span class="flag-icon">{{ langService.currentLang() === 'pt' ? '🇧🇷' : '🇺🇸' }}</span>
-            <span class="lang-code">{{ langService.currentLang() === 'pt' ? 'PT-BR' : 'EN-US' }}</span>
-          </button>
+          <!-- Language Selector Dropdown (Amazon / SaaS Premium Style) -->
+          <div class="lang-selector-wrap">
+            <button class="lang-trigger clickable" (click)="toggleLangDropdown($event)" [title]="langService.t('nav.language')">
+              <span class="flag-icon">{{ langService.currentLang() === 'pt' ? '🇧🇷' : '🇺🇸' }}</span>
+              <lucide-icon name="chevron-down" class="chevron" [size]="14" [class.open]="showLangDropdown()"></lucide-icon>
+            </button>
+
+            <div class="dropdown-panel lang-dropdown" *ngIf="showLangDropdown()" (click)="$event.stopPropagation()">
+              <div class="lang-option clickable" [class.active]="langService.currentLang() === 'pt'" (click)="selectLanguage('pt', $event)">
+                <span class="flag">🇧🇷</span>
+                <span class="lang-name">Português (BR)</span>
+                <lucide-icon name="check" [size]="14" class="check-mark" *ngIf="langService.currentLang() === 'pt'"></lucide-icon>
+              </div>
+              <div class="lang-option clickable" [class.active]="langService.currentLang() === 'en'" (click)="selectLanguage('en', $event)">
+                <span class="flag">🇺🇸</span>
+                <span class="lang-name">English (US)</span>
+                <lucide-icon name="check" [size]="14" class="check-mark" *ngIf="langService.currentLang() === 'en'"></lucide-icon>
+              </div>
+            </div>
+          </div>
 
           <!-- Theme Toggle -->
-          <button class="icon-btn clickable" (click)="theme.toggleTheme()" title="Alternar tema">
+          <button class="icon-btn clickable" (click)="theme.toggleTheme()" [title]="langService.t('nav.toggle_theme')">
             <lucide-icon [name]="theme.theme() === 'light' ? 'moon' : 'sun'" [size]="20"></lucide-icon>
           </button>
 
@@ -70,7 +85,7 @@ import { LanguageService } from '../../core/services/language';
               <span class="badge" *ngIf="notifCount() > 0">{{ notifCount() }}</span>
             </button>
             <div class="dropdown-panel notif-dropdown" *ngIf="showNotif()">
-              <div class="dropdown-header">Notificações</div>
+              <div class="dropdown-header">{{ langService.t('nav.notifications') }}</div>
               <div class="notif-list">
                 <div class="notif-item">
                   <lucide-icon name="check" [size]="16" class="notif-icon success"></lucide-icon>
@@ -81,7 +96,7 @@ import { LanguageService } from '../../core/services/language';
                   <span>Novo Tesla Model 3 disponível em SP.</span>
                 </div>
               </div>
-              <div class="dropdown-footer clickable">Ver todas</div>
+              <div class="dropdown-footer clickable">{{ langService.t('nav.view_all') }}</div>
             </div>
           </div>
 
@@ -103,17 +118,17 @@ import { LanguageService } from '../../core/services/language';
                   </div>
                   <div class="dropdown-divider"></div>
                   <a routerLink="/profile" class="drop-item clickable">
-                    <lucide-icon name="user" [size]="16"></lucide-icon> Meu Perfil
+                    <lucide-icon name="user" [size]="16"></lucide-icon> {{ langService.t('nav.profile') }}
                   </a>
                   <a routerLink="/my-rentals" class="drop-item clickable">
-                    <lucide-icon name="calendar-days" [size]="16"></lucide-icon> Minhas Reservas
+                    <lucide-icon name="calendar-days" [size]="16"></lucide-icon> {{ langService.t('nav.my_rentals') }}
                   </a>
                   <a routerLink="/favorites" class="drop-item clickable">
-                    <lucide-icon name="heart" [size]="16"></lucide-icon> Favoritos
+                    <lucide-icon name="heart" [size]="16"></lucide-icon> {{ langService.t('nav.favorites') }}
                   </a>
                   <div class="dropdown-divider"></div>
                   <button class="drop-item logout clickable" (click)="auth.logout()">
-                    <lucide-icon name="log-out" [size]="16"></lucide-icon> Sair
+                    <lucide-icon name="log-out" [size]="16"></lucide-icon> {{ langService.t('nav.logout') }}
                   </button>
                 </div>
               </div>
@@ -134,13 +149,13 @@ import { LanguageService } from '../../core/services/language';
 
       <!-- Mobile Menu Panel -->
       <div class="mobile-panel" *ngIf="mobileOpen()">
-        <a routerLink="/" class="mobile-link" (click)="mobileOpen.set(false)">Início</a>
-        <a routerLink="/rent" class="mobile-link" (click)="mobileOpen.set(false)">Alugar</a>
-        <a routerLink="/buy" class="mobile-link" (click)="mobileOpen.set(false)">Comprar</a>
-        <a routerLink="/sell-car" class="mobile-link" (click)="mobileOpen.set(false)">Anunciar</a>
-        <a routerLink="/about" class="mobile-link" (click)="mobileOpen.set(false)">Sobre</a>
-        <a routerLink="/faq" class="mobile-link" (click)="mobileOpen.set(false)">FAQ</a>
-        <a routerLink="/contact" class="mobile-link" (click)="mobileOpen.set(false)">Contato</a>
+        <a routerLink="/" class="mobile-link" (click)="mobileOpen.set(false)">{{ langService.t('nav.home') }}</a>
+        <a routerLink="/rent" class="mobile-link" (click)="mobileOpen.set(false)">{{ langService.t('nav.rent') }}</a>
+        <a routerLink="/buy" class="mobile-link" (click)="mobileOpen.set(false)">{{ langService.t('nav.buy') }}</a>
+        <a routerLink="/sell-car" class="mobile-link" (click)="mobileOpen.set(false)">{{ langService.t('nav.sell_car') }}</a>
+        <a routerLink="/about" class="mobile-link" (click)="mobileOpen.set(false)">{{ langService.t('nav.about') }}</a>
+        <a routerLink="/faq" class="mobile-link" (click)="mobileOpen.set(false)">{{ langService.t('nav.faq') }}</a>
+        <a routerLink="/contact" class="mobile-link" (click)="mobileOpen.set(false)">{{ langService.t('nav.contact') }}</a>
       </div>
     </nav>
   `,
@@ -247,20 +262,59 @@ import { LanguageService } from '../../core/services/language';
       &:hover { background: rgba(0,191,234,0.12); color: var(--accent); }
     }
 
-    .lang-btn {
-      display: flex; align-items: center; gap: 6px;
-      padding: 6px 12px; border-radius: 20px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #fff; font-size: 12px; font-weight: 700;
+    /* ── Amazon-style Premium Language Dropdown ── */
+    .lang-selector-wrap { position: relative; }
+
+    .lang-trigger {
+      display: flex; align-items: center; gap: 4px;
+      padding: 7px 10px; border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
       &:hover {
-        background: rgba(0, 191, 234, 0.18);
-        border-color: rgba(0, 191, 234, 0.4);
-        transform: translateY(-1px);
+        background: rgba(0, 191, 234, 0.14);
+        border-color: rgba(0, 191, 234, 0.40);
+        color: var(--accent);
       }
-      .flag-icon { font-size: 14px; }
-      .lang-code { font-family: 'Outfit', sans-serif; letter-spacing: 0.5px; }
+
+      .flag-icon { font-size: 16px; line-height: 1; }
+      .chevron {
+        color: rgba(255,255,255,0.50);
+        transition: transform 0.2s ease;
+        &.open { transform: rotate(180deg); color: var(--accent); }
+      }
+    }
+
+    .lang-dropdown {
+      min-width: 165px;
+      padding: 6px;
+      top: calc(100% + 8px);
+      right: 0;
+    }
+
+    .lang-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 6px;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+
+      .flag { font-size: 16px; }
+      .lang-name { flex: 1; font-family: 'Inter', sans-serif; }
+      .check-mark { color: var(--accent); }
+
+      &:hover {
+        background: var(--surface-secondary);
+        color: var(--text-primary);
+      }
+      &.active {
+        background: rgba(0, 191, 234, 0.12);
+        color: var(--accent);
+        font-weight: 600;
+      }
     }
 
     .badge {
@@ -423,6 +477,7 @@ export class NavbarComponent {
   showLocations = signal(false);
   showNotif = signal(false);
   showProfile = signal(false);
+  showLangDropdown = signal(false);
   notifCount = signal(2);
   mobileOpen = signal(false);
 
@@ -434,9 +489,16 @@ export class NavbarComponent {
     'Porto Alegre, RS', 'Goiânia, GO', 'Belém, PA'
   ];
 
-  toggleLocations(e: Event) { e.stopPropagation(); this.showLocations.update(v => !v); this.showNotif.set(false); this.showProfile.set(false); }
-  toggleNotifs(e: Event) { e.stopPropagation(); this.showNotif.update(v => !v); this.showLocations.set(false); this.showProfile.set(false); }
-  toggleProfile(e: Event) { e.stopPropagation(); this.showProfile.update(v => !v); this.showLocations.set(false); this.showNotif.set(false); }
+  toggleLocations(e: Event) { e.stopPropagation(); this.showLocations.update(v => !v); this.showNotif.set(false); this.showProfile.set(false); this.showLangDropdown.set(false); }
+  toggleNotifs(e: Event) { e.stopPropagation(); this.showNotif.update(v => !v); this.showLocations.set(false); this.showProfile.set(false); this.showLangDropdown.set(false); }
+  toggleProfile(e: Event) { e.stopPropagation(); this.showProfile.update(v => !v); this.showLocations.set(false); this.showNotif.set(false); this.showLangDropdown.set(false); }
+  toggleLangDropdown(e: Event) { e.stopPropagation(); this.showLangDropdown.update(v => !v); this.showLocations.set(false); this.showNotif.set(false); this.showProfile.set(false); }
+
+  selectLanguage(lang: 'pt' | 'en', e: Event) {
+    e.stopPropagation();
+    this.langService.setLanguage(lang);
+    this.showLangDropdown.set(false);
+  }
 
   selectCity(city: string, e: Event) {
     e.stopPropagation();
@@ -450,6 +512,7 @@ export class NavbarComponent {
       this.showLocations.set(false);
       this.showNotif.set(false);
       this.showProfile.set(false);
+      this.showLangDropdown.set(false);
     }
   }
 }

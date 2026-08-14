@@ -8,6 +8,8 @@ import { ToastService } from '../../core/services/toast';
 import { AuthService } from '../../core/services/auth';
 import { CarCardComponent } from '../../components/car-card/car-card';
 import { LoadingComponent } from '../../components/loading/loading';
+import { CurrencyService } from '../../core/services/currency';
+import { LanguageService } from '../../core/services/language';
 
 @Component({
   selector: 'app-car-detail',
@@ -22,7 +24,7 @@ import { LoadingComponent } from '../../components/loading/loading';
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
-          <span>Voltar ao Marketplace</span>
+          <span>{{ langService.t('detail.back') }}</span>
         </a>
       </div>
 
@@ -52,8 +54,8 @@ import { LoadingComponent } from '../../components/loading/loading';
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                   <circle cx="12" cy="13" r="4"></circle>
                 </svg>
-                <h3>Imagem em breve</h3>
-                <p>Esta vista de ângulo estará disponível em breve.</p>
+                <h3>{{ langService.t('detail.image_soon') }}</h3>
+                <p>{{ langService.t('detail.image_soon_desc') }}</p>
               </div>
             </div>
 
@@ -76,7 +78,7 @@ import { LoadingComponent } from '../../components/loading/loading';
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                     <circle cx="12" cy="13" r="4"></circle>
                   </svg>
-                  <span class="placeholder-text">Em breve</span>
+                  <span class="placeholder-text">{{ langService.t('detail.thumb_soon') }}</span>
                 </div>
                 
                 <div class="thumb-index">{{ i + 1 }}</div>
@@ -86,87 +88,87 @@ import { LoadingComponent } from '../../components/loading/loading';
 
           <!-- Description Section -->
           <div class="description-card" *ngIf="car()?.description">
-            <h3>Sobre o Veículo</h3>
+            <h3>{{ langService.t('detail.about_vehicle') }}</h3>
             <p>{{ car()?.description }}</p>
             <div class="location-info" *ngIf="car()?.city">
               <svg class="loc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
-              <span>Disponível em {{ car()?.city }}, {{ car()?.state }}</span>
+              <span>{{ langService.t('detail.available_in') }} {{ car()?.city }}, {{ car()?.state }}</span>
             </div>
           </div>
 
           <!-- Technical Specs Table (Mercado Livre/Movida Style) -->
           <section class="product-specs">
-            <h2>Ficha Técnica</h2>
+            <h2>{{ langService.t('detail.tech_sheet') }}</h2>
             <div class="specs-table-wrapper">
               <table class="specs-table">
                 <tbody>
                   <tr>
-                    <td class="spec-key">Marca</td>
+                    <td class="spec-key">{{ langService.t('spec_label.brand') }}</td>
                     <td class="spec-value">{{ car()?.brand }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Modelo</td>
+                    <td class="spec-key">{{ langService.t('spec_label.model') }}</td>
                     <td class="spec-value">{{ car()?.model }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Ano</td>
+                    <td class="spec-key">{{ langService.t('spec_label.year') }}</td>
                     <td class="spec-value">{{ car()?.year }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Categoria</td>
+                    <td class="spec-key">{{ langService.t('spec_label.category') }}</td>
                     <td class="spec-value">{{ translateCategory(car()?.categoryName || car()?.['category'] || '') }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Cor</td>
+                    <td class="spec-key">{{ langService.t('spec_label.color') }}</td>
                     <td class="spec-value">
                       <span class="color-dot-sm" [style.background]="getColorHex(car()?.color || '')"></span>
                       {{ translateColor(car()?.color || '') }}
                     </td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Combustível</td>
+                    <td class="spec-key">{{ langService.t('spec_label.fuel') }}</td>
                     <td class="spec-value">{{ translateFuel(car()?.fuelType || '') }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Câmbio</td>
+                    <td class="spec-key">{{ langService.t('spec_label.gearbox') }}</td>
                     <td class="spec-value">{{ translateTransmission(car()?.transmission || '') }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Lugares</td>
-                    <td class="spec-value">{{ car()?.seats }} assentos</td>
+                    <td class="spec-key">{{ langService.t('spec_label.seats') }}</td>
+                    <td class="spec-value">{{ car()?.seats }} {{ langService.t('spec.seats') }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Portas</td>
-                    <td class="spec-value">{{ car()?.doors }} portas</td>
+                    <td class="spec-key">{{ langService.t('spec_label.doors') }}</td>
+                    <td class="spec-value">{{ car()?.doors }} {{ langService.t('spec.doors') }}</td>
                   </tr>
                   <tr *ngIf="car()?.mileage !== undefined && car()?.mileage !== null">
-                    <td class="spec-key">Quilometragem</td>
-                    <td class="spec-value">{{ car()?.mileage | number:'1.0-0':'pt-BR' }} km</td>
+                    <td class="spec-key">{{ langService.t('spec_label.mileage') }}</td>
+                    <td class="spec-value">{{ car()?.mileage | number:'1.0-0':'pt-BR' }} {{ langService.t('spec.km') }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Ar Condicionado</td>
-                    <td class="spec-value">{{ car()?.airConditioning ? 'Sim' : 'Não' }}</td>
+                    <td class="spec-key">{{ langService.t('spec_label.air_conditioning') }}</td>
+                    <td class="spec-value">{{ car()?.airConditioning ? langService.t('spec_label.yes') : langService.t('spec_label.no') }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Test Drive Grátis</td>
-                    <td class="spec-value">{{ car()?.freeTestDrive ? 'Sim' : 'Não' }}</td>
+                    <td class="spec-key">{{ langService.t('spec_label.test_drive') }}</td>
+                    <td class="spec-value">{{ car()?.freeTestDrive ? langService.t('spec_label.yes') : langService.t('spec_label.no') }}</td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Condição</td>
+                    <td class="spec-key">{{ langService.t('spec_label.condition') }}</td>
                     <td class="spec-value">
                       <span class="table-badge" [class.new]="car()?.isNew || car()?.['new']">
-                        {{ (car()?.isNew || car()?.['new']) ? 'Novo' : 'Seminovo' }}
+                        {{ (car()?.isNew || car()?.['new']) ? langService.t('detail.condition_new') : langService.t('detail.condition_used') }}
                       </span>
                     </td>
                   </tr>
                   <tr>
-                    <td class="spec-key">Status</td>
+                    <td class="spec-key">{{ langService.t('spec_label.status') }}</td>
                     <td class="spec-value">
                       <span class="table-badge" [class.available]="car()?.available">
-                        {{ car()?.available ? 'Disponível' : 'Indisponível' }}
+                        {{ car()?.available ? langService.t('spec_label.available') : langService.t('spec_label.unavailable') }}
                       </span>
                     </td>
                   </tr>
@@ -181,7 +183,7 @@ import { LoadingComponent } from '../../components/loading/loading';
           <!-- Pricing & Info Card -->
           <div class="pricing-card">
             <div class="card-header">
-              <div class="condition-badge" *ngIf="car()?.isNew || car()?.['new']">Novo</div>
+              <div class="condition-badge" *ngIf="car()?.isNew || car()?.['new']">{{ langService.t('detail.condition_new') }}</div>
               <h1 class="vehicle-title">{{ car()?.brand }} {{ car()?.model }}</h1>
               <div class="meta-row">
                 <span class="meta-pill">{{ car()?.year }}</span>
@@ -190,23 +192,21 @@ import { LoadingComponent } from '../../components/loading/loading';
               </div>
             </div>
 
-            <!-- Price Detail -->
+            <!-- Price Detail with CurrencyService -->
             <div class="price-section">
               <div class="price-block">
-                <span class="price-label">Mensalidade a partir de</span>
+                <span class="price-label">{{ langService.t('detail.monthly_from') }}</span>
                 <div class="price-amount-wrapper">
-                  <span class="price-currency">R$</span>
-                  <span class="price-value">{{ car()?.pricePerDay ? (car()?.pricePerDay! * 30 | number:'1.2-2':'pt-BR') : '0,00' }}</span>
-                  <span class="price-period">/mês</span>
+                  <span class="price-value">{{ currency.format(car()?.pricePerDay ? car()!.pricePerDay * 30 : 0) }}</span>
+                  <span class="price-period">{{ langService.t('spec.per_month') }}</span>
                 </div>
-                <div class="price-subtext">Ou R$ {{ car()?.pricePerDay | number:'1.2-2':'pt-BR' }}/dia para aluguel avulso</div>
+                <div class="price-subtext">{{ langService.t('detail.or_daily').replace('{price}', currency.format(car()?.pricePerDay || 0)) }}</div>
               </div>
               
               <div class="price-block sale-block" *ngIf="car()?.salePrice">
-                <span class="price-label">Comprar veículo por</span>
+                <span class="price-label">{{ langService.t('detail.buy_for') }}</span>
                 <div class="price-amount-wrapper sale-amount">
-                  <span class="price-currency">R$</span>
-                  <span class="price-value">{{ car()?.salePrice | number:'1.0-0':'pt-BR' }}</span>
+                  <span class="price-value">{{ currency.format(car()?.salePrice || 0) }}</span>
                 </div>
               </div>
             </div>
@@ -214,7 +214,7 @@ import { LoadingComponent } from '../../components/loading/loading';
             <!-- Action Buttons -->
             <div class="action-block">
               <button class="primary-cta" [routerLink]="['/rent', car()?.id]">
-                <span>Monte seu plano</span>
+                <span>{{ langService.t('btn.build_plan') }}</span>
                 <svg class="arrow-right-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
@@ -223,13 +223,13 @@ import { LoadingComponent } from '../../components/loading/loading';
               
               <div class="secondary-actions">
                 <button class="secondary-cta buy-cta" *ngIf="car()?.salePrice" (click)="onBuy()">
-                  Comprar Veículo
+                  {{ langService.t('btn.buy_now') }}
                 </button>
                 <button class="favorite-cta" (click)="toggleFav()" [class.active]="isFavorited()">
                   <svg class="heart-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                   </svg>
-                  <span>{{ isFavorited() ? 'Salvo' : 'Favoritar' }}</span>
+                  <span>{{ isFavorited() ? langService.t('btn.saved') : langService.t('btn.favorite') }}</span>
                 </button>
               </div>
             </div>
@@ -249,7 +249,7 @@ import { LoadingComponent } from '../../components/loading/loading';
                   <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
                   <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
                 </svg>
-                <span class="spec-lbl">Motorização</span>
+                <span class="spec-lbl">{{ langService.t('spec_label.engine') }}</span>
                 <span class="spec-val">{{ translateFuel(car()?.fuelType || '') }}</span>
               </div>
               <div class="spec-item">
@@ -260,7 +260,7 @@ import { LoadingComponent } from '../../components/loading/loading';
                   <line x1="3" y1="9" x2="21" y2="9"></line>
                   <line x1="3" y1="15" x2="21" y2="15"></line>
                 </svg>
-                <span class="spec-lbl">Transmissão</span>
+                <span class="spec-lbl">{{ langService.t('spec_label.transmission') }}</span>
                 <span class="spec-val">{{ translateTransmission(car()?.transmission || '') }}</span>
               </div>
               <div class="spec-item">
@@ -270,46 +270,46 @@ import { LoadingComponent } from '../../components/loading/loading';
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                   <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                <span class="spec-lbl">Capacidade</span>
-                <span class="spec-val">{{ car()?.seats }} ocupantes</span>
+                <span class="spec-lbl">{{ langService.t('spec_label.capacity') }}</span>
+                <span class="spec-val">{{ car()?.seats }} {{ langService.t('spec_label.occupants') }}</span>
               </div>
               <div class="spec-item">
                 <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                   <path d="M9 3v18"></path>
                 </svg>
-                <span class="spec-lbl">Portas</span>
-                <span class="spec-val">{{ car()?.doors }} portas</span>
+                <span class="spec-lbl">{{ langService.t('spec_label.doors') }}</span>
+                <span class="spec-val">{{ car()?.doors }} {{ langService.t('spec.doors') }}</span>
               </div>
             </div>
 
             <!-- Movida-style Included benefits checklist -->
             <div class="included-benefits">
-              <h3>Vantagens Inclusas</h3>
+              <h3>{{ langService.t('detail.benefits_title') }}</h3>
               <ul class="benefits-list">
                 <li class="benefit-item">
                   <svg class="benefit-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
-                  <span>IPVA e Licenciamento 100% pagos</span>
+                  <span>{{ langService.t('detail.benefit_ipva') }}</span>
                 </li>
                 <li class="benefit-item">
                   <svg class="benefit-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
-                  <span>Manutenção preventiva inclusa</span>
+                  <span>{{ langService.t('detail.benefit_maintenance') }}</span>
                 </li>
                 <li class="benefit-item">
                   <svg class="benefit-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
-                  <span>Proteção contra colisões e terceiros</span>
+                  <span>{{ langService.t('detail.benefit_protection') }}</span>
                 </li>
                 <li class="benefit-item">
                   <svg class="benefit-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
-                  <span>Assistência técnica 24 horas</span>
+                  <span>{{ langService.t('detail.benefit_assistance') }}</span>
                 </li>
               </ul>
             </div>
@@ -327,12 +327,12 @@ import { LoadingComponent } from '../../components/loading/loading';
 
       <!-- Related Cars Grid - Now exactly 4 columns -->
       <section class="related">
-        <h2>Recomendados para você</h2>
+        <h2>{{ langService.t('detail.recommended') }}</h2>
         <div class="related-grid" *ngIf="relatedCars().length > 0; else noRelated">
           <app-car-card *ngFor="let rc of relatedCars()" [car]="rc"></app-car-card>
         </div>
         <ng-template #noRelated>
-            <p class="empty">Nenhum veículo similar encontrado no momento.</p>
+            <p class="empty">{{ langService.t('detail.no_related') }}</p>
         </ng-template>
       </section>
     </div>
@@ -1180,6 +1180,8 @@ export class CarDetailComponent implements OnInit {
   private favoriteService = inject(FavoriteService);
   private authService = inject(AuthService);
   private toast = inject(ToastService);
+  langService = inject(LanguageService);
+  currency = inject(CurrencyService);
 
   @ViewChild('mainImageWrapper') mainImageWrapper!: ElementRef;
 
@@ -1388,14 +1390,14 @@ export class CarDetailComponent implements OnInit {
 
   toggleFav() {
     if (!this.authService.isLoggedIn()) {
-      this.toast.warning('Faça login para favoritar');
+      this.toast.warning(this.langService.t('toast.login_to_favorite'));
       return;
     }
     const c = this.car();
     if (c) {
       this.favoriteService.toggleFavorite(c.id).subscribe(() => {
         this.isFavorited.update(v => !v);
-        this.toast.success('Lista de desejos atualizada');
+        this.toast.success(this.langService.t('toast.wishlist_updated'));
       });
     }
   }
@@ -1404,48 +1406,33 @@ export class CarDetailComponent implements OnInit {
     const c = this.car();
     if (!c) return;
     if (!this.authService.isLoggedIn()) {
-      this.toast.warning('Faça login para comprar');
+      this.toast.warning(this.langService.t('toast.login_to_buy'));
       return;
     }
-    this.toast.success(`Interesse registrado! Entraremos em contato sobre o ${c.brand} ${c.model}.`);
+    this.toast.success(`${this.langService.t('toast.interest_registered')} ${c.brand} ${c.model}.`);
   }
 
   formatBadge(badge: string) {
-    return badge.replace(/_/g, ' ');
+    return this.langService.t('badge.' + badge);
   }
 
   translateCategory(cat: string) {
-    const cats: Record<string, string> = {
-      'ECONOMY': 'Econômico', 'COMPACT': 'Compacto', 'SUV': 'SUV',
-      'LUXURY': 'Luxo', 'SPORT': 'Esportivo', 'VAN': 'Van',
-      'SEDAN': 'Sedã', 'HATCH': 'Hatch', 'PICKUP': 'Picape'
-    };
-    return cats[cat] || cat;
+    return this.langService.t('cat.' + cat);
   }
 
   translateFuel(fuel: string) {
-    const fuels: Record<string, string> = {
-      'FLEX': 'Flex', 'GASOLINE': 'Gasolina', 'DIESEL': 'Diesel',
-      'ELECTRIC': 'Elétrico', 'HYBRID': 'Híbrido', 'ETHANOL': 'Etanol'
-    };
-    return fuels[fuel] || fuel;
+    if (!fuel) return '';
+    return this.langService.t('spec.' + fuel.toLowerCase());
   }
 
   translateTransmission(t: string) {
-    const trans: Record<string, string> = {
-      'AUTOMATIC': 'Automático', 'MANUAL': 'Manual', 'CVT': 'CVT'
-    };
-    return trans[t] || t;
+    if (!t) return '';
+    return this.langService.t('spec.' + t.toLowerCase());
   }
 
   translateColor(color: string) {
-    const colors: Record<string, string> = {
-      'White': 'Branco', 'Black': 'Preto', 'Silver': 'Prata',
-      'Red': 'Vermelho', 'Blue': 'Azul', 'Gray': 'Cinza',
-      'Grey': 'Cinza', 'Green': 'Verde', 'Yellow': 'Amarelo',
-      'Orange': 'Laranja', 'Brown': 'Marrom', 'Beige': 'Bege'
-    };
-    return colors[color] || color;
+    if (!color) return '';
+    return this.langService.t('color.' + color);
   }
 
   getColorHex(color: string) {
