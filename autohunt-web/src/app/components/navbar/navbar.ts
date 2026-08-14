@@ -1,4 +1,4 @@
-import { Component, inject, signal, HostListener, ElementRef } from '@angular/core';
+import { Component, inject, signal, HostListener, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { LucideAngularModule, Car, MapPin, ChevronDown, Bell, PlusCircle, Sun, Moon, Menu, X, User, LogOut, Heart, CalendarDays, LogIn, Check } from 'lucide-angular';
@@ -6,6 +6,7 @@ import { AuthService } from '../../core/services/auth';
 import { ThemeService } from '../../core/services/theme';
 import { CarService } from '../../core/services/car';
 import { LanguageService } from '../../core/services/language';
+import { NotificationService, AppNotification } from '../../core/services/notification';
 
 @Component({
   selector: 'app-navbar',
@@ -82,21 +83,30 @@ import { LanguageService } from '../../core/services/language';
           <div class="notif-wrap">
             <button class="icon-btn clickable" (click)="toggleNotifs($event)">
               <lucide-icon name="bell" [size]="20"></lucide-icon>
-              <span class="badge" *ngIf="notifCount() > 0">{{ notifCount() }}</span>
+              <span class="badge" *ngIf="notifService.unreadCount() > 0">{{ notifService.unreadCount() > 9 ? '9+' : notifService.unreadCount() }}</span>
             </button>
-            <div class="dropdown-panel notif-dropdown" *ngIf="showNotif()">
-              <div class="dropdown-header">{{ langService.t('nav.notifications') }}</div>
-              <div class="notif-list">
-                <div class="notif-item">
-                  <lucide-icon name="check" [size]="16" class="notif-icon success"></lucide-icon>
-                  <span>Sua reserva para o Onix foi confirmada!</span>
-                </div>
-                <div class="notif-item">
-                  <lucide-icon name="bell" [size]="16" class="notif-icon"></lucide-icon>
-                  <span>Novo Tesla Model 3 disponível em SP.</span>
-                </div>
+            <div class="dropdown-panel notif-dropdown" *ngIf="showNotif()" (click)="$event.stopPropagation()">
+              <div class="dropdown-header notif-header">
+                <span>{{ langService.t('nav.notifications') }}</span>
+                <button class="mark-all-btn clickable" *ngIf="notifService.unreadCount() > 0" (click)="notifService.markAllRead()">{{ langService.t('nav.mark_all_read') }}</button>
               </div>
-              <div class="dropdown-footer clickable">{{ langService.t('nav.view_all') }}</div>
+              <div class="notif-list">
+                @if (notifService.notifications().length === 0) {
+                  <div class="notif-empty">{{ langService.t('nav.no_notifications') }}</div>
+                } @else {
+                  @for (n of notifService.notifications(); track n.id) {
+                    <div class="notif-item clickable" [class.unread]="!n.read" (click)="onNotifClick(n)">
+                      <div class="notif-dot" *ngIf="!n.read"></div>
+                      <div class="notif-content">
+                        <div class="notif-title">{{ n.title }}</div>
+                        <div class="notif-msg">{{ n.message }}</div>
+                        <div class="notif-time">{{ timeAgo(n.createdAt) }}</div>
+                      </div>
+                    </div>
+                  }
+                }
+              </div>
+              <div class="dropdown-footer clickable" routerLink="/notifications" (click)="showNotif.set(false)">{{ langService.t('nav.view_all') }}</div>
             </div>
           </div>
 
@@ -345,13 +355,39 @@ import { LanguageService } from '../../core/services/language';
       animation: slideDown 0.2s ease-out;
     }
 
-    .notif-dropdown { width: 320px; }
-    .notif-list { max-height: 280px; overflow-y: auto; }
+    .notif-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mark-all-btn {
+      background: none; border: none; color: var(--accent); font-size: 11px;
+      font-weight: 700; cursor: pointer; padding: 2px 6px; border-radius: 4px;
+      transition: background 0.15s;
+      &:hover { background: rgba(0,191,234,0.12); }
+    }
+    .notif-dropdown { width: 360px; }
+    .notif-list { max-height: 320px; overflow-y: auto; }
+    .notif-empty {
+      padding: 32px 16px; text-align: center; font-size: 13px;
+      color: var(--text-muted);
+    }
     .notif-item {
-      padding: 14px 16px; font-size: 13px; color: var(--text-secondary);
+      padding: 12px 16px; font-size: 13px; color: var(--text-secondary);
       border-bottom: 1px solid var(--border-light);
       display: flex; align-items: flex-start; gap: 10px; line-height: 1.4;
+      transition: background 0.15s;
+      &:hover { background: var(--surface-hover); }
+      &.unread { background: rgba(0,191,234,0.04); }
     }
+    .notif-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+      flex-shrink: 0; margin-top: 5px;
+    }
+    .notif-content { flex: 1; min-width: 0; }
+    .notif-title { font-weight: 700; font-size: 13px; color: var(--text-primary); margin-bottom: 2px; }
+    .notif-msg { font-size: 12px; color: var(--text-secondary); line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .notif-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
     .notif-icon { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
     .notif-icon.success { color: var(--success); }
     .dropdown-footer {
@@ -467,18 +503,19 @@ import { LanguageService } from '../../core/services/language';
     }
   `]
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit, OnDestroy {
   auth = inject(AuthService);
   theme = inject(ThemeService);
   carService = inject(CarService);
   langService = inject(LanguageService);
+  notifService = inject(NotificationService);
   private eRef = inject(ElementRef);
+  private pollingInterval: any = null;
 
   showLocations = signal(false);
   showNotif = signal(false);
   showProfile = signal(false);
   showLangDropdown = signal(false);
-  notifCount = signal(2);
   mobileOpen = signal(false);
 
   cities = [
@@ -514,5 +551,42 @@ export class NavbarComponent {
       this.showProfile.set(false);
       this.showLangDropdown.set(false);
     }
+  }
+
+  // ETAPA 8: Polling every 30s for logged-in users
+  ngOnInit() {
+    if (this.auth.isLoggedIn()) {
+      this.notifService.fetchNotifications();
+      this.pollingInterval = setInterval(() => {
+        if (this.auth.isLoggedIn()) {
+          this.notifService.fetchUnreadCount();
+        }
+      }, 30000);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
+  }
+
+  onNotifClick(n: AppNotification) {
+    if (!n.read) {
+      this.notifService.markAsRead(n.id);
+    }
+  }
+
+  timeAgo(dateStr: string): string {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return this.langService.currentLang() === 'pt' ? 'agora' : 'just now';
+    if (diffMin < 60) return this.langService.currentLang() === 'pt' ? `${diffMin}min atras` : `${diffMin}m ago`;
+    const diffH = Math.floor(diffMin / 60);
+    if (diffH < 24) return this.langService.currentLang() === 'pt' ? `${diffH}h atras` : `${diffH}h ago`;
+    const diffD = Math.floor(diffH / 24);
+    return this.langService.currentLang() === 'pt' ? `${diffD}d atras` : `${diffD}d ago`;
   }
 }

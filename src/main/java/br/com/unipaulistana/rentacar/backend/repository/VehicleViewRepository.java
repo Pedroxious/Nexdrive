@@ -18,4 +18,10 @@ public interface VehicleViewRepository extends JpaRepository<VehicleView, Long> 
     List<VehicleView> findByVehicle(Vehicle vehicle);
 
     long countByVehicleAndViewedAtAfter(Vehicle vehicle, LocalDateTime since);
+
+    // ETAPA 4: Find all distinct users who viewed vehicles (for price monitoring)
+    @org.springframework.data.jpa.repository.Query("SELECT DISTINCT v.user FROM VehicleView v WHERE v.viewedAt > :since")
+    List<User> findDistinctUsersWithViewsSince(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
+
+    List<VehicleView> findByUserOrderByViewedAtDesc(User user);
 }

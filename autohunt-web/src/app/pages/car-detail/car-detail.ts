@@ -10,6 +10,9 @@ import { CarCardComponent } from '../../components/car-card/car-card';
 import { LoadingComponent } from '../../components/loading/loading';
 import { CurrencyService } from '../../core/services/currency';
 import { LanguageService } from '../../core/services/language';
+import { SocialProofService, SocialProofData } from '../../core/services/social-proof';
+import { BehaviorTrackingService } from '../../core/services/behavior-tracking';
+import { OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-car-detail',
@@ -190,6 +193,20 @@ import { LanguageService } from '../../core/services/language';
                 <span class="meta-separator">•</span>
                 <span class="meta-category">{{ translateCategory(car()?.categoryName || car()?.['category'] || '') }}</span>
               </div>
+              
+              <!-- Real Social Proof Banner (Database-backed, never fictive) -->
+              <div class="social-proof-banner" *ngIf="socialProof() && (socialProof()!.recentViewsCount > 0 || socialProof()!.recentBookingsCount > 0)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span *ngIf="socialProof()!.recentViewsCount > 0">
+                  {{ langService.t('visitor.social_views').replace('{count}', '' + socialProof()!.recentViewsCount) }}
+                </span>
+                <span *ngIf="socialProof()!.recentViewsCount === 0 && socialProof()!.recentBookingsCount > 0">
+                  {{ langService.t('visitor.social_bookings').replace('{count}', '' + socialProof()!.recentBookingsCount) }}
+                </span>
+              </div>
             </div>
 
             <!-- Price Detail with CurrencyService -->
@@ -361,6 +378,14 @@ import { LanguageService } from '../../core/services/language';
       font-weight: 600;
       color: var(--text-secondary);
       transition: color 0.2s;
+      
+      .social-proof-banner {
+        display: flex; align-items: center; gap: 6px;
+        margin-top: 10px; padding: 6px 12px; border-radius: 6px;
+        background: rgba(0, 191, 234, 0.08); border: 1px solid rgba(0, 191, 234, 0.2);
+        font-size: 12px; font-weight: 600; color: var(--accent);
+        svg { flex-shrink: 0; color: var(--accent); }
+      }
       
       .back-icon {
         width: 16px;
@@ -1174,7 +1199,7 @@ import { LanguageService } from '../../core/services/language';
     }
   `]
 })
-export class CarDetailComponent implements OnInit {
+export class CarDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private carService = inject(CarService);
   private favoriteService = inject(FavoriteService);
@@ -1182,10 +1207,13 @@ export class CarDetailComponent implements OnInit {
   private toast = inject(ToastService);
   langService = inject(LanguageService);
   currency = inject(CurrencyService);
+  private socialProofService = inject(SocialProofService);
+  private behavior = inject(BehaviorTrackingService);
 
   @ViewChild('mainImageWrapper') mainImageWrapper!: ElementRef;
 
   car = signal<Vehicle | undefined>(undefined);
+  socialProof = signal<SocialProofData | null>(null);
   backendImages = signal<VehicleImage[]>([]);
   relatedCars = signal<Vehicle[]>([]);
   isFavorited = signal(false);
@@ -1251,7 +1279,10 @@ export class CarDetailComponent implements OnInit {
     this.carService.getById(id).subscribe((car: Vehicle) => {
       this.car.set(car);
       if (car) {
+        this.behavior.trackDetailPageEnter(car.id);
         this.loadRelated(car);
+        this.socialProofService.getSocialProof(car.id).subscribe(sp => this.socialProof.set(sp));
+        this.socialProofService.recordView(car.id).subscribe();
         if (this.authService.isLoggedIn()) {
           this.favoriteService.checkFavorite(car.id).subscribe((res: any) => this.isFavorited.set(res.favorited));
         }
@@ -1410,6 +1441,10 @@ export class CarDetailComponent implements OnInit {
       return;
     }
     this.toast.success(`${this.langService.t('toast.interest_registered')} ${c.brand} ${c.model}.`);
+  }
+
+  ngOnDestroy() {
+    this.behavior.trackDetailPageLeave();
   }
 
   formatBadge(badge: string) {

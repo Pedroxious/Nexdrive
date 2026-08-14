@@ -1,6 +1,7 @@
 package br.com.unipaulistana.rentacar.backend.service;
 
 import br.com.unipaulistana.rentacar.backend.config.JwtService;
+import br.com.unipaulistana.rentacar.backend.domain.NotificationType;
 import br.com.unipaulistana.rentacar.backend.domain.User;
 import br.com.unipaulistana.rentacar.backend.domain.UserRole;
 import br.com.unipaulistana.rentacar.backend.domain.UserSession;
@@ -30,6 +31,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserSessionRepository sessionRepository;
     private final HttpServletRequest request;
+    private final NotificationService notificationService;
 
     public Map<String, Object> register(RegisterRequestDto dto) {
         if (repository.findByEmail(dto.email()).isPresent()) {
@@ -58,6 +60,15 @@ public class AuthService {
         LocalDateTime refreshExpiresAt = LocalDateTime.now().plusDays(7);
         createSession(user, token, refreshToken, refreshExpiresAt);
 
+        // ETAPA 6: Welcome notification on account creation
+        notificationService.createNotification(
+                user,
+                NotificationType.BOAS_VINDAS,
+                "Bem-vindo ao Nexdrive",
+                "Sua conta foi criada com sucesso. Explore nossa frota premium e aproveite cobertura completa em todo o Brasil.",
+                null, null
+        );
+
         // V-01 fix: return UserResponseDto, never the User entity
         return Map.of(
                 "token", token,
@@ -73,9 +84,23 @@ public class AuthService {
         String token = jwtService.generateToken(user);
         String refreshToken = UUID.randomUUID().toString();
         LocalDateTime refreshExpiresAt = LocalDateTime.now().plusDays(7);
+        String currentDevice = getDeviceFromUserAgent(request.getHeader("User-Agent"));
         createSession(user, token, refreshToken, refreshExpiresAt);
 
-        // V-01 fix: return UserResponseDto, never the User entity
+        // ETAPA 6: Notify user of new login device
+        boolean knownDevice = sessionRepository.findByUserAndActiveTrueOrderByCreatedAtDesc(user)
+                .stream()
+                .anyMatch(s -> currentDevice.equals(s.getDevice()) && !s.getToken().equals(token));
+        if (!knownDevice) {
+            notificationService.createNotification(
+                    user,
+                    NotificationType.NOVO_LOGIN_DISPOSITIVO,
+                    "Novo login detectado",
+                    "Foi registrado um novo acesso a sua conta via " + currentDevice + ". Caso nao reconheca esta atividade, altere sua senha imediatamente.",
+                    null, null
+            );
+        }
+
         return Map.of(
                 "token", token,
                 "refreshToken", refreshToken,

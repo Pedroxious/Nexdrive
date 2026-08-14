@@ -2,6 +2,7 @@ package br.com.unipaulistana.rentacar.backend.service;
 
 import br.com.unipaulistana.rentacar.backend.domain.Rental;
 import br.com.unipaulistana.rentacar.backend.domain.RentalStatus;
+import br.com.unipaulistana.rentacar.backend.domain.NotificationType;
 import br.com.unipaulistana.rentacar.backend.domain.User;
 import br.com.unipaulistana.rentacar.backend.domain.Vehicle;
 import br.com.unipaulistana.rentacar.backend.exception.InvalidDateRangeException;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,9 @@ public class RentalService {
 
     private final RentalRepository repository;
     private final VehicleService vehicleService;
+    private final NotificationService notificationService;
+
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public Map<String, Object> calculatePrice(Long vehicleId, LocalDate start, LocalDate end, boolean insurance,
             boolean additionalDriver) {
@@ -53,14 +58,13 @@ public class RentalService {
     public Rental createRental(User user, Long vehicleId, LocalDate start, LocalDate end,
             String pickup, String returnLoc, boolean insurance, boolean addDriver) {
 
-        // V-26: business rule validations not expressible as Bean Validation annotations
         if (end.isBefore(start) || end.isEqual(start)) {
-            throw new InvalidDateRangeException("A data de término deve ser posterior à data de início.");
+            throw new InvalidDateRangeException("A data de termino deve ser posterior a data de inicio.");
         }
         long days = ChronoUnit.DAYS.between(start, end);
         if (days > br.com.unipaulistana.rentacar.backend.dto.CreateRentalRequestDto.MAX_RENTAL_DAYS) {
             throw new InvalidDateRangeException(
-                    "O período máximo de aluguel é de "
+                    "O periodo maximo de aluguel e de "
                     + br.com.unipaulistana.rentacar.backend.dto.CreateRentalRequestDto.MAX_RENTAL_DAYS
                     + " dias.");
         }
@@ -86,18 +90,28 @@ public class RentalService {
                 .additionalDriver(addDriver)
                 .build();
 
-        return repository.save(rental);
+        Rental saved = repository.save(rental);
+
+        // ETAPA 3: Fire transactional notification on rental creation
+        notificationService.createNotification(
+                user,
+                NotificationType.RESERVA_CONFIRMADA,
+                "Reserva confirmada",
+                "Sua reserva para o " + vehicle.getBrand() + " " + vehicle.getModel()
+                        + " foi confirmada. Periodo: " + start.format(DATE_FMT)
+                        + " a " + end.format(DATE_FMT)
+                        + ". Retirada em: " + pickup + ".",
+                "RENTAL",
+                saved.getId()
+        );
+
+        return saved;
     }
 
     public List<Rental> getMyRentals(User user) {
         return repository.findByUserOrderByCreatedAtDesc(user);
     }
 
-    /**
-     * V-23 fix: Ownership check before any state mutation.
-     * Both "not found" and "belongs to another user" throw AccessDeniedException,
-     * returning the same 403 response — callers cannot infer whether the id exists.
-     */
     @Transactional
     public void cancelRental(Long id, User currentUser) {
         Rental rental = repository.findById(id)
@@ -110,7 +124,18 @@ public class RentalService {
         if (rental.getStatus() == RentalStatus.PENDING || rental.getStatus() == RentalStatus.CONFIRMED) {
             rental.setStatus(RentalStatus.CANCELLED);
             repository.save(rental);
+
+            // ETAPA 3: Fire transactional notification on rental cancellation
+            Vehicle vehicle = rental.getVehicle();
+            notificationService.createNotification(
+                    currentUser,
+                    NotificationType.RESERVA_CANCELADA,
+                    "Reserva cancelada",
+                    "Sua reserva para o " + vehicle.getBrand() + " " + vehicle.getModel()
+                            + " foi cancelada com sucesso.",
+                    "RENTAL",
+                    rental.getId()
+            );
         }
     }
 }
-

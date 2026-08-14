@@ -22,8 +22,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.toggle_theme': 'Alternar tema',
     'nav.faq': 'FAQ',
     'nav.contact': 'Contato',
-    'nav.notifications': 'Notificações',
+    'nav.notifications': 'Notificacoes',
     'nav.view_all': 'Ver todas',
+    'nav.mark_all_read': 'Marcar todas como lidas',
+    'nav.no_notifications': 'Nenhuma notificacao',
 
     // ── Hero & Search ──
     'hero.badge': '🚀 Plataforma #1 em Mobilidade Premium',
@@ -205,6 +207,20 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'filter.sort_highest': 'Maior preço',
     'filter.sort_newest': 'Mais recentes',
 
+    // -- Visitor / Social Proof --
+    'visitor.welcome': 'Bem-vindo ao Nexdrive. Explore nossa frota premium com cobertura completa e assistencia 24 horas em todo o Brasil.',
+    'visitor.social_views': '{count} visualizacoes nos ultimos 7 dias',
+    'visitor.social_bookings': '{count} reservas confirmadas recentemente',
+    'visitor.location_detected': 'Veiculos disponiveis em {city}. Confira as opcoes proximas a voce.',
+    'visitor.signup_incentive': 'Cadastre-se para acompanhar precos e receber alertas de disponibilidade.',
+
+    // -- Behavior Tracking --
+    'behavior.vehicles_browsed': 'Voce ja visualizou {count} veiculos. Que tal reservar um?',
+    'behavior.time_on_detail': 'Gostou deste veiculo? Reserve agora com cobertura total.',
+    'behavior.returning_visitor': 'Bem-vindo de volta! Veja os veiculos que voce visualizou recentemente.',
+    'behavior.signup_after_views': 'Crie sua conta para salvar veiculos favoritos e receber alertas de preco.',
+    'behavior.idle_suggestion': 'Precisa de ajuda para escolher? Veja nossas categorias mais populares.',
+
     // ── Toast Messages ──
     'toast.login_to_favorite': 'Faça login para favoritar',
     'toast.wishlist_updated': 'Lista de desejos atualizada',
@@ -233,6 +249,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.contact': 'Contact',
     'nav.notifications': 'Notifications',
     'nav.view_all': 'View all',
+    'nav.mark_all_read': 'Mark all as read',
+    'nav.no_notifications': 'No notifications',
 
     // ── Hero & Search ──
     'hero.badge': '🚀 #1 Premium Mobility Platform',
@@ -413,6 +431,20 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'filter.sort_lowest': 'Lowest price',
     'filter.sort_highest': 'Highest price',
     'filter.sort_newest': 'Newest additions',
+
+    // -- Visitor / Social Proof --
+    'visitor.welcome': 'Welcome to Nexdrive. Explore our premium fleet with full coverage and 24-hour assistance across Brazil.',
+    'visitor.social_views': '{count} views in the last 7 days',
+    'visitor.social_bookings': '{count} recent bookings',
+    'visitor.location_detected': 'Vehicles available in {city}. Check options near you.',
+    'visitor.signup_incentive': 'Sign up to track prices and receive availability alerts.',
+
+    // -- Behavior Tracking --
+    'behavior.vehicles_browsed': 'You have viewed {count} vehicles. How about booking one?',
+    'behavior.time_on_detail': 'Like this vehicle? Book now with full coverage.',
+    'behavior.returning_visitor': 'Welcome back! Check out the vehicles you recently viewed.',
+    'behavior.signup_after_views': 'Create your account to save favorite vehicles and get price alerts.',
+    'behavior.idle_suggestion': 'Need help choosing? Check our most popular categories.',
 
     // ── Toast Messages ──
     'toast.login_to_favorite': 'Sign in to add favorites',

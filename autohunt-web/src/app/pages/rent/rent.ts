@@ -12,6 +12,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { BehaviorTrackingService } from '../../core/services/behavior-tracking';
 
 @Component({
    selector: 'app-rent',
@@ -173,6 +174,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class Rent implements OnInit {
    private carService = inject(CarService);
+   private behavior = inject(BehaviorTrackingService);
 
    isLoading = signal(true);
    vehicles = signal<Vehicle[]>([]);
@@ -193,6 +195,7 @@ export class Rent implements OnInit {
    selectedTrans = signal<string[]>([]);
 
    ngOnInit() {
+      this.behavior.trackVehicleListView();
       this.carService.getCars().subscribe((res: Page<Vehicle>) => {
          this.vehicles.set(res.content);
          this.isLoading.set(false);
