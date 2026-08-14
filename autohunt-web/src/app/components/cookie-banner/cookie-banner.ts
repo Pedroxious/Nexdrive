@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
@@ -12,11 +12,11 @@ import { LucideAngularModule } from 'lucide-angular';
       <div class="cookie-banner-content">
         <div class="cookie-text-wrap">
           <span class="cookie-icon">🍪</span>
-          <p class="cookie-text">
+          <span class="cookie-text">
             Utilizamos cookies essenciais e tecnologias semelhantes de acordo com a nossa
             <a routerLink="/legal/privacidade" class="privacy-link">Política de Privacidade</a>
             e, ao continuar navegando, você concorda com estas condições.
-          </p>
+          </span>
         </div>
 
         <div class="cookie-actions">
@@ -24,7 +24,7 @@ import { LucideAngularModule } from 'lucide-angular';
             OK
           </button>
           <button class="close-btn clickable" (click)="closeTemporarily()" title="Fechar aviso">
-            <lucide-icon name="x" [size]="18"></lucide-icon>
+            <lucide-icon name="x" [size]="16"></lucide-icon>
           </button>
         </div>
       </div>
@@ -42,37 +42,42 @@ import { LucideAngularModule } from 'lucide-angular';
       -webkit-backdrop-filter: blur(12px);
       border-top: 1px solid rgba(0, 191, 234, 0.25);
       box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.5);
-      padding: 16px 24px;
+      padding: 12px 24px;
       animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .cookie-banner-content {
-      max-width: 1200px;
+      max-width: 1350px;
       margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 16px;
     }
 
     .cookie-text-wrap {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .cookie-icon {
-      font-size: 20px;
+      font-size: 18px;
       flex-shrink: 0;
     }
 
     .cookie-text {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       font-size: 13.5px;
-      line-height: 1.5;
-      color: rgba(255, 255, 255, 0.88);
-      margin: 0;
+      line-height: 1;
+      color: rgba(255, 255, 255, 0.9);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .privacy-link {
@@ -90,18 +95,18 @@ import { LucideAngularModule } from 'lucide-angular';
     .cookie-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-shrink: 0;
     }
 
     .accept-btn {
-      padding: 8px 24px;
+      padding: 7px 22px;
       border-radius: 8px;
       border: none;
       background: var(--accent, #00BFFF);
       color: #0A1628;
       font-family: 'Outfit', sans-serif;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       letter-spacing: 0.5px;
       transition: all 0.2s ease;
@@ -117,8 +122,8 @@ import { LucideAngularModule } from 'lucide-angular';
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 6px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -142,14 +147,24 @@ import { LucideAngularModule } from 'lucide-angular';
       }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
+      .cookie-text-wrap {
+        white-space: normal;
+      }
+      .cookie-text {
+        white-space: normal;
+        line-height: 1.4;
+      }
+    }
+
+    @media (max-width: 640px) {
       .cookie-banner-container {
-        padding: 14px 16px;
+        padding: 10px 14px;
       }
       .cookie-banner-content {
         flex-direction: column;
         align-items: stretch;
-        gap: 14px;
+        gap: 10px;
       }
       .cookie-actions {
         justify-content: flex-end;
@@ -157,7 +172,7 @@ import { LucideAngularModule } from 'lucide-angular';
       .accept-btn {
         flex: 1;
         text-align: center;
-        padding: 10px 16px;
+        padding: 8px 16px;
       }
     }
   `]
@@ -185,8 +200,6 @@ export class CookieBannerComponent implements OnInit {
   }
 
   closeTemporarily(): void {
-    // Closes only for the current view/session memory state.
-    // Does NOT write to localStorage so on F5 or page navigation it re-appears.
     this.isClosedTemp.set(true);
   }
 }

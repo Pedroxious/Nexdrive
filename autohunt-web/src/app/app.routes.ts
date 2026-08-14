@@ -83,7 +83,7 @@ export const routes: Routes = [
             },
             {
                 path: 'forum',
-                loadComponent: () => import('./pages/legal/forum').then(m => m.ForumPlaceholderComponent)
+                loadComponent: () => import('./pages/legal/forum').then(m => m.ForumComponent)
             }
         ]
     },

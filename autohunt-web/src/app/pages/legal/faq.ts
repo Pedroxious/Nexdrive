@@ -17,10 +17,12 @@ import { CommonModule } from '@angular/common';
       <hr class="divider" />
 
       <section class="doc-section">
-        <div class="faq-item" *for="let item of faqs">
-          <h3 class="faq-q">Q: {{ item.q }}</h3>
-          <p class="faq-a">{{ item.a }}</p>
-        </div>
+        @for (item of faqs; track item.q) {
+          <div class="faq-item">
+            <h3 class="faq-q">Q: {{ item.q }}</h3>
+            <p class="faq-a">{{ item.a }}</p>
+          </div>
+        }
       </section>
     </article>
   `,

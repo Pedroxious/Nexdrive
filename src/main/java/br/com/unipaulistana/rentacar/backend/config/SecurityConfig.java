@@ -110,6 +110,7 @@ public class SecurityConfig {
                         //   DELETE /api/vehicles/** → hasRole(ADMIN) (delete vehicle)
                         .requestMatchers(HttpMethod.GET, "/api/vehicles", "/api/vehicles/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/vehicles/*/view").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/forum/**").permitAll()
                         // V-02 fix: Admin-only endpoints — declared AFTER the public GET rule above
                         // so the more-specific method+path combination is reached correctly.
                         .requestMatchers(HttpMethod.GET, "/api/rentals").hasRole("ADMIN")

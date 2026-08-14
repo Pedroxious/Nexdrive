@@ -51,7 +51,6 @@ import { LucideAngularModule } from 'lucide-angular';
             <a routerLink="/legal/forum" routerLinkActive="active" class="tab-item">
               <lucide-icon name="message-square" [size]="16"></lucide-icon>
               <span>Fórum & Comunidade</span>
-              <span class="soon-tag">Em breve</span>
             </a>
           </nav>
         </div>

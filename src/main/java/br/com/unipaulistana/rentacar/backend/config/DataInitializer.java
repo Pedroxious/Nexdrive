@@ -29,6 +29,9 @@ public class DataInitializer implements ApplicationRunner {
         private final UserRepository userRepository;
         private final PasswordEncoder passwordEncoder;
         private final EntityManager entityManager;
+        private final br.com.unipaulistana.rentacar.backend.repository.ForumBotRepository forumBotRepository;
+        private final br.com.unipaulistana.rentacar.backend.repository.ForumTopicRepository forumTopicRepository;
+        private final br.com.unipaulistana.rentacar.backend.repository.ForumCommentRepository forumCommentRepository;
 
         @Override
         @Transactional
@@ -749,6 +752,7 @@ public class DataInitializer implements ApplicationRunner {
                                 "https://i.imgur.com/Ob7Y4rL.png", "https://i.imgur.com/lGKHdwU.png"));
 
                 vehicleRepository.saveAll(vehicles);
+                seedForumData();
         }
 
         private Vehicle v(String brand, String model, int year, VehicleCategory cat, String color,
@@ -774,5 +778,108 @@ public class DataInitializer implements ApplicationRunner {
                 vehicle.setGalleryImages(gallery);
 
                 return vehicle;
+        }
+
+        private void seedForumData() {
+                if (forumBotRepository.count() > 0) return;
+
+                // 1. Seed 10 realistic Brazilian bot accounts into DB
+                List<ForumBot> bots = new ArrayList<>();
+                bots.add(ForumBot.builder().name("Carlos Silva").email("carlos.bot@nexdrive.community").roleTag("Membro Premium").avatarUrl("https://ui-avatars.com/api/?name=Carlos+Silva&background=3B82F6&color=fff").bio("Entusiasta de carros e tecnologia").build());
+                bots.add(ForumBot.builder().name("Mariana Souza").email("mariana.bot@nexdrive.community").roleTag("Especialista em Frotas").avatarUrl("https://ui-avatars.com/api/?name=Mariana+Souza&background=8B5CF6&color=fff").bio("Especialista em viagens corporativas").build());
+                bots.add(ForumBot.builder().name("Rodrigo Oliveira").email("rodrigo.bot@nexdrive.community").roleTag("Condutor VIP").avatarUrl("https://ui-avatars.com/api/?name=Rodrigo+Oliveira&background=10B981&color=fff").bio("Locatário frequente").build());
+                bots.add(ForumBot.builder().name("Beatriz Lima").email("beatriz.bot@nexdrive.community").roleTag("Moderadora").avatarUrl("https://ui-avatars.com/api/?name=Beatriz+Lima&background=F59E0B&color=fff").bio("Moderadora da comunidade").build());
+                bots.add(ForumBot.builder().name("Lucas Mendes").email("lucas.bot@nexdrive.community").roleTag("Membro").avatarUrl("https://ui-avatars.com/api/?name=Lucas+Mendes&background=EF4444&color=fff").bio("Motorista de aplicativo e viagens longas").build());
+                bots.add(ForumBot.builder().name("Gabriel Santos").email("gabriel.bot@nexdrive.community").roleTag("Membro").avatarUrl("https://ui-avatars.com/api/?name=Gabriel+Santos&background=06B6D4&color=fff").bio("Fã de carros elétricos").build());
+                bots.add(ForumBot.builder().name("Fernanda Costa").email("fernanda.bot@nexdrive.community").roleTag("Membro Premium").avatarUrl("https://ui-avatars.com/api/?name=Fernanda+Costa&background=EC4899&color=fff").bio("Apaixonada por viagens rodoviárias").build());
+                bots.add(ForumBot.builder().name("Camila Pereira").email("camila.bot@nexdrive.community").roleTag("Membro").avatarUrl("https://ui-avatars.com/api/?name=Camila+Pereira&background=F97316&color=fff").bio("Usuária semanal da Nexdrive").build());
+                bots.add(ForumBot.builder().name("Thiago Ferreira").email("thiago.bot@nexdrive.community").roleTag("Membro").avatarUrl("https://ui-avatars.com/api/?name=Thiago+Ferreira&background=6366F1&color=fff").bio("Interessado em manutenção e custos").build());
+                bots.add(ForumBot.builder().name("Juliana Rocha").email("juliana.bot@nexdrive.community").roleTag("Membro VIP").avatarUrl("https://ui-avatars.com/api/?name=Juliana+Rocha&background=059669&color=fff").bio("Cliente fiel de SUVs").build());
+
+                List<ForumBot> savedBots = forumBotRepository.saveAll(bots);
+
+                // 2. Seed initial forum topics matching screenshot style
+                ForumTopic t1 = ForumTopic.builder()
+                        .title("Instalação e renovação SSL (Resolvido)")
+                        .category("Servidor")
+                        .content("Tudo BLZ? Sei que tem muitos alunos enfrentando dificuldades na instalação do SSL como mostro nos cursos. Isso se deve a uma atualização do acme.sh que adotou o ZeroSSL como padrão na instalação. Neste vídeo abaixo explico como resolver de forma rápida e prática.")
+                        .authorBot(savedBots.get(0))
+                        .isPinned(true)
+                        .isSolved(true)
+                        .viewsCount(276)
+                        .likesCount(42)
+                        .repliesCount(13)
+                        .build();
+
+                ForumTopic t2 = ForumTopic.builder()
+                        .title("Update de site para multisite")
+                        .category("WordPress")
+                        .content("Alguém já realizou a migração de um ambiente único para estrutura multisite no servidor? Quais cuidados principais recomendam com a frotas de imagens?")
+                        .authorBot(savedBots.get(2))
+                        .isPinned(false)
+                        .isSolved(false)
+                        .viewsCount(17)
+                        .likesCount(5)
+                        .repliesCount(2)
+                        .build();
+
+                ForumTopic t3 = ForumTopic.builder()
+                        .title("Baixar do Google Drive para o Servidor")
+                        .category("Servidor")
+                        .content("Gostaria de saber qual o comando rsync ou gdown mais eficiente para puxar arquivos grandes de backups direto para o servidor da aplicação.")
+                        .authorBot(savedBots.get(1))
+                        .isPinned(false)
+                        .isSolved(false)
+                        .viewsCount(10)
+                        .likesCount(3)
+                        .repliesCount(1)
+                        .build();
+
+                ForumTopic t4 = ForumTopic.builder()
+                        .title("Subdominio para Loja virtual")
+                        .category("Domínios")
+                        .content("Qual a melhor estratégia de apontamento DNS e certificados wildcard para subdomínios de reservas por cidade?")
+                        .authorBot(savedBots.get(6))
+                        .isPinned(false)
+                        .isSolved(false)
+                        .viewsCount(30)
+                        .likesCount(8)
+                        .repliesCount(5)
+                        .build();
+
+                ForumTopic t5 = ForumTopic.builder()
+                        .title("Dicas de economia de combustível para aluguel de longa duração em SP")
+                        .category("Aluguel")
+                        .content("Pessoal, aluguei um HB20 1.0 para rodar por 30 dias entre a capital e o interior. Alguém tem dicas de rotas e calibragem de pneu ideal para otimizar a média de km/l?")
+                        .authorBot(savedBots.get(4))
+                        .isPinned(false)
+                        .isSolved(false)
+                        .viewsCount(142)
+                        .likesCount(19)
+                        .repliesCount(8)
+                        .build();
+
+                List<ForumTopic> savedTopics = forumTopicRepository.saveAll(List.of(t1, t2, t3, t4, t5));
+
+                // 3. Seed initial comments for topics
+                ForumComment c1 = ForumComment.builder()
+                        .topic(savedTopics.get(0))
+                        .authorBot(savedBots.get(1))
+                        .content("Excelente explicação! Consegui renovar o certificado em menos de 2 minutos.")
+                        .build();
+
+                ForumComment c2 = ForumComment.builder()
+                        .topic(savedTopics.get(0))
+                        .authorBot(savedBots.get(3))
+                        .content("Muito bom! Essa alteração do ZeroSSL realmente estava pegando muita gente de surpresa.")
+                        .build();
+
+                ForumComment c3 = ForumComment.builder()
+                        .topic(savedTopics.get(4))
+                        .authorBot(savedBots.get(0))
+                        .content("Calibrar com 32 libras na cidade e manobrar com suave aceleração faz uma diferença gigante de até 15% na economia de combustível.")
+                        .build();
+
+                forumCommentRepository.saveAll(List.of(c1, c2, c3));
         }
 }
