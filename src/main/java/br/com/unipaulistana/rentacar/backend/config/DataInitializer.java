@@ -781,7 +781,11 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         private void seedForumData() {
-                if (forumBotRepository.count() > 0) return;
+                if (forumTopicRepository.count() >= 40 && forumBotRepository.count() >= 20) return;
+
+                forumCommentRepository.deleteAll();
+                forumTopicRepository.deleteAll();
+                forumBotRepository.deleteAll();
 
                 java.util.Random random = new java.util.Random(42);
 

@@ -123,7 +123,7 @@ import { CommonModule } from '@angular/common';
   styles: [`
     .privacy-document {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      color: #1E293B;
+      color: var(--text-primary, #1E293B);
       line-height: 1.7;
     }
 
@@ -140,8 +140,8 @@ import { CommonModule } from '@angular/common';
     }
 
     .meta-tag {
-      background: #E0F2FE;
-      color: #0369A1;
+      background: var(--accent-light, #E0F2FE);
+      color: var(--accent, #0369A1);
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
@@ -152,7 +152,7 @@ import { CommonModule } from '@angular/common';
 
     .meta-date {
       font-size: 13px;
-      color: #64748B;
+      color: var(--text-secondary, #64748B);
       font-weight: 500;
     }
 
@@ -160,29 +160,29 @@ import { CommonModule } from '@angular/common';
       font-family: 'Outfit', sans-serif;
       font-size: 28px;
       font-weight: 800;
-      color: #0F172A;
+      color: var(--text-primary, #0F172A);
       margin: 0 0 12px 0;
       letter-spacing: -0.5px;
     }
 
     .doc-subtitle {
       font-size: 15px;
-      color: #475569;
+      color: var(--text-secondary, #475569);
       margin-bottom: 16px;
     }
 
     .consent-notice {
-      background: #F8FAFC;
-      border-left: 4px solid #0284C7;
+      background: var(--surface-secondary, #F8FAFC);
+      border-left: 4px solid var(--accent, #0284C7);
       padding: 14px 18px;
       border-radius: 0 8px 8px 0;
       font-size: 13.5px;
-      color: #334155;
+      color: var(--text-primary, #334155);
     }
 
     .divider {
       border: none;
-      border-top: 1px solid #E2E8F0;
+      border-top: 1px solid var(--border, #E2E8F0);
       margin: 32px 0;
     }
 
@@ -193,22 +193,22 @@ import { CommonModule } from '@angular/common';
         font-family: 'Outfit', sans-serif;
         font-size: 20px;
         font-weight: 700;
-        color: #0F172A;
+        color: var(--text-primary, #0F172A);
         margin: 0 0 16px 0;
-        border-bottom: 1px solid #F1F5F9;
+        border-bottom: 1px solid var(--border-light, #F1F5F9);
         padding-bottom: 8px;
       }
 
       h3 {
         font-size: 16px;
         font-weight: 700;
-        color: #1E293B;
+        color: var(--text-primary, #1E293B);
         margin: 20px 0 10px 0;
       }
 
       p {
         font-size: 14.5px;
-        color: #334155;
+        color: var(--text-primary, #334155);
         margin-bottom: 14px;
       }
     }
@@ -219,17 +219,17 @@ import { CommonModule } from '@angular/common';
 
       li {
         font-size: 14px;
-        color: #334155;
+        color: var(--text-primary, #334155);
         margin-bottom: 8px;
         strong {
-          color: #0F172A;
+          color: var(--text-primary, #0F172A);
         }
       }
     }
 
     .dpo-card {
-      background: #F0F9FF;
-      border: 1px solid #BAE6FD;
+      background: var(--accent-light, #F0F9FF);
+      border: 1px solid var(--accent, #BAE6FD);
       border-radius: 8px;
       padding: 20px;
       margin-top: 20px;
@@ -238,7 +238,7 @@ import { CommonModule } from '@angular/common';
     .dpo-header {
       font-weight: 700;
       font-size: 14px;
-      color: #0369A1;
+      color: var(--accent, #0369A1);
       margin-bottom: 8px;
     }
 
@@ -247,16 +247,16 @@ import { CommonModule } from '@angular/common';
       font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
       font-weight: 600;
-      color: #0284C7;
+      color: var(--accent, #0284C7);
       text-decoration: none;
-      background: #FFFFFF;
+      background: var(--surface, #FFFFFF);
       padding: 6px 12px;
       border-radius: 6px;
-      border: 1px solid #7DD3FC;
+      border: 1px solid var(--accent, #7DD3FC);
       margin-top: 6px;
 
       &:hover {
-        background: #E0F2FE;
+        background: var(--accent-light, #E0F2FE);
       }
     }
   `]
