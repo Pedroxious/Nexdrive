@@ -1,5 +1,11 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { LegalLayoutComponent } from './pages/legal/legal-layout';
+import { PrivacyComponent } from './pages/legal/privacy';
+import { TermsComponent } from './pages/legal/terms';
+import { HelpComponent } from './pages/legal/help';
+import { LegalFaqComponent } from './pages/legal/faq';
+import { ForumComponent } from './pages/legal/forum';
 
 export const routes: Routes = [
     {
@@ -55,10 +61,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/contact/contact').then(m => m.ContactComponent)
     },
 
-    // ── Institutional & Legal Portal Routes ──
+    // ── Institutional & Legal Portal Routes (Eagerly loaded for instant 0ms rendering) ──
     {
         path: 'legal',
-        loadComponent: () => import('./pages/legal/legal-layout').then(m => m.LegalLayoutComponent),
+        component: LegalLayoutComponent,
         children: [
             {
                 path: '',
@@ -67,23 +73,23 @@ export const routes: Routes = [
             },
             {
                 path: 'privacidade',
-                loadComponent: () => import('./pages/legal/privacy').then(m => m.PrivacyComponent)
+                component: PrivacyComponent
             },
             {
                 path: 'termos',
-                loadComponent: () => import('./pages/legal/terms').then(m => m.TermsComponent)
+                component: TermsComponent
             },
             {
                 path: 'ajuda',
-                loadComponent: () => import('./pages/legal/help').then(m => m.HelpComponent)
+                component: HelpComponent
             },
             {
                 path: 'faq',
-                loadComponent: () => import('./pages/legal/faq').then(m => m.LegalFaqComponent)
+                component: LegalFaqComponent
             },
             {
                 path: 'forum',
-                loadComponent: () => import('./pages/legal/forum').then(m => m.ForumComponent)
+                component: ForumComponent
             }
         ]
     },

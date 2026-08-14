@@ -32,23 +32,23 @@ import { LucideAngularModule } from 'lucide-angular';
 
           <!-- Legal Nav Tabs -->
           <nav class="legal-tabs">
-            <a routerLink="/legal/privacidade" routerLinkActive="active" class="tab-item">
+            <a routerLink="/legal/privacidade" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" class="tab-item">
               <lucide-icon name="shield" [size]="16"></lucide-icon>
               <span>Política de Privacidade</span>
             </a>
-            <a routerLink="/legal/termos" routerLinkActive="active" class="tab-item">
+            <a routerLink="/legal/termos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" class="tab-item">
               <lucide-icon name="file-text" [size]="16"></lucide-icon>
               <span>Termos de Uso</span>
             </a>
-            <a routerLink="/legal/ajuda" routerLinkActive="active" class="tab-item">
+            <a routerLink="/legal/ajuda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" class="tab-item">
               <lucide-icon name="help-circle" [size]="16"></lucide-icon>
               <span>Central de Ajuda</span>
             </a>
-            <a routerLink="/legal/faq" routerLinkActive="active" class="tab-item">
+            <a routerLink="/legal/faq" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" class="tab-item">
               <lucide-icon name="help-circle" [size]="16"></lucide-icon>
               <span>Perguntas Frequentes</span>
             </a>
-            <a routerLink="/legal/forum" routerLinkActive="active" class="tab-item">
+            <a routerLink="/legal/forum" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" class="tab-item">
               <lucide-icon name="message-square" [size]="16"></lucide-icon>
               <span>Fórum & Comunidade</span>
             </a>

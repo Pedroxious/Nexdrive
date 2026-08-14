@@ -26,6 +26,12 @@ public class ForumBot {
 
     private String roleTag;
     private String bio;
+    
+    @Builder.Default
+    private int postCount = 0;
+    
+    @Builder.Default
+    private int commentCount = 0;
 
     private LocalDateTime createdAt;
 

@@ -37,10 +37,13 @@ public class ForumController {
     }
 
     @GetMapping("/topics")
-    public ResponseEntity<List<ForumTopicResponseDto>> getTopics(
+    public ResponseEntity<ForumPageResponseDto> getTopics(
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) String sort) {
-        return ResponseEntity.ok(forumService.getTopics(category, sort, getOptionalCurrentUser()));
+            @RequestParam(required = false, defaultValue = "recent") String sort,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "20") int size) {
+        return ResponseEntity.ok(forumService.getTopics(category, sort, search, page, size, getOptionalCurrentUser()));
     }
 
     @GetMapping("/topics/{id}")
@@ -69,7 +72,17 @@ public class ForumController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<List<String>> getCategories() {
-        return ResponseEntity.ok(forumService.getCategories());
+    public ResponseEntity<List<CategoryStatsDto>> getCategories() {
+        return ResponseEntity.ok(forumService.getCategoryStats());
+    }
+
+    @GetMapping("/featured-member")
+    public ResponseEntity<FeaturedMemberDto> getFeaturedMember() {
+        return ResponseEntity.ok(forumService.getFeaturedMember());
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<ForumStatsDto> getStats() {
+        return ResponseEntity.ok(forumService.getForumStats());
     }
 }

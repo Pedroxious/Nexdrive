@@ -32,6 +32,9 @@ public class ForumComment {
 
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
+    
+    @Column(name = "parent_comment_id")
+    private Long parentCommentId;
 
     private LocalDateTime createdAt;
 

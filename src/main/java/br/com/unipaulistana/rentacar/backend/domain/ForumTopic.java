@@ -43,6 +43,9 @@ public class ForumTopic {
 
     @Builder.Default
     private int repliesCount = 0;
+    
+    @Builder.Default
+    private int participantsCount = 0;
 
     @Column(columnDefinition = "TEXT")
     private String imageUrl;

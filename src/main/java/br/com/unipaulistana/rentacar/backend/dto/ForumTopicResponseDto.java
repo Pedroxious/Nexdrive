@@ -14,9 +14,11 @@ public record ForumTopicResponseDto(
     int viewsCount,
     int likesCount,
     int repliesCount,
+    int participantsCount,
     String imageUrl,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
     List<AuthorDto> participantAvatars,
+    String lastActivityAuthor,
     boolean userLiked
 ) {}
