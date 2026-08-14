@@ -783,97 +783,220 @@ public class DataInitializer implements ApplicationRunner {
         private void seedForumData() {
                 if (forumBotRepository.count() > 0) return;
 
-                java.util.Random random = new java.util.Random();
-                
+                java.util.Random random = new java.util.Random(42);
+
                 String[] firstNames = {"Carlos", "Mariana", "Rodrigo", "Beatriz", "Lucas", "Gabriel", "Fernanda", "Camila", "Thiago", "Juliana", "Pedro", "Ana", "Luiz", "Amanda", "Marcelo", "Rafael", "Leticia", "Bruno", "Patricia", "Felipe"};
                 String[] lastNames = {"Silva", "Souza", "Oliveira", "Lima", "Mendes", "Santos", "Costa", "Pereira", "Ferreira", "Rocha", "Almeida", "Gomes", "Martins", "Carvalho", "Ribeiro", "Araujo", "Melo", "Cardoso", "Teixeira", "Dias"};
-                String[] roles = {"Membro Premium", "Especialista em Frotas", "Condutor VIP", "Moderadora", "Membro", "Membro VIP", "Membro Ouro", "Entusiasta"};
+                String[] roles = {"Membro Premium", "Especialista em Frotas", "Condutor VIP", "Moderador", "Membro", "Membro VIP", "Membro Ouro", "Entusiasta"};
                 String[] colors = {"3B82F6", "8B5CF6", "10B981", "F59E0B", "EF4444", "06B6D4", "EC4899", "F97316", "6366F1", "059669"};
                 String[] categories = {"Suporte", "Duvidas sobre Veiculos", "Experiencias com Locadoras", "Dicas e Mecanica", "Off-Topic", "Anuncios"};
-                
+                String[] bios = {
+                    "Entusiasta de carros e tecnologia", "Especialista em viagens corporativas",
+                    "Locatario frequente desde 2019", "Moderador da comunidade Nexdrive",
+                    "Motorista de aplicativo em SP", "Amante de carros eletricos",
+                    "Apaixonada por viagens rodoviarias", "Usuario semanal da plataforma",
+                    "Interessado em mecanica automotiva", "Cliente fiel de SUVs premium",
+                    "Consultor automotivo", "Viajante de final de semana",
+                    "Mecanico amador com 10 anos de experiencia", "Blogueira de viagens",
+                    "Frotista com mais de 30 veiculos", "Uber em Belo Horizonte",
+                    "Estudante de engenharia mecanica", "Colecionador de carros classicos",
+                    "Gestora de frotas corporativas", "Engenheiro automotivo aposentado"
+                };
+
                 List<ForumBot> bots = new ArrayList<>();
                 for (int i = 0; i < 20; i++) {
-                    String name = firstNames[i % firstNames.length] + " " + lastNames[i % lastNames.length];
+                    String name = firstNames[i] + " " + lastNames[i];
                     String email = name.toLowerCase().replace(" ", ".") + "@nexdrive.community";
-                    String role = roles[random.nextInt(roles.length)];
-                    String color = colors[random.nextInt(colors.length)];
-                    String avatar = "https://ui-avatars.com/api/?name=" + name.replace(" ", "+") + "&background=" + color + "&color=fff";
-                    
+                    String role = roles[i % roles.length];
+                    String color = colors[i % colors.length];
+                    String avatar = "https://ui-avatars.com/api/?name=" + name.replace(" ", "+") + "&background=" + color + "&color=fff&size=128";
+
                     bots.add(ForumBot.builder()
                         .name(name)
                         .email(email)
                         .roleTag(role)
                         .avatarUrl(avatar)
-                        .bio("Membro da comunidade Nexdrive")
+                        .bio(bios[i])
                         .postCount(0)
                         .commentCount(0)
                         .createdAt(java.time.LocalDateTime.now().minusDays(180 + random.nextInt(100)))
                         .build());
                 }
-                
+
                 List<ForumBot> savedBots = forumBotRepository.saveAll(bots);
-                
+
+                String[] topicTitles = {
+                    "Qual a melhor locadora para viagem longa?",
+                    "Duvida sobre seguro de carros de luxo",
+                    "Como funciona a devolucao em outra cidade?",
+                    "Problemas com o ar condicionado do Onix alugado",
+                    "Alguem ja alugou SUV na Nexdrive para serra gaucha?",
+                    "Dicas para economizar no aluguel mensal",
+                    "Cobraram taxa de lavagem indevida na devolucao!",
+                    "Qual o consumo real do Renegade 1.3 turbo?",
+                    "Vale a pena pegar o seguro completo da locadora?",
+                    "Aluguel de carro eletrico: vale a pena em 2024?",
+                    "O que verificar na hora de retirar o veiculo",
+                    "Melhor carro para viajar com a familia na praia",
+                    "Fui multado com carro alugado, e agora?",
+                    "Como contestar uma avaria que nao fiz no carro",
+                    "Dica de roteiro SP-RJ com carro alugado",
+                    "Alguem recomenda a unidade Nexdrive de Guarulhos?",
+                    "Carro ferveu na BR-101, o que fazer?",
+                    "Diferenca real entre grupo B e grupo C",
+                    "Posso atravessar fronteira com carro alugado?",
+                    "Pneus carecas no carro da locadora: posso recusar?",
+                    "Melhor epoca para alugar com desconto na Nexdrive",
+                    "Cupons de desconto validos para dezembro",
+                    "Carro por assinatura vs comprar um zero km",
+                    "Minha experiencia pessima com outra locadora (nao Nexdrive)",
+                    "Qual o limite do cartao de credito exigido?",
+                    "Aluguel sem cartao de credito e possivel?",
+                    "Como funciona o pedagio automatico nas locadoras?",
+                    "Automatico vs manual na estrada: qual preferem?",
+                    "Cadeirinha ideal para criancas no carro alugado",
+                    "Reembolso de combustivel nao caiu ainda",
+                    "Bati o carro alugado: qual o procedimento correto?",
+                    "HB20 1.0 aguenta subida de serra tranquilo?",
+                    "Demora no atendimento no aeroporto de Congonhas",
+                    "Onde encontrar as melhores promocoes de aluguel?",
+                    "Como funciona a coparticipacao do seguro?",
+                    "Aluguel de vans para viagem em grupo: experiencias",
+                    "Dicas para dirigir na chuva com seguranca",
+                    "Carro entregue sujo, posso reclamar?",
+                    "Programa de fidelidade Nexdrive: como funciona?",
+                    "Qual locadora tem a frota mais nova em SP?",
+                    "Problema com rastreador do veiculo alugado",
+                    "E possivel adicionar condutor extra sem custo?",
+                    "Aluguel para motorista de aplicativo compensa?",
+                    "Politica de cancelamento: prazos e taxas",
+                    "Experiencia alugando carro para viagem ao litoral nordestino"
+                };
+
+                String[] topicContents = {
+                    "Ola pessoal, estou planejando uma viagem de 15 dias pelo sul do Brasil e gostaria de saber as recomendacoes de voces. Ja tive boas experiencias no passado com a Nexdrive, mas queria comparar opcoes.",
+                    "Boa tarde, comunidade! Fui retirar meu carro na agencia de Pinheiros e tive um problema com o cartao de credito. O limite estava ok, mas o sistema travou. Alguem ja passou por isso?",
+                    "Estou com um carro alugado e o ar condicionado parou de gelar do nada. Liguei na assistencia e pediram para ir ate a loja mais proxima. Quanto tempo demora a troca de veiculo?",
+                    "Sempre que alugarem, tirem fotos e gravem video de todo o carro antes de sair da loja. Checklist completo: para-choque, rodas, teto, painel, porta-malas. Isso me salvou de uma cobranca injusta.",
+                    "Quero saber se vale a pena pagar o seguro premium que cobre absolutamente tudo, incluindo vidros e pneus. Vou viajar para uma regiao com muita estrada de terra e pedra solta.",
+                    "Estou fazendo as contas do carro por assinatura vs comprar zero km. Considerando IPVA, seguro e manutencao, a assinatura parece compensar para quem roda menos de 1500km por mes.",
+                    "Tive uma experiencia ruim na devolucao em outra locadora. O atendente insistiu que um risco no para-choque foi causado por mim, mas eu tinha foto do checklist provando que ja existia.",
+                    "Alguei um carro eletrico da Nexdrive no final de semana passado para testar. Queria saber se a autonomia de 350km reais e suficiente para ir de SP ao litoral e voltar sem parar.",
+                    "Fui multado por excesso de velocidade na Dutra com o carro da locadora. A multa ja chegou e veio com uma taxa administrativa. Esse valor e normal? Como funciona o recurso?",
+                    "Minha opiniao sobre qual carro popular anda mais e consome menos em rodovia: testei Onix, HB20 e Polo. O Polo ganhou disparado com media de 16.5 km/l na estrada.",
+                    "Alugo carro toda semana para trabalho e acho que as locadoras deveriam ter um plano melhor para clientes frequentes. Na Nexdrive pelo menos tem o programa de pontos.",
+                    "Dica para quem vai alugar no aeroporto: as vezes compensa pegar um transporte ate uma agencia na cidade. A diaria costuma ser ate 30% mais barata fora do terminal.",
+                    "Alguem sabe como funciona a questao do pedagio automatico na Nexdrive? Eles usam tag propria ou eu posso cadastrar a minha? Tem alguma taxa extra por usar a tag deles?",
+                    "Gostaria de saber se e possivel alugar um carro aqui e devolver em outro estado. Sei que cobram taxa de retorno, mas costuma ser quanto em percentual da diaria?",
+                    "Problema na reserva online: fiz pelo app e quando cheguei na loja disseram que a categoria que eu escolhi estava indisponivel. Queriam me dar um carro inferior e nao aceitei.",
+                    "Para viagens com a familia em 7 pessoas, qual a melhor opcao na Nexdrive? Preciso de espaco no porta-malas para 4 malas grandes e carrinho de bebe.",
+                    "Como funciona a assistencia 24 horas na pratica? O pneu furou no meio da BR-040 de noite. Liguei e o guincho demorou bastante. Alguem teve experiencia mais rapida?",
+                    "Se eu devolver o carro antes da data prevista, devolvem o dinheiro dos dias restantes ou fica como credito? Li nos termos mas ficou confuso.",
+                    "Absurdo o valor que cobram no litro de combustivel quando voce devolve sem tanque cheio. Paguei quase o dobro do posto. Fica a dica: sempre devolva com tanque cheio.",
+                    "Galera, consegui um SUV pelo preco de carro basico na Nexdrive durante uma promocao relampago. Fiquem de olho nas redes sociais deles, aparecem ofertas excelentes."
+                };
+
                 List<ForumTopic> topics = new ArrayList<>();
-                for (int i = 0; i < 45; i++) {
+                for (int i = 0; i < topicTitles.length; i++) {
                     ForumBot author = savedBots.get(random.nextInt(savedBots.size()));
-                    java.time.LocalDateTime createdAt = java.time.LocalDateTime.now().minusDays(random.nextInt(180));
-                    
+                    java.time.LocalDateTime createdAt = java.time.LocalDateTime.now().minusDays(random.nextInt(180)).minusHours(random.nextInt(24));
+
                     int views = 50 + random.nextInt(4950);
                     int likes = random.nextInt(200);
-                    int replies = 0; // will update later
-                    boolean isPinned = (i < 3); // 3 pinned
-                    boolean isSolved = (i > 10 && i < 18); // 7 solved
-                    
+                    boolean isPinned = (i < 3);
+                    boolean isSolved = (i > 10 && i < 18);
+
                     ForumTopic topic = ForumTopic.builder()
-                        .title("Topico interessante sobre aluguel e carros " + i)
-                        .content("Este e um topico gerado automaticamente. O aluguel de carros no Brasil tem crescido muito. Gostaria de saber a opiniao de voces sobre qual a melhor locadora e os modelos mais economicos. Eu particularmente prefiro carros hatch para a cidade e SUVs para viagens mais longas com a familia. O que acham?")
-                        .category(categories[random.nextInt(categories.length)])
+                        .title(topicTitles[i])
+                        .content(topicContents[i % topicContents.length])
+                        .category(categories[i % categories.length])
                         .authorBot(author)
                         .isPinned(isPinned)
                         .isSolved(isSolved)
                         .viewsCount(views)
                         .likesCount(likes)
-                        .repliesCount(replies)
+                        .repliesCount(0)
                         .participantsCount(1)
                         .createdAt(createdAt)
-                        .updatedAt(createdAt.plusHours(random.nextInt(100)))
+                        .updatedAt(createdAt.plusHours(random.nextInt(200)))
                         .build();
-                        
+
                     topics.add(topic);
                     author.setPostCount(author.getPostCount() + 1);
                 }
-                
+
                 List<ForumTopic> savedTopics = forumTopicRepository.saveAll(topics);
-                forumBotRepository.saveAll(savedBots); // update postCounts
-                
+                forumBotRepository.saveAll(savedBots);
+
+                String[] commentTexts = {
+                    "Excelente dica! Vou testar isso no proximo aluguel com certeza.",
+                    "Concordo plenamente. Ja fiz isso e deu super certo na minha viagem.",
+                    "Muito bom o post, bem detalhado. Obrigado por compartilhar com a gente.",
+                    "Passei por uma situacao identica e resolvi exatamente assim.",
+                    "Valeu pela informacao! Salvei aqui para consultar depois.",
+                    "Pessimo atendimento na unidade que fui. Nao recomendo para ninguem.",
+                    "Nao concordo. Comigo foi totalmente diferente e tive dor de cabeca.",
+                    "Acho absurdo cobrarem essas taxas escondidas no contrato.",
+                    "Alguem sabe se a politica de cancelamento e flexivel para emergencias?",
+                    "Quanto custa em media a diaria dessa categoria nos finais de semana?",
+                    "Depende muito da epoca do ano. Na alta temporada tudo sobe bastante.",
+                    "Interessante o ponto de vista, mas acho que varia de agencia para agencia.",
+                    "Resolvi meu problema calibrando os pneus com 32 libras. Melhorou muito.",
+                    "A solucao definitiva e trocar o filtro de ar a cada 10 mil km rodados.",
+                    "Para resolver cobranca indevida, mandei email para ouvidoria com fotos.",
+                    "Consegui upgrade ligando direto no SAC antes de ir buscar o carro.",
+                    "Mano, esse role ficou top demais! Recomendo a todos que estao em duvida.",
+                    "Os caras enrolaram demais na agencia. Fiquei quase uma hora esperando.",
+                    "Papo reto: nunca mais alugo nessa filial especifica. Muito desorganizado.",
+                    "Carro excelente, andou muito bem na estrada. Curti demais a experiencia.",
+                    "Acho meio complicado o processo de vistoria na devolucao, mas entendo.",
+                    "Tmj! Valeu pela visao. Vai ajudar muita gente que esta na mesma situacao.",
+                    "Na moral, meteram uma cobranca absurda na taxa de lavagem. Fiquem espertos.",
+                    "Otima recomendacao para quem utiliza a frota com frequencia como eu.",
+                    "Eu costumo alugar sempre na mesma unidade, mas estou avaliando alternativas.",
+                    "Testei hoje cedo e confirmou tudo o que foi dito aqui. Obrigado!",
+                    "Vou acompanhar o topico. Tambem tenho interesse nesse assunto.",
+                    "Reclame no ReclameAqui. Costumam responder e resolver em menos de 2 dias.",
+                    "Use aditivo de boa qualidade no combustivel que o motor para de falhar.",
+                    "Aperte os parafusos da placa, geralmente e isso que faz barulho no porta-malas.",
+                    "Para cancelar sem multa, avise com 48 horas de antecedencia pelo app.",
+                    "O problema do ar condicionado e cronico nesse modelo. Peca troca do veiculo.",
+                    "Caramba, nao sabia disso! Vai facilitar demais minha vida a partir de agora.",
+                    "Mandou muito bem com essa explicacao! E exatamente isso que precisamos.",
+                    "Verdade, passei por isso e posso confirmar que essa e a melhor abordagem.",
+                    "Super util essa informacao. Parabens pela iniciativa de compartilhar.",
+                    "Normalmente pedem caucao de mil reais, mas pode variar pela categoria do carro.",
+                    "Achei a qualidade do servico inferior ao que era no passado nessa unidade.",
+                    "Eles estao melhorando bastante. A frota renovada ficou excelente.",
+                    "Muito ruim minha experiencia. O carro veio sujo e com cheiro de cigarro."
+                };
+
                 List<ForumComment> comments = new ArrayList<>();
-                for (int i = 0; i < 120; i++) {
+                for (int i = 0; i < 150; i++) {
                     ForumTopic topic = savedTopics.get(random.nextInt(savedTopics.size()));
                     ForumBot author = savedBots.get(random.nextInt(savedBots.size()));
-                    java.time.LocalDateTime createdAt = topic.getCreatedAt().plusMinutes(random.nextInt(10000));
-                    
+                    java.time.LocalDateTime createdAt = topic.getCreatedAt().plusMinutes(30 + random.nextInt(15000));
+
                     ForumComment comment = ForumComment.builder()
                         .topic(topic)
                         .authorBot(author)
-                        .content("Excelente ponto! Concordo com voce. Ja tive experiencias parecidas e acho que depende muito da situacao.")
+                        .content(commentTexts[i % commentTexts.length])
                         .createdAt(createdAt)
                         .build();
-                        
+
                     comments.add(comment);
                     author.setCommentCount(author.getCommentCount() + 1);
                     topic.setRepliesCount(topic.getRepliesCount() + 1);
                 }
-                
+
                 forumCommentRepository.saveAll(comments);
-                forumBotRepository.saveAll(savedBots); // update commentCounts
-                
-                // update participantsCount
+                forumBotRepository.saveAll(savedBots);
+
                 for (ForumTopic topic : savedTopics) {
                     long pCount = forumCommentRepository.findByTopicOrderByCreatedAtAsc(topic).stream()
-                        .map(c -> c.getAuthorBot().getId() + "_b")
+                        .map(c -> c.getAuthorBot() != null ? c.getAuthorBot().getId() + "_b" : "unknown")
                         .distinct().count();
-                    long totalP = Math.max(1, pCount + (topic.getAuthorBot() != null ? 1 : 0)); // simple approximation
-                    topic.setParticipantsCount((int) totalP);
+                    topic.setParticipantsCount((int) Math.max(1, pCount + 1));
                 }
                 forumTopicRepository.saveAll(savedTopics);
         }

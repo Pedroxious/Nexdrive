@@ -21,10 +21,12 @@ export interface ForumTopic {
   viewsCount: number;
   likesCount: number;
   repliesCount: number;
+  participantsCount: number;
   imageUrl?: string;
   createdAt: string;
   updatedAt: string;
   participantAvatars: ForumAuthor[];
+  lastActivityAuthor: string;
   userLiked: boolean;
 }
 
@@ -35,6 +37,36 @@ export interface ForumComment {
   content: string;
   imageUrl?: string;
   createdAt: string;
+  parentCommentId?: number;
+}
+
+export interface ForumPage {
+  content: ForumTopic[];
+  totalPages: number;
+  totalElements: number;
+  currentPage: number;
+  pageSize: number;
+}
+
+export interface CategoryStats {
+  name: string;
+  topicCount: number;
+  color: string;
+}
+
+export interface FeaturedMember {
+  id: number;
+  name: string;
+  avatarUrl: string;
+  roleTag: string;
+  postCount: number;
+  commentCount: number;
+}
+
+export interface ForumStats {
+  totalTopics: number;
+  totalComments: number;
+  totalMembers: number;
 }
 
 export interface CreateTopicPayload {
@@ -54,16 +86,22 @@ export class ForumService {
   private http = inject(HttpClient);
   private apiUrl = '/api/forum';
 
-  getTopics(category?: string, sort?: string): Observable<ForumTopic[]> {
-    let params = new HttpParams();
-    if (category && category !== 'all' && category !== 'Todas as categorias') {
+  getTopics(category?: string, sort?: string, search?: string, page = 0, size = 20): Observable<ForumPage> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (category && category !== 'all' && category !== 'Todas') {
       params = params.set('category', category);
     }
     if (sort) {
       params = params.set('sort', sort);
     }
-    return this.http.get<ForumTopic[]>(`${this.apiUrl}/topics`, { params }).pipe(
-      catchError(() => of([]))
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    return this.http.get<ForumPage>(`${this.apiUrl}/topics`, { params }).pipe(
+      catchError(() => of({ content: [], totalPages: 0, totalElements: 0, currentPage: 0, pageSize: size }))
     );
   }
 
@@ -97,9 +135,21 @@ export class ForumService {
     );
   }
 
-  getCategories(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/categories`).pipe(
-      catchError(() => of(['Aluguel', 'Veículos', 'Dicas', 'Suporte', 'Servidor', 'WordPress', 'Domínios', 'Cloudflare']))
+  getCategoryStats(): Observable<CategoryStats[]> {
+    return this.http.get<CategoryStats[]>(`${this.apiUrl}/categories`).pipe(
+      catchError(() => of([]))
+    );
+  }
+
+  getFeaturedMember(): Observable<FeaturedMember | null> {
+    return this.http.get<FeaturedMember>(`${this.apiUrl}/featured-member`).pipe(
+      catchError(() => of(null))
+    );
+  }
+
+  getForumStats(): Observable<ForumStats> {
+    return this.http.get<ForumStats>(`${this.apiUrl}/stats`).pipe(
+      catchError(() => of({ totalTopics: 0, totalComments: 0, totalMembers: 0 }))
     );
   }
 }
