@@ -14,6 +14,9 @@ public interface ForumTopicRepository extends JpaRepository<ForumTopic, Long> {
     List<ForumTopic> findByCategoryOrderByIsPinnedDescUpdatedAtDesc(String category);
     List<ForumTopic> findAllByOrderByLikesCountDesc();
 
-    @Query("SELECT t FROM ForumTopic t WHERE (:category IS NULL OR t.category = :category) ORDER BY t.isPinned DESC, t.updatedAt DESC")
+    @Query("SELECT t FROM ForumTopic t WHERE (:category IS NULL OR LOWER(t.category) = LOWER(:category)) ORDER BY t.isPinned DESC, t.updatedAt DESC")
     List<ForumTopic> findFilteredTopics(@Param("category") String category);
+
+    @Query("SELECT t FROM ForumTopic t WHERE (:category IS NULL OR LOWER(t.category) = LOWER(:category)) ORDER BY t.likesCount DESC, t.updatedAt DESC")
+    List<ForumTopic> findPopularTopics(@Param("category") String category);
 }
