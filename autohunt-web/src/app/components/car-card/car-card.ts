@@ -6,6 +6,8 @@ import { Vehicle } from '../../core/models/vehicle.model';
 import { FavoriteService } from '../../core/services/favorites';
 import { AuthService } from '../../core/services/auth';
 import { ToastService } from '../../core/services/toast';
+import { CurrencyService } from '../../core/services/currency';
+import { LanguageService } from '../../core/services/language';
 
 @Component({
   selector: 'app-car-card',
@@ -64,15 +66,14 @@ import { ToastService } from '../../core/services/toast';
 
         <div class="card-footer">
           <div class="price-block">
-            <span class="price-label">{{ showRentPrice ? 'Total' : 'a partir de' }}</span>
+            <span class="price-label">{{ langService.t('car.daily_from') }}</span>
             <div class="price-value">
-              <span class="currency">R$</span>
-              <span class="amount">{{ car.pricePerDay | number:'1.2-2':'pt-BR' }}</span>
-              <span class="period" *ngIf="!showRentPrice">/dia</span>
+              <span class="formatted-price">{{ currency.format(car.pricePerDay) }}</span>
+              <span class="period" *ngIf="!showRentPrice">{{ langService.t('spec.per_day') }}</span>
             </div>
           </div>
           <button class="reserve-btn clickable" [routerLink]="['/rent', car.id]" (click)="$event.stopPropagation()">
-            Ver detalhes
+            {{ langService.t('btn.view_details') }}
             <lucide-icon name="arrow-right" [size]="16"></lucide-icon>
           </button>
         </div>
@@ -277,13 +278,14 @@ import { ToastService } from '../../core/services/toast';
 })
 export class CarCardComponent implements OnInit {
   @Input({ required: true }) car!: Vehicle;
-  @Input() showRentPrice: boolean = false;
-  /** Set to true for above-the-fold cards (first row) to skip lazy loading. */
-  @Input() priority: boolean = false;
+  @Input() priority = false;
+  @Input() showRentPrice = false;
 
-  private favoriteService = inject(FavoriteService);
-  private authService = inject(AuthService);
-  private toastService = inject(ToastService);
+  favoriteService = inject(FavoriteService);
+  authService = inject(AuthService);
+  toastService = inject(ToastService);
+  currency = inject(CurrencyService);
+  langService = inject(LanguageService);
 
   /** True once the car image has successfully loaded. Drives shimmer visibility. */
   imageLoaded = signal(false);
@@ -322,28 +324,24 @@ export class CarCardComponent implements OnInit {
   }
 
   formatBadge(badge: string) {
-    return badge.replace('_', ' ');
+    const key = `badge.${badge}`;
+    return this.langService.t(key);
   }
 
   translateCategory(cat: string) {
-    const cats: any = {
-      'ECONOMY': 'Economico', 'COMPACT': 'Compacto', 'SUV': 'SUV',
-      'LUXURY': 'Luxo', 'SPORT': 'Esportivo', 'VAN': 'Van',
-      'SEDAN': 'Seda', 'HATCH': 'Hatch', 'PICKUP': 'Picape'
-    };
-    return cats[cat] || cat;
+    const key = `cat.${cat}`;
+    return this.langService.t(key);
   }
 
   translateFuel(fuel: string) {
-    const map: any = {
-      'FLEX': 'Flex', 'GASOLINE': 'Gasolina', 'DIESEL': 'Diesel',
-      'ELECTRIC': 'Eletrico', 'HYBRID': 'Hibrido', 'ETHANOL': 'Etanol'
-    };
-    return map[fuel] || fuel;
+    if (!fuel) return '';
+    const key = `spec.${fuel.toLowerCase()}`;
+    return this.langService.t(key);
   }
 
   translateTrans(t: string) {
-    const map: any = { 'AUTOMATIC': 'Auto', 'MANUAL': 'Manual', 'CVT': 'CVT' };
-    return map[t] || t;
+    if (!t) return '';
+    const key = `spec.${t.toLowerCase()}`;
+    return this.langService.t(key);
   }
 }

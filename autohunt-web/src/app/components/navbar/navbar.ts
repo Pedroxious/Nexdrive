@@ -5,6 +5,7 @@ import { LucideAngularModule, Car, MapPin, ChevronDown, Bell, PlusCircle, Sun, M
 import { AuthService } from '../../core/services/auth';
 import { ThemeService } from '../../core/services/theme';
 import { CarService } from '../../core/services/car';
+import { LanguageService } from '../../core/services/language';
 
 @Component({
   selector: 'app-navbar',
@@ -22,10 +23,10 @@ import { CarService } from '../../core/services/car';
 
           <!-- Nav Links (Desktop) -->
           <div class="nav-links">
-            <a routerLink="/" class="nav-link">Início</a>
-            <a routerLink="/rent" class="nav-link">Alugar</a>
-            <a routerLink="/buy" class="nav-link">Comprar</a>
-            <a routerLink="/about" class="nav-link">Sobre</a>
+            <a routerLink="/" class="nav-link">{{ langService.t('nav.home') }}</a>
+            <a routerLink="/rent" class="nav-link">{{ langService.t('nav.rent') }}</a>
+            <a routerLink="/buy" class="nav-link">{{ langService.t('nav.buy') }}</a>
+            <a routerLink="/about" class="nav-link">{{ langService.t('nav.about') }}</a>
           </div>
         </div>
 
@@ -51,6 +52,12 @@ import { CarService } from '../../core/services/car';
 
         <!-- Right: Actions -->
         <div class="nav-right">
+          <!-- Language Toggle (PT / EN) -->
+          <button class="lang-btn clickable" (click)="langService.toggleLanguage()" [title]="langService.t('nav.language')">
+            <span class="flag-icon">{{ langService.currentLang() === 'pt' ? '🇧🇷' : '🇺🇸' }}</span>
+            <span class="lang-code">{{ langService.currentLang() === 'pt' ? 'PT-BR' : 'EN-US' }}</span>
+          </button>
+
           <!-- Theme Toggle -->
           <button class="icon-btn clickable" (click)="theme.toggleTheme()" title="Alternar tema">
             <lucide-icon [name]="theme.theme() === 'light' ? 'moon' : 'sun'" [size]="20"></lucide-icon>
@@ -81,7 +88,7 @@ import { CarService } from '../../core/services/car';
           <!-- Sell CTA -->
           <a routerLink="/sell-car" class="sell-btn clickable">
             <lucide-icon name="plus-circle" [size]="18"></lucide-icon>
-            <span class="sell-text">Anunciar</span>
+            <span class="sell-text">{{ langService.t('nav.sell_car') }}</span>
           </a>
 
           <!-- Profile / Auth -->
@@ -113,7 +120,7 @@ import { CarService } from '../../core/services/car';
             } @else {
               <button class="login-btn clickable" routerLink="/login">
                 <lucide-icon name="log-in" [size]="18"></lucide-icon>
-                <span>Entrar</span>
+                <span>{{ langService.t('nav.login') }}</span>
               </button>
             }
           </div>
@@ -238,6 +245,22 @@ import { CarService } from '../../core/services/car';
       position: relative; color: rgba(255,255,255,0.60);
       transition: all 0.2s;
       &:hover { background: rgba(0,191,234,0.12); color: var(--accent); }
+    }
+
+    .lang-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff; font-size: 12px; font-weight: 700;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      &:hover {
+        background: rgba(0, 191, 234, 0.18);
+        border-color: rgba(0, 191, 234, 0.4);
+        transform: translateY(-1px);
+      }
+      .flag-icon { font-size: 14px; }
+      .lang-code { font-family: 'Outfit', sans-serif; letter-spacing: 0.5px; }
     }
 
     .badge {
@@ -394,6 +417,7 @@ export class NavbarComponent {
   auth = inject(AuthService);
   theme = inject(ThemeService);
   carService = inject(CarService);
+  langService = inject(LanguageService);
   private eRef = inject(ElementRef);
 
   showLocations = signal(false);

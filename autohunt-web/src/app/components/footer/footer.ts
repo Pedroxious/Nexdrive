@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Instagram, Twitter, Facebook, Linkedin, Send, ShieldCheck, Lock } from 'lucide-angular';
 import { ToastService } from '../../core/services/toast';
+import { LanguageService } from '../../core/services/language';
 
 @Component({
     selector: 'app-footer',
@@ -18,7 +19,7 @@ import { ToastService } from '../../core/services/toast';
               </span>
               <span class="logo-text">Nex<span class="logo-accent">drive</span></span>
             </div>
-            <p class="brand-desc">A maior e melhor plataforma de reserva de veículos do Brasil. Experiência premium em cada quilômetro.</p>
+            <p class="brand-desc">{{ langService.t('footer.tagline') }}</p>
             <div class="social-row">
               <button class="social-btn clickable" (click)="showMsg('Instagram')" title="Instagram">
                 <lucide-icon name="instagram" [size]="18"></lucide-icon>
@@ -36,30 +37,30 @@ import { ToastService } from '../../core/services/toast';
           </div>
 
           <div class="links-col">
-            <h4>Empresa</h4>
+            <h4>{{ langService.t('footer.company') }}</h4>
             <ul>
-              <li><a routerLink="/about">Sobre nós</a></li>
-              <li><a routerLink="/sell-car">Anunciar Veículo</a></li>
-              <li><a (click)="showMsg('Blog')">Blog</a></li>
-              <li><a (click)="showMsg('Parceiros')">Parceiros</a></li>
+              <li><a routerLink="/about">{{ langService.t('footer.about') }}</a></li>
+              <li><a routerLink="/sell-car">{{ langService.t('footer.sell') }}</a></li>
+              <li><a (click)="showMsg('Blog')">{{ langService.t('footer.blog') }}</a></li>
+              <li><a (click)="showMsg('Parceiros')">{{ langService.t('footer.partners') }}</a></li>
             </ul>
           </div>
 
           <div class="links-col">
-            <h4>Suporte</h4>
+            <h4>{{ langService.t('footer.support') }}</h4>
             <ul>
-              <li><a routerLink="/faq">Central de Ajuda</a></li>
-              <li><a routerLink="/contact">Contato</a></li>
-              <li><a routerLink="/privacy">Privacidade</a></li>
-              <li><a routerLink="/terms">Termos de Uso</a></li>
+              <li><a routerLink="/faq">{{ langService.t('footer.help') }}</a></li>
+              <li><a routerLink="/contact">{{ langService.t('footer.contact') }}</a></li>
+              <li><a routerLink="/privacy">{{ langService.t('footer.privacy') }}</a></li>
+              <li><a routerLink="/terms">{{ langService.t('footer.terms') }}</a></li>
             </ul>
           </div>
 
           <div class="newsletter-col">
-            <h4>Newsletter</h4>
-            <p>Receba ofertas exclusivas e novidades.</p>
+            <h4>{{ langService.t('footer.newsletter') }}</h4>
+            <p>{{ langService.t('footer.newsletter_desc') }}</p>
             <div class="newsletter-form">
-              <input type="email" placeholder="Seu melhor e-mail" class="newsletter-input" #newsEmail>
+              <input type="email" [placeholder]="langService.t('footer.email_placeholder')" class="newsletter-input" #newsEmail>
               <button class="newsletter-btn clickable" (click)="subscribeNews(newsEmail.value); newsEmail.value = ''">
                 <lucide-icon name="send" [size]="18"></lucide-icon>
               </button>
@@ -68,13 +69,10 @@ import { ToastService } from '../../core/services/toast';
         </div>
 
         <div class="footer-bottom">
-          <p>&copy; 2026 Nexdrive. Todos os direitos reservados.</p>
+          <p>&copy; 2026 Nexdrive. {{ langService.t('footer.rights') }}</p>
           <div class="footer-badges">
             <span class="badge-item">
-              <lucide-icon name="shield-check" [size]="14"></lucide-icon> Ambiente Seguro
-            </span>
-            <span class="badge-item">
-              <lucide-icon name="lock" [size]="14"></lucide-icon> SSL Criptografado
+              <lucide-icon name="shield-check" [size]="14"></lucide-icon> {{ langService.t('footer.secure_conn') }}
             </span>
           </div>
         </div>
@@ -215,7 +213,8 @@ import { ToastService } from '../../core/services/toast';
   `]
 })
 export class FooterComponent {
-  toast = inject(ToastService);
+  private toast = inject(ToastService);
+  langService = inject(LanguageService);
 
   showMsg(item: string) {
     this.toast.info(`${item} estará disponível em breve!`);
