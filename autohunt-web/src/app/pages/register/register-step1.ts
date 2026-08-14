@@ -76,8 +76,10 @@ import { RouterLink } from '@angular/router';
               <svg *ngIf="!fullNameValid()" class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
           </div>
-          <div class="error-message" *ngIf="!fullNameValid() && isTouched('fullName')">
-            Insira seu nome e sobrenome (min. 2 caracteres).
+          <div class="field-error-slot">
+            <div class="error-message" *ngIf="!fullNameValid() && isTouched('fullName')">
+              Insira seu nome e sobrenome (min. 2 caracteres).
+            </div>
           </div>
         </div>
 
@@ -106,8 +108,10 @@ import { RouterLink } from '@angular/router';
               <svg *ngIf="!phoneValid()" class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
           </div>
-          <div class="error-message" *ngIf="!phoneValid() && isTouched('phone')">
-            Insira um número de telefone válido.
+          <div class="field-error-slot">
+            <div class="error-message" *ngIf="!phoneValid() && isTouched('phone')">
+              Insira um número de telefone válido.
+            </div>
           </div>
         </div>
 
@@ -136,8 +140,10 @@ import { RouterLink } from '@angular/router';
               <svg *ngIf="!emailValid()" class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
           </div>
-          <div class="error-message" *ngIf="!emailValid() && isTouched('email')">
-            Insira um e-mail válido.
+          <div class="field-error-slot">
+            <div class="error-message" *ngIf="!emailValid() && isTouched('email')">
+              Insira um e-mail válido.
+            </div>
           </div>
         </div>
 
@@ -223,8 +229,10 @@ import { RouterLink } from '@angular/router';
               <svg *ngIf="showConfirmPassword()" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
             </div>
           </div>
-          <div class="error-message" *ngIf="!confirmPasswordValid() && isTouched('confirmPassword')">
-            As senhas não coincidem.
+          <div class="field-error-slot">
+            <div class="error-message" *ngIf="!confirmPasswordValid() && isTouched('confirmPassword')">
+              As senhas não coincidem.
+            </div>
           </div>
         </div>
 
@@ -237,8 +245,10 @@ import { RouterLink } from '@angular/router';
             </div>
             <span class="terms-text">Li e concordo com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a></span>
           </label>
-          <div class="error-message" *ngIf="!termsAccepted() && isTouched('terms')">
-            Você precisa concordar com os termos para continuar.
+          <div class="field-error-slot">
+            <div class="error-message" *ngIf="!termsAccepted() && isTouched('terms')">
+              Você precisa concordar com os termos para continuar.
+            </div>
           </div>
         </div>
 
@@ -485,6 +495,11 @@ import { RouterLink } from '@angular/router';
     }
     .toggle-password:hover {
       color: var(--text-primary);
+    }
+
+    .field-error-slot {
+      min-height: 18px;
+      margin-top: 2px;
     }
 
     /* Error message */

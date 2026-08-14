@@ -76,9 +76,11 @@ import { FormsModule } from '@angular/forms';
               maxlength="14"
             />
           </div>
-          <div class="helper-text" *ngIf="cpfStatus() === 'empty'">Opcional — você pode preencher depois no seu perfil.</div>
-          <div class="helper-text success-text" *ngIf="cpfStatus() === 'valid'">CPF válido</div>
-          <div class="helper-text error-text" *ngIf="cpfStatus() === 'invalid'">CPF inválido</div>
+          <div class="field-error-slot">
+            <div class="helper-text" *ngIf="cpfStatus() === 'empty'">Opcional — você pode preencher depois no seu perfil.</div>
+            <div class="helper-text success-text" *ngIf="cpfStatus() === 'valid'">CPF válido</div>
+            <div class="helper-text error-text" *ngIf="cpfStatus() === 'invalid'">CPF inválido</div>
+          </div>
         </div>
         
         <div class="actions">
@@ -372,9 +374,16 @@ import { FormsModule } from '@angular/forms';
       box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     }
 
+    .field-error-slot {
+      min-height: 18px;
+      margin-top: 4px;
+    }
+
     .helper-text {
-      font-size: 13px;
+      font-size: 0.8rem;
       color: var(--text-muted);
+      margin-top: 0;
+      transition: color 0.2s ease;
     }
 
     .success-text {

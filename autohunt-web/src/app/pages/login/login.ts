@@ -226,7 +226,9 @@ const AUTH_TIMEOUT_MS = 10_000;
                     <path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                 </div>
-                <span class="field-message" *ngIf="emailTouched && emailError()">{{ emailError() }}</span>
+                <div class="field-error-slot">
+                  <span class="field-message" *ngIf="emailTouched && emailError()">{{ emailError() }}</span>
+                </div>
               </div>
 
               <!-- Password field -->
@@ -267,7 +269,9 @@ const AUTH_TIMEOUT_MS = 10_000;
                     </svg>
                   </button>
                 </div>
-                <span class="field-message" *ngIf="passwordTouched && passwordError()">{{ passwordError() }}</span>
+                <div class="field-error-slot">
+                  <span class="field-message" *ngIf="passwordTouched && passwordError()">{{ passwordError() }}</span>
+                </div>
               </div>
 
               <!-- Inline credential error -->
@@ -341,7 +345,7 @@ const AUTH_TIMEOUT_MS = 10_000;
     .login-page {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      min-height: 100vh;
+      min-height: calc(100vh - var(--navbar-height));
       background: var(--bg-main);
     }
 
@@ -984,13 +988,17 @@ const AUTH_TIMEOUT_MS = 10_000;
       &:hover { color: var(--text-primary); }
     }
 
+    .field-error-slot {
+      min-height: 18px;
+      margin-top: 3px;
+    }
+
     .field-message {
       display: block;
       font-family: 'Inter', sans-serif;
       font-size: 11.5px;
       font-weight: 500;
       color: var(--error);
-      margin-top: 4px;
       padding-left: 2px;
       animation: panelIn 0.2s ease-out;
     }

@@ -85,7 +85,7 @@ import { ToastService } from '../../core/services/toast';
     .footer {
       background: #111318;
       color: #C8CDD5;
-      margin-top: 80px;
+      margin-top: 0;
     }
 
     [data-theme='dark'] .footer {
