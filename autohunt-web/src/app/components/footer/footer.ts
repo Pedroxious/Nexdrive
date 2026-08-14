@@ -51,8 +51,8 @@ import { LanguageService } from '../../core/services/language';
             <ul>
               <li><a routerLink="/faq">{{ langService.t('footer.help') }}</a></li>
               <li><a routerLink="/contact">{{ langService.t('footer.contact') }}</a></li>
-              <li><a routerLink="/privacy">{{ langService.t('footer.privacy') }}</a></li>
-              <li><a routerLink="/terms">{{ langService.t('footer.terms') }}</a></li>
+              <li><a routerLink="/legal/privacidade">{{ langService.t('footer.privacy') }}</a></li>
+              <li><a routerLink="/legal/termos">{{ langService.t('footer.terms') }}</a></li>
             </ul>
           </div>
 

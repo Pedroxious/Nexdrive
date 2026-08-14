@@ -54,14 +54,63 @@ export const routes: Routes = [
         path: 'contact',
         loadComponent: () => import('./pages/contact/contact').then(m => m.ContactComponent)
     },
+
+    // ── Institutional & Legal Portal Routes ──
+    {
+        path: 'legal',
+        loadComponent: () => import('./pages/legal/legal-layout').then(m => m.LegalLayoutComponent),
+        children: [
+            {
+                path: '',
+                redirectTo: 'privacidade',
+                pathMatch: 'full'
+            },
+            {
+                path: 'privacidade',
+                loadComponent: () => import('./pages/legal/privacy').then(m => m.PrivacyComponent)
+            },
+            {
+                path: 'termos',
+                loadComponent: () => import('./pages/legal/terms').then(m => m.TermsComponent)
+            },
+            {
+                path: 'ajuda',
+                loadComponent: () => import('./pages/legal/help').then(m => m.HelpComponent)
+            },
+            {
+                path: 'faq',
+                loadComponent: () => import('./pages/legal/faq').then(m => m.LegalFaqComponent)
+            },
+            {
+                path: 'forum',
+                loadComponent: () => import('./pages/legal/forum').then(m => m.ForumPlaceholderComponent)
+            }
+        ]
+    },
+
+    // Legacy / Alias Redirects
     {
         path: 'privacy',
-        loadComponent: () => import('./pages/legal/privacy').then(m => m.PrivacyComponent)
+        redirectTo: 'legal/privacidade',
+        pathMatch: 'full'
+    },
+    {
+        path: 'politica-de-privacidade',
+        redirectTo: 'legal/privacidade',
+        pathMatch: 'full'
     },
     {
         path: 'terms',
-        loadComponent: () => import('./pages/legal/terms').then(m => m.TermsComponent)
+        redirectTo: 'legal/termos',
+        pathMatch: 'full'
     },
+    {
+        path: 'termos-de-uso',
+        redirectTo: 'legal/termos',
+        pathMatch: 'full'
+    },
+
+    // Auth Routes
     {
         path: 'login',
         loadComponent: () => import('./pages/login/login').then(m => m.LoginComponent)
@@ -70,6 +119,8 @@ export const routes: Routes = [
         path: 'register',
         loadComponent: () => import('./pages/register/register').then(m => m.RegisterComponent)
     },
+
+    // 404 Error Route
     {
         path: '404',
         loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFoundComponent)

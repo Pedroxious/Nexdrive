@@ -7,11 +7,12 @@ import { ToastService } from './core/services/toast';
 import { LanguageService } from './core/services/language';
 import { AuthService } from './core/services/auth';
 import { BehaviorTrackingService } from './core/services/behavior-tracking';
+import { CookieBannerComponent } from './components/cookie-banner/cookie-banner';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent, ToastComponent],
+  imports: [RouterOutlet, NavbarComponent, FooterComponent, ToastComponent, CookieBannerComponent],
   template: `
     <app-navbar />
     <app-toast />
@@ -19,6 +20,7 @@ import { BehaviorTrackingService } from './core/services/behavior-tracking';
       <router-outlet />
     </main>
     <app-footer />
+    <app-cookie-banner />
   `,
   styles: [`
     .page-container {
