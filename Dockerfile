@@ -4,7 +4,7 @@ WORKDIR /app/frontend
 
 # Copy package files and install dependencies
 COPY autohunt-web/package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy source and build
 COPY autohunt-web/ ./
