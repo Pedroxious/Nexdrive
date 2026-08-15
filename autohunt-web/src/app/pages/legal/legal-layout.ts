@@ -328,7 +328,9 @@ export class LegalLayoutComponent implements OnInit {
   langService = inject(LanguageService);
 
   ngOnInit() {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
   }
 
   isForumRoute(): boolean {

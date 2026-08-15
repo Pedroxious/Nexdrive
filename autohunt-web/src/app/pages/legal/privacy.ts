@@ -263,6 +263,8 @@ import { CommonModule } from '@angular/common';
 })
 export class PrivacyComponent implements OnInit {
   ngOnInit() {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
   }
 }

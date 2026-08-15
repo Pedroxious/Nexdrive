@@ -45,6 +45,9 @@ export class ConfettiCanvasService {
    * Call destroy() for immediate cleanup.
    */
   launch(durationMs = 3500): Promise<void> {
+    if (typeof window === 'undefined') {
+      return Promise.resolve();
+    }
     // Respect prefers-reduced-motion
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
       return this.launchReduced();

@@ -1270,7 +1270,9 @@ export class CarDetailComponent implements OnInit, OnDestroy {
     this.route.params.subscribe((params: any) => {
       const id = +params['id'];
       this.selectedImageIndex.set(0);
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
       this.loadCar(id);
     });
   }

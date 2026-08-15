@@ -500,7 +500,7 @@ export class SellCarComponent implements OnInit {
   goToStep(target: number) {
     if (target < this.step() || this.validateStep(this.step())) {
       this.step.set(target);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -508,7 +508,7 @@ export class SellCarComponent implements OnInit {
     if (this.validateStep(this.step())) {
       if (this.step() < 5) {
         this.step.set(this.step() + 1);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   }
@@ -516,7 +516,7 @@ export class SellCarComponent implements OnInit {
   prevStep() {
     if (this.step() > 1) {
       this.step.set(this.step() - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
