@@ -7,6 +7,7 @@ import { Vehicle, Page } from '../../core/models/vehicle.model';
 import { RentalService } from '../../core/services/rental';
 import { ToastService } from '../../core/services/toast';
 import { AuthService } from '../../core/services/auth';
+import { LanguageService } from '../../core/services/language';
 import { LoadingComponent } from '../../components/loading/loading';
 
 type kmOption = 'economy' | 'unlimited';
@@ -27,7 +28,7 @@ type protectionOption = 'padrao' | 'completo' | 'premium';
         
         <!-- HEADER WITH DYNAMIC WIZARD STEPS PROGRESS BAR -->
         <div class="wizard-header">
-          <h1>Reserva de Veículo NexDrive</h1>
+          <h1>{{ langService.t('wizard.title') }}</h1>
           
           <div class="steps-progress">
             <div class="step" [class.active]="step() === 1" [class.done]="step() > 1" (click)="goToStep(1)">
@@ -35,7 +36,7 @@ type protectionOption = 'padrao' | 'completo' | 'premium';
               <svg *ngIf="step() > 1" class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <div class="step-label">Local & Data</div>
+              <div class="step-label">{{ langService.t('wizard.step_location') }}</div>
             </div>
             <div class="line" [class.done]="step() > 1"></div>
             
@@ -44,7 +45,7 @@ type protectionOption = 'padrao' | 'completo' | 'premium';
               <svg *ngIf="step() > 2" class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <div class="step-label">Grupo</div>
+              <div class="step-label">{{ langService.t('wizard.step_group') }}</div>
             </div>
             <div class="line" [class.done]="step() > 2"></div>
 
@@ -53,7 +54,7 @@ type protectionOption = 'padrao' | 'completo' | 'premium';
               <svg *ngIf="step() > 3" class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <div class="step-label">Proteções</div>
+              <div class="step-label">{{ langService.t('wizard.step_protection') }}</div>
             </div>
             <div class="line" [class.done]="step() > 3"></div>
 
@@ -62,13 +63,13 @@ type protectionOption = 'padrao' | 'completo' | 'premium';
               <svg *ngIf="step() > 4" class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <div class="step-label">Adicionais</div>
+              <div class="step-label">{{ langService.t('wizard.step_addons') }}</div>
             </div>
             <div class="line" [class.done]="step() > 4"></div>
 
             <div class="step" [class.active]="step() === 5">
               <span>5</span>
-              <div class="step-label">Confirmação</div>
+              <div class="step-label">{{ langService.t('wizard.step_confirm') }}</div>
             </div>
           </div>
         </div>
@@ -1991,6 +1992,7 @@ export class RentalWizardComponent implements OnInit {
   private rentalService = inject(RentalService);
   private authService = inject(AuthService);
   private toast = inject(ToastService);
+  langService = inject(LanguageService);
 
   car = signal<Vehicle | undefined>(undefined);
   availableVehicles = signal<Vehicle[]>([]);

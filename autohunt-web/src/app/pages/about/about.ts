@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../core/services/language';
 
 @Component({
     selector: 'app-about',
@@ -9,189 +10,120 @@ import { CommonModule } from '@angular/common';
     <div class="about-container animate-in">
       <section class="hero-section">
         <h1>Nex<span class="logo-accent">drive</span></h1>
-        <p>A nova era da mobilidade e aluguel de veículos premium no Brasil.</p>
+        <p>{{ langService.t('about.subtitle') }}</p>
       </section>
 
       <div class="content-grid">
         <div class="card">
-          <h3>Nossa Missão</h3>
-          <p>Democratizar o acesso a veículos premium através de tecnologia intuitiva e atendimento de excelência, conectando pessoas com as melhores experiências de direção.</p>
+          <h3>{{ langService.currentLang() === 'pt' ? 'Nossa Missão' : 'Our Mission' }}</h3>
+          <p>{{ langService.currentLang() === 'pt' ? 'Democratizar o acesso a veículos premium através de tecnologia intuitiva e atendimento de excelência, conectando pessoas com as melhores experiências de direção.' : 'Democratize access to premium vehicles through intuitive technology and service excellence, connecting people with top driving experiences.' }}</p>
         </div>
 
         <div class="card">
-          <h3>Nossa Visão</h3>
-          <p>Ser o ecossistema de aluguel e assinatura de veículos mais admirado e inovador da América Latina, sinônimo de conveniência, estilo e sustentabilidade.</p>
+          <h3>{{ langService.currentLang() === 'pt' ? 'Nossa Visão' : 'Our Vision' }}</h3>
+          <p>{{ langService.currentLang() === 'pt' ? 'Ser o ecossistema de aluguel e assinatura de veículos mais admirado e inovador da América Latina, sinônimo de conveniência, estilo e sustentabilidade.' : 'To be Latin America\'s most admired and innovative vehicle rental and subscription ecosystem, synonymous with convenience, style, and sustainability.' }}</p>
         </div>
 
         <div class="card">
-          <h3>Nossos Valores</h3>
+          <h3>{{ langService.currentLang() === 'pt' ? 'Nossos Valores' : 'Our Values' }}</h3>
           <ul class="values-list">
             <li>
               <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span>Transparência total</span>
+              <span>{{ langService.currentLang() === 'pt' ? 'Transparência total' : 'Total transparency' }}</span>
             </li>
             <li>
               <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span>Segurança em primeiro lugar</span>
+              <span>{{ langService.currentLang() === 'pt' ? 'Segurança em primeiro lugar' : 'Safety first' }}</span>
             </li>
             <li>
               <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span>Inovação contínua</span>
+              <span>{{ langService.currentLang() === 'pt' ? 'Inovação contínua' : 'Continuous innovation' }}</span>
             </li>
             <li>
               <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span>Obsessão pelo cliente</span>
+              <span>{{ langService.currentLang() === 'pt' ? 'Obsessão pelo cliente' : 'Customer obsession' }}</span>
             </li>
           </ul>
         </div>
       </div>
 
       <section class="history">
-        <h2>Nossa História</h2>
-        <p>Nascida em 2024 no coração de São Paulo, a Nexdrive surgiu com a missão de redefinir o aluguel de veículos. Combinamos a paixão por tecnologia com a expertise do mercado automobilístico para criar uma plataforma robusta, simplificada e livre de burocracias.</p>
-        <p>Hoje, atendemos em mais de 12 estados com uma frota diversificada que abrange desde hatchbacks urbanos práticos e econômicos até SUVs robustos e elétricos premium de última geração.</p>
+        <h2>{{ langService.currentLang() === 'pt' ? 'Nossa História' : 'Our Story' }}</h2>
+        <p>{{ langService.currentLang() === 'pt' ? 'Nascida em 2024 no coração de São Paulo, a Nexdrive surgiu com a missão de redefinir o aluguel de veículos. Combinamos a paixão por tecnologia com a expertise do mercado automobilístico para criar uma plataforma robusta, simplificada e livre de burocracias.' : 'Founded in 2024 in São Paulo, Nexdrive was created with the mission to redefine car rental. We combine passion for technology with automotive industry expertise to build a robust, streamlined, and hassle-free platform.' }}</p>
+        <p>{{ langService.currentLang() === 'pt' ? 'Hoje, atendemos em mais de 12 estados com uma frota diversificada que abrange desde hatchbacks urbanos práticos e econômicos até SUVs robustos e elétricos premium de última geração.' : 'Today, we operate across more than 12 states with a diverse fleet ranging from practical urban hatchbacks to robust SUVs and cutting-edge electric vehicles.' }}</p>
+      </section>
+
+      <section class="stats">
+        <div class="stat">
+          <span class="number">1.200+</span>
+          <span class="label">{{ langService.t('about.fleet_stat') }}</span>
+        </div>
+        <div class="stat">
+          <span class="number">24</span>
+          <span class="label">{{ langService.t('about.cities_stat') }}</span>
+        </div>
+        <div class="stat">
+          <span class="number">15.000+</span>
+          <span class="label">{{ langService.t('about.users_stat') }}</span>
+        </div>
       </section>
     </div>
   `,
     styles: [`
-    .about-container {
-      max-width: var(--max-width);
-      margin: 40px auto;
-      padding: 0 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 40px;
-    }
+    .about-container { max-width: 1000px; margin: 0 auto; padding: 60px 20px; }
     
     .hero-section {
-      padding: 80px 40px;
-      text-align: center;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      
-      h1 {
-        font-family: 'Outfit', sans-serif;
-        font-size: 60px;
-        font-weight: 800;
-        letter-spacing: -1px;
-        color: var(--text-primary);
-        margin-bottom: 12px;
-      }
-      .logo-accent {
-        color: var(--accent);
-      }
-      p {
-        font-family: 'Inter', sans-serif;
-        font-size: 18px;
-        font-weight: 500;
-        color: var(--text-secondary);
-      }
+      text-align: center; margin-bottom: 60px;
+      h1 { font-size: 48px; font-weight: 900; margin-bottom: 16px; }
+      p { font-size: 20px; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
     }
 
     .content-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    
-    .card {
-      padding: 32px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      
-      h3 {
-        font-family: 'Outfit', sans-serif;
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 16px;
-        color: var(--text-primary);
-      }
-      p {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        line-height: 1.6;
-        color: var(--text-secondary);
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 60px;
+      .card {
+        background: var(--surface); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border);
+        h3 { font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--accent); }
+        p { color: var(--text-secondary); line-height: 1.6; font-size: 15px; }
       }
     }
 
     .values-list {
-      list-style: none;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      
+      list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;
       li {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        color: var(--text-secondary);
-        font-weight: 500;
-        
-        .check-icon {
-          width: 14px;
-          height: 14px;
-          color: var(--accent);
-          flex-shrink: 0;
-        }
+        display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: var(--text-primary);
+        .check-icon { width: 18px; height: 18px; color: var(--success); flex-shrink: 0; }
       }
     }
 
     .history {
-      padding: 48px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      
-      h2 {
-        font-family: 'Outfit', sans-serif;
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        color: var(--text-primary);
-      }
-      p {
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        line-height: 1.7;
-        color: var(--text-secondary);
-        margin-bottom: 16px;
-        &:last-child {
-          margin-bottom: 0;
-        }
+      background: var(--surface); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 60px;
+      h2 { font-size: 24px; font-weight: 800; margin-bottom: 16px; color: var(--accent); }
+      p { color: var(--text-secondary); line-height: 1.6; font-size: 16px; margin-bottom: 16px; &:last-child { margin-bottom: 0; } }
+    }
+
+    .stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: center;
+      .stat {
+        background: var(--surface-secondary); padding: 32px; border-radius: var(--radius-lg);
+        .number { display: block; font-size: 36px; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
+        .label { font-size: 14px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
       }
     }
 
-    .animate-in {
-      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 992px) {
-      .content-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
+    @media (max-width: 640px) {
+      .hero-section h1 { font-size: 36px; }
+      .stats { grid-template-columns: 1fr; }
     }
   `]
 })
-export class AboutComponent { }
+export class AboutComponent {
+  langService = inject(LanguageService);
+}

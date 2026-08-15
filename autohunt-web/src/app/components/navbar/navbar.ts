@@ -63,12 +63,12 @@ import { NotificationService, AppNotification } from '../../core/services/notifi
             <div class="dropdown-panel lang-dropdown" *ngIf="showLangDropdown()" (click)="$event.stopPropagation()">
               <div class="lang-option clickable" [class.active]="langService.currentLang() === 'pt'" (click)="selectLanguage('pt', $event)">
                 <span class="flag">🇧🇷</span>
-                <span class="lang-name">Português (BR)</span>
+                <span class="lang-name">{{ langService.t('nav.lang_pt') }}</span>
                 <lucide-icon name="check" [size]="14" class="check-mark" *ngIf="langService.currentLang() === 'pt'"></lucide-icon>
               </div>
               <div class="lang-option clickable" [class.active]="langService.currentLang() === 'en'" (click)="selectLanguage('en', $event)">
                 <span class="flag">🇺🇸</span>
-                <span class="lang-name">English (US)</span>
+                <span class="lang-name">{{ langService.t('nav.lang_en') }}</span>
                 <lucide-icon name="check" [size]="14" class="check-mark" *ngIf="langService.currentLang() === 'en'"></lucide-icon>
               </div>
             </div>

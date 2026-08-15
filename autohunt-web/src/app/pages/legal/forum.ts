@@ -6,6 +6,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { ForumService, ForumTopic, ForumComment, CategoryStats, FeaturedMember, ForumStats } from '../../core/services/forum';
 import { AuthService } from '../../core/services/auth';
 import { ToastService } from '../../core/services/toast';
+import { LanguageService } from '../../core/services/language';
 
 @Component({
   selector: 'app-forum',
@@ -18,11 +19,11 @@ import { ToastService } from '../../core/services/toast';
         <div class="forum-header-inner">
           <div class="forum-brand">
             <lucide-icon name="message-circle" [size]="28"></lucide-icon>
-            <h1>Comunidade Nexdrive</h1>
+            <h1>{{ langService.t('forum.community_title') }}</h1>
           </div>
           <div class="forum-search-header">
             <lucide-icon name="search" [size]="16"></lucide-icon>
-            <input type="text" placeholder="Buscar discussões..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" />
+            <input type="text" [placeholder]="langService.t('forum.search_placeholder')" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" />
           </div>
         </div>
       </div>
@@ -35,18 +36,18 @@ import { ToastService } from '../../core/services/toast';
           <div class="sidebar-content">
             <button class="btn-new-discussion clickable" (click)="openNewTopic()">
               <lucide-icon name="plus-circle" [size]="18"></lucide-icon>
-              Iniciar Discussão
+              {{ langService.t('forum.start_discussion') }}
             </button>
 
             <nav class="sidebar-nav">
               <a class="nav-item clickable" [class.active]="!activeCategory()" (click)="filterCategory(null)">
                 <lucide-icon name="message-square" [size]="16"></lucide-icon>
-                Todas as Discussões
+                {{ langService.t('forum.all_discussions') }}
               </a>
             </nav>
 
             <div class="sidebar-section">
-              <h3 class="sidebar-title">Categorias</h3>
+              <h3 class="sidebar-title">{{ langService.t('forum.categories') }}</h3>
               @for (cat of categories(); track cat.name) {
                 <a class="nav-item category-item clickable" [class.active]="activeCategory() === cat.name" (click)="filterCategory(cat.name)">
                   <span class="cat-dot" [style.background]="cat.color || getCategoryColor(cat.name)"></span>
@@ -60,7 +61,7 @@ import { ToastService } from '../../core/services/toast';
               <div class="sidebar-widget featured-widget">
                 <h3 class="sidebar-title">
                   <lucide-icon name="award" [size]="14"></lucide-icon>
-                  Membro Destacado
+                  {{ langService.t('forum.featured_member') }}
                 </h3>
                 <div class="featured-card">
                   <img [src]="featuredMember()!.avatarUrl" [alt]="featuredMember()!.name" class="featured-avatar" />
@@ -69,8 +70,8 @@ import { ToastService } from '../../core/services/toast';
                     <span class="featured-role">{{ featuredMember()!.roleTag }}</span>
                   </div>
                   <div class="featured-stats">
-                    <span><strong>{{ featuredMember()!.postCount }}</strong> posts</span>
-                    <span><strong>{{ featuredMember()!.commentCount }}</strong> respostas</span>
+                    <span><strong>{{ featuredMember()!.postCount }}</strong> {{ langService.t('forum.posts') }}</span>
+                    <span><strong>{{ featuredMember()!.commentCount }}</strong> {{ langService.t('forum.replies') }}</span>
                   </div>
                 </div>
               </div>
@@ -78,19 +79,19 @@ import { ToastService } from '../../core/services/toast';
 
             @if (forumStats()) {
               <div class="sidebar-widget stats-widget">
-                <h3 class="sidebar-title">Estatísticas</h3>
+                <h3 class="sidebar-title">{{ langService.t('forum.stats') }}</h3>
                 <div class="stats-grid">
                   <div class="stat-item">
                     <span class="stat-value">{{ forumStats()!.totalTopics }}</span>
-                    <span class="stat-label">Discussões</span>
+                    <span class="stat-label">{{ langService.t('forum.topics') }}</span>
                   </div>
                   <div class="stat-item">
                     <span class="stat-value">{{ forumStats()!.totalComments }}</span>
-                    <span class="stat-label">Respostas</span>
+                    <span class="stat-label">{{ langService.t('forum.replies') }}</span>
                   </div>
                   <div class="stat-item">
                     <span class="stat-value">{{ forumStats()!.totalMembers }}</span>
-                    <span class="stat-label">Membros</span>
+                    <span class="stat-label">{{ langService.t('forum.members') }}</span>
                   </div>
                 </div>
               </div>
@@ -103,7 +104,7 @@ import { ToastService } from '../../core/services/toast';
           <!-- Mobile toggle -->
           <button class="mobile-sidebar-toggle clickable" (click)="sidebarOpen.set(!sidebarOpen())">
             <lucide-icon name="menu" [size]="20"></lucide-icon>
-            Categorias & Filtros
+            {{ langService.t('forum.mobile_toggle') }}
           </button>
 
           <!-- Top Controls -->
@@ -111,11 +112,11 @@ import { ToastService } from '../../core/services/toast';
             <div class="sort-controls">
               <button class="sort-btn clickable" [class.active]="currentSort() === 'recent'" (click)="setSort('recent')">
                 <lucide-icon name="clock" [size]="14"></lucide-icon>
-                Recentes
+                {{ langService.t('forum.recent') }}
               </button>
               <button class="sort-btn clickable" [class.active]="currentSort() === 'popular'" (click)="setSort('popular')">
                 <lucide-icon name="trending-up" [size]="14"></lucide-icon>
-                Melhores
+                {{ langService.t('forum.popular') }}
               </button>
             </div>
             @if (activeCategory()) {
@@ -131,15 +132,15 @@ import { ToastService } from '../../core/services/toast';
             @if (loading()) {
               <div class="loading-state">
                 <div class="spinner"></div>
-                <span>Carregando discussões em tempo real...</span>
+                <span>{{ langService.t('forum.loading') }}</span>
               </div>
             } @else if (topics().length === 0) {
               <div class="empty-state">
                 <lucide-icon name="message-square" [size]="48"></lucide-icon>
-                <h3>Nenhuma discussão encontrada nesta categoria</h3>
-                <p>Seja o primeiro a iniciar um tópico sobre este assunto!</p>
+                <h3>{{ langService.t('forum.empty_title') }}</h3>
+                <p>{{ langService.t('forum.empty_desc') }}</p>
                 <button class="btn-primary clickable" (click)="openNewTopic()" style="margin-top: 12px;">
-                  Criar Tópico Agora
+                  {{ langService.t('forum.create_topic_now') }}
                 </button>
               </div>
             } @else {
@@ -152,10 +153,10 @@ import { ToastService } from '../../core/services/toast';
                   <div class="disc-content-col">
                     <div class="disc-title-row">
                       @if (topic.isPinned) {
-                        <span class="badge badge-pinned"><lucide-icon name="pin" [size]="10"></lucide-icon> Fixo</span>
+                        <span class="badge badge-pinned"><lucide-icon name="pin" [size]="10"></lucide-icon> {{ langService.t('forum.pinned') }}</span>
                       }
                       @if (topic.isSolved) {
-                        <span class="badge badge-solved"><lucide-icon name="check-circle" [size]="10"></lucide-icon> Resolvido</span>
+                        <span class="badge badge-solved"><lucide-icon name="check-circle" [size]="10"></lucide-icon> {{ langService.t('forum.solved') }}</span>
                       }
                       <span class="disc-title">{{ topic.title }}</span>
                     </div>
@@ -170,10 +171,10 @@ import { ToastService } from '../../core/services/toast';
                   </div>
                   <div class="disc-stats-col">
                     <div class="disc-metrics">
-                      <span title="Visualizações"><lucide-icon name="eye" [size]="13"></lucide-icon> {{ topic.viewsCount }}</span>
-                      <span title="Curtidas"><lucide-icon name="heart" [size]="13"></lucide-icon> {{ topic.likesCount }}</span>
+                      <span [title]="langService.t('forum.views')"><lucide-icon name="eye" [size]="13"></lucide-icon> {{ topic.viewsCount }}</span>
+                      <span [title]="langService.t('forum.likes')"><lucide-icon name="heart" [size]="13"></lucide-icon> {{ topic.likesCount }}</span>
                     </div>
-                    <div class="reply-badge" [class.has-replies]="topic.repliesCount > 0" title="Respostas">
+                    <div class="reply-badge" [class.has-replies]="topic.repliesCount > 0" [title]="langService.t('forum.replies')">
                       {{ topic.repliesCount }}
                     </div>
                   </div>
@@ -211,7 +212,7 @@ import { ToastService } from '../../core/services/toast';
                 <div class="modal-meta">
                   <span class="cat-tag" [style.background]="getCategoryColor(selectedTopic()!.category)">{{ selectedTopic()!.category }}</span>
                   @if (selectedTopic()!.isSolved) {
-                    <span class="badge badge-solved"><lucide-icon name="check-circle" [size]="12"></lucide-icon> Resolvido</span>
+                    <span class="badge badge-solved"><lucide-icon name="check-circle" [size]="12"></lucide-icon> {{ langService.t('forum.solved') }}</span>
                   }
                 </div>
               </div>
@@ -233,7 +234,7 @@ import { ToastService } from '../../core/services/toast';
                 </div>
                 <div class="post-body">{{ selectedTopic()!.content }}</div>
                 @if (selectedTopic()!.imageUrl) {
-                  <img [src]="selectedTopic()!.imageUrl" alt="Imagem do tópico" class="post-image" />
+                  <img [src]="selectedTopic()!.imageUrl" alt="Topic image" class="post-image" />
                 }
                 <div class="post-actions">
                   <button class="action-btn clickable" [class.liked]="selectedTopic()!.userLiked" (click)="toggleLike()">
@@ -253,7 +254,7 @@ import { ToastService } from '../../core/services/toast';
 
               <!-- Comments -->
               <div class="comments-section">
-                <h3 class="comments-title">{{ comments().length }} resposta{{ comments().length !== 1 ? 's' : '' }}</h3>
+                <h3 class="comments-title">{{ comments().length }} {{ langService.t('forum.replies') }}</h3>
                 @for (comment of comments(); track comment.id) {
                   <div class="post-item comment-post">
                     <div class="post-author">
@@ -266,7 +267,7 @@ import { ToastService } from '../../core/services/toast';
                     </div>
                     <div class="post-body">{{ comment.content }}</div>
                     @if (comment.imageUrl) {
-                      <img [src]="comment.imageUrl" alt="Imagem do comentário" class="post-image" />
+                      <img [src]="comment.imageUrl" alt="Comment image" class="post-image" />
                     }
                   </div>
                 }
@@ -274,18 +275,18 @@ import { ToastService } from '../../core/services/toast';
 
               <!-- Reply Form -->
               <div class="reply-form">
-                <h3>Responder</h3>
+                <h3>{{ langService.t('forum.reply') }}</h3>
                 @if (auth.isLoggedIn()) {
-                  <textarea [(ngModel)]="replyContent" placeholder="Escreva sua resposta..." rows="3"></textarea>
+                  <textarea [(ngModel)]="replyContent" placeholder="Write a reply..." rows="3"></textarea>
                   <div class="reply-actions">
                     <button class="btn-primary clickable" [disabled]="!replyContent.trim()" (click)="submitReply()">
-                      Enviar Resposta
+                      {{ langService.t('forum.submit_reply') }}
                     </button>
                   </div>
                 } @else {
                   <div class="login-prompt">
                     <lucide-icon name="shield" [size]="20"></lucide-icon>
-                    <span>Faça login na plataforma para publicar respostas nesta discussão.</span>
+                    <span>{{ langService.t('forum.login_prompt') }}</span>
                   </div>
                 }
               </div>
@@ -299,18 +300,18 @@ import { ToastService } from '../../core/services/toast';
         <div class="modal-overlay" (click)="closeNewTopicModal($event)">
           <div class="modal-content new-topic-modal" (click)="$event.stopPropagation()">
             <div class="modal-header">
-              <h2>Iniciar Discussão</h2>
+              <h2>{{ langService.t('forum.start_discussion') }}</h2>
               <button class="modal-close clickable" (click)="showNewTopicModal.set(false)">
                 <lucide-icon name="x" [size]="20"></lucide-icon>
               </button>
             </div>
             <div class="modal-body">
               <div class="form-group">
-                <label>Título</label>
-                <input type="text" [(ngModel)]="newTopicTitle" placeholder="Título descritivo da discussão" />
+                <label>{{ langService.t('forum.new_topic_title') }}</label>
+                <input type="text" [(ngModel)]="newTopicTitle" placeholder="Topic title..." />
               </div>
               <div class="form-group">
-                <label>Categoria</label>
+                <label>{{ langService.t('forum.new_topic_category') }}</label>
                 <select [(ngModel)]="newTopicCategory">
                   @for (cat of categories(); track cat.name) {
                     <option [value]="cat.name">{{ cat.name }}</option>
@@ -318,13 +319,13 @@ import { ToastService } from '../../core/services/toast';
                 </select>
               </div>
               <div class="form-group">
-                <label>Conteúdo</label>
-                <textarea [(ngModel)]="newTopicContent" placeholder="Descreva sua dúvida, experiência ou contribuição..." rows="5"></textarea>
+                <label>{{ langService.t('forum.new_topic_content') }}</label>
+                <textarea [(ngModel)]="newTopicContent" placeholder="Write your topic content..." rows="5"></textarea>
               </div>
               <div class="form-actions">
-                <button class="btn-secondary clickable" (click)="showNewTopicModal.set(false)">Cancelar</button>
+                <button class="btn-secondary clickable" (click)="showNewTopicModal.set(false)">{{ langService.t('forum.cancel') }}</button>
                 <button class="btn-primary clickable" [disabled]="!newTopicTitle.trim() || !newTopicContent.trim()" (click)="submitNewTopic()">
-                  Publicar Discussão
+                  {{ langService.t('forum.publish') }}
                 </button>
               </div>
             </div>
@@ -663,7 +664,7 @@ import { ToastService } from '../../core/services/toast';
     .disc-meta-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .cat-tag {
       display: inline-block;
-      padding: 2px 9px;
+      padding: 2px 99px;
       border-radius: 6px;
       font-size: 0.72rem;
       font-weight: 700;
@@ -1076,6 +1077,7 @@ export class ForumComponent implements OnInit, OnDestroy {
   private forumService = inject(ForumService);
   auth = inject(AuthService);
   private toast = inject(ToastService);
+  langService = inject(LanguageService);
 
   // State
   topics = signal<ForumTopic[]>([]);
@@ -1212,7 +1214,7 @@ export class ForumComponent implements OnInit, OnDestroy {
     const topic = this.selectedTopic();
     if (!topic) return;
     if (!this.auth.isLoggedIn()) {
-      this.toast.warning('Faça login para curtir');
+      this.toast.warning(this.langService.t('toast.login_to_favorite'));
       return;
     }
     this.forumService.toggleLike(topic.id).subscribe(updated => {
@@ -1238,7 +1240,7 @@ export class ForumComponent implements OnInit, OnDestroy {
 
   openNewTopic() {
     if (!this.auth.isLoggedIn()) {
-      this.toast.warning('Faça login para criar uma discussão');
+      this.toast.warning(this.langService.t('toast.login_to_favorite'));
       return;
     }
     this.showNewTopicModal.set(true);
@@ -1287,13 +1289,13 @@ export class ForumComponent implements OnInit, OnDestroy {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'agora';
-    if (mins < 60) return `${mins}min`;
+    if (mins < 1) return 'now';
+    if (mins < 60) return `${mins}m`;
     const hours = Math.floor(mins / 60);
     if (hours < 24) return `${hours}h`;
     const days = Math.floor(hours / 24);
     if (days < 30) return `${days}d`;
     const months = Math.floor(days / 30);
-    return `${months}m`;
+    return `${months}mo`;
   }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { RentalService } from '../../core/services/rental';
 import { ToastService } from '../../core/services/toast';
+import { LanguageService } from '../../core/services/language';
 import { LoadingComponent } from '../../components/loading/loading';
 
 @Component({
@@ -12,8 +13,8 @@ import { LoadingComponent } from '../../components/loading/loading';
     template: `
     <div class="rentals-container">
       <div class="header">
-        <h1>Minhas Reservas</h1>
-        <p>Acompanhe o status dos seus aluguéis e reservas passadas.</p>
+        <h1>{{ langService.t('my_rentals.title') }}</h1>
+        <p>{{ langService.t('my_rentals.subtitle') }}</p>
       </div>
 
       <div class="rentals-list" *ngIf="!isLoading(); else loadingTpl">
@@ -33,21 +34,21 @@ import { LoadingComponent } from '../../components/loading/loading';
               
               <div class="details">
                 <div class="det-item">
-                   <span class="label">Período</span>
-                   <span class="val">{{ rental.startDate }} até {{ rental.endDate }}</span>
+                   <span class="label">{{ langService.t('search.dates') }}</span>
+                   <span class="val">{{ rental.startDate }} - {{ rental.endDate }}</span>
                 </div>
                 <div class="det-item">
-                   <span class="label">Local de Retirada</span>
+                   <span class="label">{{ langService.t('car.location') }}</span>
                    <span class="val">{{ rental.pickupLocation }}</span>
                 </div>
                 <div class="det-item">
-                   <span class="label">Valor Total</span>
+                   <span class="label">{{ langService.t('wizard.total_estimated') }}</span>
                    <span class="val">R$ {{ rental.totalPrice | number:'1.2-2':'pt-BR' }}</span>
                 </div>
               </div>
 
               <div class="actions" *ngIf="rental.status === 'PENDING' || rental.status === 'CONFIRMED'">
-                <button class="cancel-link" (click)="cancel(rental.id)">Cancelar Reserva</button>
+                <button class="cancel-link" (click)="cancel(rental.id)">{{ langService.t('my_rentals.cancel_booking') }}</button>
               </div>
             </div>
           </div>
@@ -55,9 +56,9 @@ import { LoadingComponent } from '../../components/loading/loading';
 
         <div class="empty-state" *ngIf="rentals().length === 0">
            <span class="icon">📅</span>
-           <h3>Nenhuma reserva encontrada</h3>
-           <p>Você ainda não realizou nenhum aluguel conosco.</p>
-           <button class="browse-btn" routerLink="/">Ver Veículos</button>
+           <h3>{{ langService.t('my_rentals.empty') }}</h3>
+           <p>{{ langService.t('my_rentals.subtitle') }}</p>
+           <button class="browse-btn" routerLink="/">{{ langService.t('my_rentals.rent_first') }}</button>
         </div>
       </div>
 
@@ -68,7 +69,7 @@ import { LoadingComponent } from '../../components/loading/loading';
   `,
     styles: [`
     .rentals-container { padding: 40px 20px; max-width: 1000px; margin: 0 auto; }
-    .header { margin-bottom: 40px; h1 { font-size: 28px; font-weight: 900; mb: 10px; } p { color: var(--text-secondary); } }
+    .header { margin-bottom: 40px; h1 { font-size: 28px; font-weight: 900; margin-bottom: 10px; } p { color: var(--text-secondary); } }
     
     .rentals-list { display: flex; flex-direction: column; gap: 20px; }
 
@@ -81,10 +82,10 @@ import { LoadingComponent } from '../../components/loading/loading';
 
     .status-badge {
       padding: 6px 14px; border-radius: var(--radius-full); font-size: 11px; font-weight: 800; text-transform: uppercase;
-      &.pending { background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); }
-      &.confirmed { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
-      &.cancelled { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); }
-      &.completed { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
+      &.pending { background: rgba(245, 158, 11, 0.1); color: var(--accent-orange, #F59E0B); }
+      &.confirmed { background: rgba(16, 185, 129, 0.1); color: var(--accent-green, #10B981); }
+      &.cancelled { background: rgba(239, 68, 68, 0.1); color: var(--accent-red, #EF4444); }
+      &.completed { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue, #3B82F6); }
     }
 
     .details {
@@ -92,14 +93,14 @@ import { LoadingComponent } from '../../components/loading/loading';
       .det-item { display: flex; flex-direction: column; gap: 4px; .label { font-size: 12px; color: var(--text-light); font-weight: 700; } .val { font-size: 14px; font-weight: 700; } }
     }
 
-    .cancel-link { font-size: 13px; font-weight: 700; color: var(--accent-red); text-decoration: underline; }
+    .cancel-link { font-size: 13px; font-weight: 700; color: var(--accent-red, #EF4444); text-decoration: underline; background: none; border: none; cursor: pointer; }
 
     .empty-state {
         text-align: center; padding: 80px 0;
         .icon { font-size: 60px; display: block; margin-bottom: 20px; }
         h3 { font-size: 24px; margin-bottom: 10px; }
         p { color: var(--text-secondary); margin-bottom: 30px; }
-        .browse-btn { background: var(--accent-blue); color: white; padding: 12px 32px; border-radius: var(--radius-full); font-weight: 700; }
+        .browse-btn { background: var(--accent-blue, #0284C7); color: white; padding: 12px 32px; border-radius: var(--radius-full); font-weight: 700; border: none; cursor: pointer; }
     }
 
     @media (max-width: 768px) {
@@ -111,6 +112,7 @@ import { LoadingComponent } from '../../components/loading/loading';
 export class MyRentalsComponent implements OnInit {
     private rentalService = inject(RentalService);
     private toast = inject(ToastService);
+    langService = inject(LanguageService);
 
     rentals = signal<any[]>([]);
     isLoading = signal(true);
@@ -131,20 +133,20 @@ export class MyRentalsComponent implements OnInit {
     }
 
     cancel(id: number) {
-        if (confirm('Tem certeza que deseja cancelar esta reserva?')) {
+        if (confirm('Cancel this booking?')) {
             this.rentalService.cancelRental(id).subscribe(() => {
-                this.toast.success('Reserva cancelada');
+                this.toast.success('Booking cancelled');
                 this.loadRentals();
             });
         }
     }
 
     translateStatus(status: string) {
-        const s: any = {
-            'PENDING': 'Pendente',
-            'CONFIRMED': 'Confirmado',
-            'CANCELLED': 'Cancelado',
-            'COMPLETED': 'Finalizado'
+        const s: Record<string, string> = {
+            'PENDING': this.langService.t('my_rentals.status_pending'),
+            'CONFIRMED': this.langService.t('my_rentals.status_confirmed'),
+            'CANCELLED': this.langService.t('my_rentals.status_cancelled'),
+            'COMPLETED': this.langService.t('my_rentals.status_completed')
         };
         return s[status] || status;
     }

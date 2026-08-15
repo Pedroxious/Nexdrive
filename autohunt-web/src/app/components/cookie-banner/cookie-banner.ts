@@ -1,7 +1,8 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { LanguageService } from '../../core/services/language';
 
 @Component({
   selector: 'app-cookie-banner',
@@ -12,10 +13,15 @@ import { LucideAngularModule } from 'lucide-angular';
       <div class="cookie-banner-content">
         <div class="cookie-text-wrap">
           <span class="cookie-icon">🍪</span>
-          <span class="cookie-text">
+          <span class="cookie-text" *ngIf="langService.currentLang() === 'pt'">
             Utilizamos cookies essenciais e tecnologias semelhantes de acordo com a nossa
             <a routerLink="/legal/privacidade" class="privacy-link">Política de Privacidade</a>
             e, ao continuar navegando, você concorda com estas condições.
+          </span>
+          <span class="cookie-text" *ngIf="langService.currentLang() === 'en'">
+            We use essential cookies and similar technologies according to our
+            <a routerLink="/legal/privacidade" class="privacy-link">Privacy Policy</a>
+            and, by continuing to browse, you agree to these conditions.
           </span>
         </div>
 
@@ -23,7 +29,7 @@ import { LucideAngularModule } from 'lucide-angular';
           <button class="accept-btn clickable" (click)="acceptConsent()">
             OK
           </button>
-          <button class="close-btn clickable" (click)="closeTemporarily()" title="Fechar aviso">
+          <button class="close-btn clickable" (click)="closeTemporarily()" [title]="langService.currentLang() === 'pt' ? 'Fechar aviso' : 'Close notice'">
             <lucide-icon name="x" [size]="16"></lucide-icon>
           </button>
         </div>
@@ -179,6 +185,7 @@ import { LucideAngularModule } from 'lucide-angular';
 })
 export class CookieBannerComponent implements OnInit {
   private readonly STORAGE_KEY = 'nexdrive_cookie_consent';
+  langService = inject(LanguageService);
 
   private isAccepted = signal(false);
   private isClosedTemp = signal(false);

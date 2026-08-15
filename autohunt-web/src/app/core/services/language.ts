@@ -19,13 +19,15 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.all_cities': 'Todas as cidades',
     'nav.select_city': 'Selecione a cidade',
     'nav.language': 'Idioma',
+    'nav.lang_pt': 'Português (BR)',
+    'nav.lang_en': 'English (US)',
     'nav.toggle_theme': 'Alternar tema',
     'nav.faq': 'FAQ',
     'nav.contact': 'Contato',
-    'nav.notifications': 'Notificacoes',
+    'nav.notifications': 'Notificações',
     'nav.view_all': 'Ver todas',
     'nav.mark_all_read': 'Marcar todas como lidas',
-    'nav.no_notifications': 'Nenhuma notificacao',
+    'nav.no_notifications': 'Nenhuma notificação',
 
     // ── Hero & Search ──
     'hero.badge': '🚀 Plataforma #1 em Mobilidade Premium',
@@ -111,7 +113,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'detail.benefit_protection': 'Proteção contra colisões e terceiros',
     'detail.benefit_assistance': 'Assistência técnica 24 horas',
 
-    // ── Spec Labels (detail page) ──
+    // ── Spec Labels ──
     'spec_label.engine': 'Motorização',
     'spec_label.transmission': 'Transmissão',
     'spec_label.capacity': 'Capacidade',
@@ -207,18 +209,18 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'filter.sort_highest': 'Maior preço',
     'filter.sort_newest': 'Mais recentes',
 
-    // -- Visitor / Social Proof --
-    'visitor.welcome': 'Bem-vindo ao Nexdrive. Explore nossa frota premium com cobertura completa e assistencia 24 horas em todo o Brasil.',
-    'visitor.social_views': '{count} visualizacoes nos ultimos 7 dias',
+    // ── Visitor / Social Proof ──
+    'visitor.welcome': 'Bem-vindo ao Nexdrive. Explore nossa frota premium com cobertura completa e assistência 24 horas em todo o Brasil.',
+    'visitor.social_views': '{count} visualizações nos últimos 7 dias',
     'visitor.social_bookings': '{count} reservas confirmadas recentemente',
-    'visitor.location_detected': 'Veiculos disponiveis em {city}. Confira as opcoes proximas a voce.',
-    'visitor.signup_incentive': 'Cadastre-se para acompanhar precos e receber alertas de disponibilidade.',
+    'visitor.location_detected': 'Veículos disponíveis em {city}. Confira as opções próximas a você.',
+    'visitor.signup_incentive': 'Cadastre-se para acompanhar preços e receber alertas de disponibilidade.',
 
-    // -- Behavior Tracking --
-    'behavior.vehicles_browsed': 'Voce ja visualizou {count} veiculos. Que tal reservar um?',
-    'behavior.time_on_detail': 'Gostou deste veiculo? Reserve agora com cobertura total.',
-    'behavior.returning_visitor': 'Bem-vindo de volta! Veja os veiculos que voce visualizou recentemente.',
-    'behavior.signup_after_views': 'Crie sua conta para salvar veiculos favoritos e receber alertas de preco.',
+    // ── Behavior Tracking ──
+    'behavior.vehicles_browsed': 'Você já visualizou {count} veículos. Que tal reservar um?',
+    'behavior.time_on_detail': 'Gostou deste veículo? Reserve agora com cobertura total.',
+    'behavior.returning_visitor': 'Bem-vindo de volta! Veja os veículos que você visualizou recentemente.',
+    'behavior.signup_after_views': 'Crie sua conta para salvar veículos favoritos e receber alertas de preço.',
     'behavior.idle_suggestion': 'Precisa de ajuda para escolher? Veja nossas categorias mais populares.',
 
     // ── Toast Messages ──
@@ -226,7 +228,93 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'toast.wishlist_updated': 'Lista de desejos atualizada',
     'toast.login_to_buy': 'Faça login para comprar',
     'toast.interest_registered': 'Interesse registrado! Entraremos em contato sobre o',
-    'toast.login_to_favorite_vehicles': 'Faça login para favoritar veículos'
+    'toast.login_to_favorite_vehicles': 'Faça login para favoritar veículos',
+
+    // ── Rental Wizard ──
+    'wizard.title': 'Reserva de Veículo Nexdrive',
+    'wizard.step_location': 'Local & Data',
+    'wizard.step_group': 'Grupo',
+    'wizard.step_protection': 'Proteções',
+    'wizard.step_addons': 'Adicionais',
+    'wizard.step_confirm': 'Confirmação',
+    'wizard.diff_return_warning': 'Devolução em agência diferente da de retirada.',
+    'wizard.pickup_label': 'Onde você quer retirar o carro?',
+    'wizard.pickup_placeholder': 'Digite cidade ou agência...',
+    'wizard.return_label': 'Devolver em outro local?',
+    'wizard.pickup_date': 'Data da retirada',
+    'wizard.return_date': 'Data da devolução',
+    'wizard.select_group': 'Selecione a categoria do veículo',
+    'wizard.summary_title': 'Resumo da Reserva',
+    'wizard.total_estimated': 'Total estimado',
+    'wizard.confirm_button': 'Confirmar Reserva',
+
+    // ── Forum Component ──
+    'forum.community_title': 'Comunidade Nexdrive',
+    'forum.search_placeholder': 'Buscar discussões...',
+    'forum.start_discussion': 'Iniciar Discussão',
+    'forum.all_discussions': 'Todas as Discussões',
+    'forum.categories': 'Categorias',
+    'forum.featured_member': 'Membro Destacado',
+    'forum.stats': 'Estatísticas',
+    'forum.topics': 'Discussões',
+    'forum.replies': 'Respostas',
+    'forum.members': 'Membros',
+    'forum.posts': 'posts',
+    'forum.mobile_toggle': 'Categorias & Filtros',
+    'forum.recent': 'Recentes',
+    'forum.popular': 'Melhores',
+    'forum.loading': 'Carregando discussões em tempo real...',
+    'forum.empty_title': 'Nenhuma discussão encontrada nesta categoria',
+    'forum.empty_desc': 'Seja o primeiro a iniciar um tópico sobre este assunto!',
+    'forum.create_topic_now': 'Criar Tópico Agora',
+    'forum.pinned': 'Fixo',
+    'forum.solved': 'Resolvido',
+    'forum.views': 'Visualizações',
+    'forum.likes': 'Curtidas',
+    'forum.reply': 'Responder',
+    'forum.submit_reply': 'Enviar Resposta',
+    'forum.login_prompt': 'Faça login na plataforma para publicar respostas nesta discussão.',
+    'forum.new_topic_title': 'Título',
+    'forum.new_topic_category': 'Categoria',
+    'forum.new_topic_content': 'Conteúdo',
+    'forum.publish': 'Publicar Discussão',
+    'forum.cancel': 'Cancelar',
+
+    // ── My Rentals ──
+    'my_rentals.title': 'Minhas Reservas',
+    'my_rentals.subtitle': 'Acompanhe o status e detalhes dos seus aluguéis.',
+    'my_rentals.empty': 'Você ainda não possui nenhuma reserva.',
+    'my_rentals.rent_first': 'Explorar veículos',
+    'my_rentals.status_pending': 'Pendente',
+    'my_rentals.status_confirmed': 'Confirmada',
+    'my_rentals.status_active': 'Em Andamento',
+    'my_rentals.status_completed': 'Concluída',
+    'my_rentals.status_cancelled': 'Cancelada',
+    'my_rentals.cancel_booking': 'Cancelar Reserva',
+
+    // ── About, Contact & Sell ──
+    'about.title': 'Sobre a Nexdrive',
+    'about.subtitle': 'Reinventando a mobilidade urbana no Brasil com tecnologia, transparência e elegância.',
+    'about.fleet_stat': 'Veículos na Frota',
+    'about.cities_stat': 'Cidades Atendidas',
+    'about.users_stat': 'Clientes Satisfeitos',
+    'contact.title': 'Fale Conosco',
+    'contact.subtitle': 'Estamos à disposição 24 horas por dia para ajudar você.',
+    'contact.name': 'Seu nome',
+    'contact.email': 'Seu e-mail',
+    'contact.message': 'Sua mensagem',
+    'contact.send': 'Enviar Mensagem',
+    'sell.title': 'Anunciar seu Veículo',
+    'sell.subtitle': 'Monetize seu veículo com segurança e gestão completa da Nexdrive.',
+
+    // ── Legal Layout & Portal ──
+    'legal.portal_badge': 'Central de Documentação Legal',
+    'legal.back_to_site': 'Voltar ao site principal',
+    'legal.privacy': 'Política de Privacidade',
+    'legal.terms': 'Termos de Uso',
+    'legal.help': 'Central de Ajuda',
+    'legal.faq': 'Perguntas Frequentes',
+    'legal.forum': 'Fórum & Comunidade'
   },
   en: {
     // ── Navigation & Header ──
@@ -244,6 +332,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.all_cities': 'All cities',
     'nav.select_city': 'Select city',
     'nav.language': 'Language',
+    'nav.lang_pt': 'Português (BR)',
+    'nav.lang_en': 'English (US)',
     'nav.toggle_theme': 'Toggle theme',
     'nav.faq': 'FAQ',
     'nav.contact': 'Contact',
@@ -336,7 +426,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'detail.benefit_protection': 'Collision & third-party protection',
     'detail.benefit_assistance': '24-hour roadside assistance',
 
-    // ── Spec Labels (detail page) ──
+    // ── Spec Labels ──
     'spec_label.engine': 'Engine',
     'spec_label.transmission': 'Transmission',
     'spec_label.capacity': 'Capacity',
@@ -432,14 +522,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'filter.sort_highest': 'Highest price',
     'filter.sort_newest': 'Newest additions',
 
-    // -- Visitor / Social Proof --
+    // ── Visitor / Social Proof ──
     'visitor.welcome': 'Welcome to Nexdrive. Explore our premium fleet with full coverage and 24-hour assistance across Brazil.',
     'visitor.social_views': '{count} views in the last 7 days',
     'visitor.social_bookings': '{count} recent bookings',
     'visitor.location_detected': 'Vehicles available in {city}. Check options near you.',
     'visitor.signup_incentive': 'Sign up to track prices and receive availability alerts.',
 
-    // -- Behavior Tracking --
+    // ── Behavior Tracking ──
     'behavior.vehicles_browsed': 'You have viewed {count} vehicles. How about booking one?',
     'behavior.time_on_detail': 'Like this vehicle? Book now with full coverage.',
     'behavior.returning_visitor': 'Welcome back! Check out the vehicles you recently viewed.',
@@ -451,7 +541,93 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'toast.wishlist_updated': 'Wishlist updated',
     'toast.login_to_buy': 'Sign in to purchase',
     'toast.interest_registered': 'Interest registered! We\'ll contact you about the',
-    'toast.login_to_favorite_vehicles': 'Sign in to favorite vehicles'
+    'toast.login_to_favorite_vehicles': 'Sign in to favorite vehicles',
+
+    // ── Rental Wizard ──
+    'wizard.title': 'Nexdrive Vehicle Reservation',
+    'wizard.step_location': 'Location & Date',
+    'wizard.step_group': 'Group',
+    'wizard.step_protection': 'Protections',
+    'wizard.step_addons': 'Add-ons',
+    'wizard.step_confirm': 'Confirmation',
+    'wizard.diff_return_warning': 'Drop-off at a different location from pick-up.',
+    'wizard.pickup_label': 'Where will you pick up the car?',
+    'wizard.pickup_placeholder': 'Type city or location...',
+    'wizard.return_label': 'Drop off at another location?',
+    'wizard.pickup_date': 'Pick-up date',
+    'wizard.return_date': 'Drop-off date',
+    'wizard.select_group': 'Select vehicle category',
+    'wizard.summary_title': 'Booking Summary',
+    'wizard.total_estimated': 'Estimated total',
+    'wizard.confirm_button': 'Confirm Booking',
+
+    // ── Forum Component ──
+    'forum.community_title': 'Nexdrive Community',
+    'forum.search_placeholder': 'Search discussions...',
+    'forum.start_discussion': 'Start Discussion',
+    'forum.all_discussions': 'All Discussions',
+    'forum.categories': 'Categories',
+    'forum.featured_member': 'Featured Member',
+    'forum.stats': 'Statistics',
+    'forum.topics': 'Discussions',
+    'forum.replies': 'Replies',
+    'forum.members': 'Members',
+    'forum.posts': 'posts',
+    'forum.mobile_toggle': 'Categories & Filters',
+    'forum.recent': 'Recent',
+    'forum.popular': 'Popular',
+    'forum.loading': 'Loading live discussions...',
+    'forum.empty_title': 'No discussions found in this category',
+    'forum.empty_desc': 'Be the first to start a topic on this subject!',
+    'forum.create_topic_now': 'Create Topic Now',
+    'forum.pinned': 'Pinned',
+    'forum.solved': 'Solved',
+    'forum.views': 'Views',
+    'forum.likes': 'Likes',
+    'forum.reply': 'Reply',
+    'forum.submit_reply': 'Submit Reply',
+    'forum.login_prompt': 'Sign in to post replies in this discussion.',
+    'forum.new_topic_title': 'Title',
+    'forum.new_topic_category': 'Category',
+    'forum.new_topic_content': 'Content',
+    'forum.publish': 'Publish Discussion',
+    'forum.cancel': 'Cancel',
+
+    // ── My Rentals ──
+    'my_rentals.title': 'My Bookings',
+    'my_rentals.subtitle': 'Track the status and details of your rentals.',
+    'my_rentals.empty': 'You don\'t have any bookings yet.',
+    'my_rentals.rent_first': 'Explore vehicles',
+    'my_rentals.status_pending': 'Pending',
+    'my_rentals.status_confirmed': 'Confirmed',
+    'my_rentals.status_active': 'Active',
+    'my_rentals.status_completed': 'Completed',
+    'my_rentals.status_cancelled': 'Cancelled',
+    'my_rentals.cancel_booking': 'Cancel Booking',
+
+    // ── About, Contact & Sell ──
+    'about.title': 'About Nexdrive',
+    'about.subtitle': 'Reinventing urban mobility in Brazil with technology, transparency, and elegance.',
+    'about.fleet_stat': 'Fleet Vehicles',
+    'about.cities_stat': 'Cities Served',
+    'about.users_stat': 'Satisfied Customers',
+    'contact.title': 'Contact Us',
+    'contact.subtitle': 'We are available 24/7 to assist you.',
+    'contact.name': 'Your name',
+    'contact.email': 'Your email',
+    'contact.message': 'Your message',
+    'contact.send': 'Send Message',
+    'sell.title': 'List Your Vehicle',
+    'sell.subtitle': 'Monetize your vehicle securely with complete Nexdrive management.',
+
+    // ── Legal Layout & Portal ──
+    'legal.portal_badge': 'Legal Documentation Center',
+    'legal.back_to_site': 'Back to main site',
+    'legal.privacy': 'Privacy Policy',
+    'legal.terms': 'Terms of Service',
+    'legal.help': 'Help Center',
+    'legal.faq': 'Frequently Asked Questions',
+    'legal.forum': 'Forum & Community'
   }
 };
 
@@ -481,6 +657,5 @@ export class LanguageService {
     return TRANSLATIONS[lang][key] || TRANSLATIONS['pt'][key] || key;
   }
 
-  // Helper computed map for template translations
   readonly labels = computed(() => TRANSLATIONS[this.currentLang()]);
 }

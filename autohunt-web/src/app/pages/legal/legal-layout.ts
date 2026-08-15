@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { LanguageService } from '../../core/services/language';
 
 @Component({
   selector: 'app-legal-layout',
@@ -15,9 +16,9 @@ import { LucideAngularModule } from 'lucide-angular';
           <div class="header-top-row">
             <a routerLink="/" class="back-link clickable">
               <lucide-icon name="arrow-left" [size]="16"></lucide-icon>
-              <span>Voltar ao site principal</span>
+              <span>{{ langService.t('legal.back_to_site') }}</span>
             </a>
-            <span class="portal-badge">Central de Documentação Legal</span>
+            <span class="portal-badge">{{ langService.t('legal.portal_badge') }}</span>
           </div>
 
           <div class="header-main-row">
@@ -34,23 +35,23 @@ import { LucideAngularModule } from 'lucide-angular';
           <nav class="legal-tabs" role="tablist">
             <a routerLink="/legal/privacidade" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="tab-item clickable" role="tab">
               <lucide-icon name="shield" [size]="16"></lucide-icon>
-              <span>Política de Privacidade</span>
+              <span>{{ langService.t('legal.privacy') }}</span>
             </a>
             <a routerLink="/legal/termos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="tab-item clickable" role="tab">
               <lucide-icon name="file-text" [size]="16"></lucide-icon>
-              <span>Termos de Uso</span>
+              <span>{{ langService.t('legal.terms') }}</span>
             </a>
             <a routerLink="/legal/ajuda" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="tab-item clickable" role="tab">
               <lucide-icon name="help-circle" [size]="16"></lucide-icon>
-              <span>Central de Ajuda</span>
+              <span>{{ langService.t('legal.help') }}</span>
             </a>
             <a routerLink="/legal/faq" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="tab-item clickable" role="tab">
               <lucide-icon name="help-circle" [size]="16"></lucide-icon>
-              <span>Perguntas Frequentes</span>
+              <span>{{ langService.t('legal.faq') }}</span>
             </a>
             <a routerLink="/legal/forum" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" class="tab-item clickable tab-forum" role="tab">
               <lucide-icon name="message-square" [size]="16"></lucide-icon>
-              <span>Fórum & Comunidade</span>
+              <span>{{ langService.t('legal.forum') }}</span>
             </a>
           </nav>
         </div>
@@ -66,7 +67,7 @@ import { LucideAngularModule } from 'lucide-angular';
       <!-- Legal Footer -->
       <footer class="legal-footer">
         <div class="legal-footer-container">
-          <p>© 2026 Nexdrive Mobilidade S.A. Todos os direitos reservados. CNPJ 00.000.000/0001-00.</p>
+          <p>© 2026 Nexdrive Mobilidade S.A. {{ langService.t('footer.rights') }} CNPJ 00.000.000/0001-00.</p>
           <p class="sub-text">Conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 - LGPD).</p>
         </div>
       </footer>
@@ -324,6 +325,7 @@ import { LucideAngularModule } from 'lucide-angular';
 })
 export class LegalLayoutComponent {
   private router = inject(Router);
+  langService = inject(LanguageService);
 
   isForumRoute(): boolean {
     return this.router.url.includes('/legal/forum');
