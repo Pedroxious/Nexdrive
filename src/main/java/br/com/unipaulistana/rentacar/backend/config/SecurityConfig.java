@@ -77,8 +77,8 @@ public class SecurityConfig {
                     }
                 }, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        // Static resources (Angular build output)
-                        .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
+                        // Static resources (Angular build output & Google Verification)
+                        .requestMatchers("/", "/index.html", "/favicon.ico", "/google47a54b12fcbe61bf.html", "/*.html").permitAll()
                         .requestMatchers("/*.js", "/*.css", "/*.woff2", "/*.woff", "/*.ttf",
                                 "/*.svg", "/*.png", "/*.jpg", "/*.ico").permitAll()
                         .requestMatchers("/assets/**", "/media/**", "/favicon/**").permitAll()
