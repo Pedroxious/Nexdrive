@@ -32,6 +32,7 @@ public class DataInitializer implements ApplicationRunner {
         private final br.com.unipaulistana.rentacar.backend.repository.ForumBotRepository forumBotRepository;
         private final br.com.unipaulistana.rentacar.backend.repository.ForumTopicRepository forumTopicRepository;
         private final br.com.unipaulistana.rentacar.backend.repository.ForumCommentRepository forumCommentRepository;
+        private final br.com.unipaulistana.rentacar.backend.repository.ForumLikeRepository forumLikeRepository;
 
         @Override
         @Transactional
@@ -44,6 +45,18 @@ public class DataInitializer implements ApplicationRunner {
                         // Ignore if this fails (e.g. in test h2 environment)
                 }
 
+                if (userRepository.count() == 0) {
+                        seedUsers();
+                }
+
+                if (vehicleRepository.count() == 0) {
+                        seedVehicles();
+                }
+
+                seedForumData();
+        }
+
+        private void seedUsers() {
                 // Seed or Update Users
                 userRepository.findByEmail("admin@nexdrive.com").ifPresentOrElse(
                                 user -> {
@@ -781,11 +794,20 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         private void seedForumData() {
-                if (forumTopicRepository.count() >= 40 && forumBotRepository.count() >= 20) return;
+                boolean hasNewData = forumTopicRepository.existsByTitle("Qual a melhor locadora para viagem longa?");
+                if (hasNewData && forumTopicRepository.count() >= 40 && forumBotRepository.count() >= 20) return;
 
-                forumCommentRepository.deleteAll();
-                forumTopicRepository.deleteAll();
-                forumBotRepository.deleteAll();
+                try {
+                        forumLikeRepository.deleteAll();
+                        forumCommentRepository.deleteAll();
+                        forumTopicRepository.deleteAll();
+                        forumBotRepository.deleteAll();
+                        entityManager.flush();
+                } catch (Exception e) {
+                        try {
+                                entityManager.createNativeQuery("TRUNCATE TABLE forum_likes, forum_comments, forum_topics, forum_bots CASCADE").executeUpdate();
+                        } catch (Exception ignored) {}
+                }
 
                 java.util.Random random = new java.util.Random(42);
 

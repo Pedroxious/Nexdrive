@@ -8,17 +8,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface ForumTopicRepository extends JpaRepository<ForumTopic, Long> {
-    Page<ForumTopic> findByCategory(String category, Pageable pageable);
+    @Query("SELECT t FROM ForumTopic t WHERE LOWER(t.category) = LOWER(:category)")
+    Page<ForumTopic> findByCategory(@Param("category") String category, Pageable pageable);
 
     @Query("SELECT t FROM ForumTopic t WHERE LOWER(t.title) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<ForumTopic> searchByTitle(@Param("keyword") String keyword, Pageable pageable);
 
-    @Query("SELECT t FROM ForumTopic t WHERE LOWER(t.title) LIKE LOWER(CONCAT('%', :keyword, '%')) AND t.category = :category")
+    @Query("SELECT t FROM ForumTopic t WHERE LOWER(t.title) LIKE LOWER(CONCAT('%', :keyword, '%')) AND LOWER(t.category) = LOWER(:category)")
     Page<ForumTopic> searchByTitleAndCategory(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
-    long countByCategory(String category);
+    @Query("SELECT COUNT(t) FROM ForumTopic t WHERE LOWER(t.category) = LOWER(:category)")
+    long countByCategory(@Param("category") String category);
+
+    boolean existsByTitle(String title);
 }
