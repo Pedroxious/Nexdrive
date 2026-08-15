@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap, throwError, EMPTY } from 'rxjs';
+import { tap, throwError, EMPTY, of, catchError } from 'rxjs';
 
 export interface User {
   id?: number;
@@ -45,6 +45,9 @@ export class AuthService {
    * If the cookie is missing or expired, we stay logged out.
    */
   restoreSession() {
+    if (typeof window === 'undefined') {
+      return of(null);
+    }
     return this.http.get<User>(`${this.apiUrl}/me`).pipe(
       tap({
         next: (user) => {
@@ -52,11 +55,11 @@ export class AuthService {
           this.isLoggedIn.set(true);
         },
         error: () => {
-          // Cookie absent or expired — normal unauthenticated state, no action needed
           this.currentUser.set(null);
           this.isLoggedIn.set(false);
         }
-      })
+      }),
+      catchError(() => of(null))
     );
   }
 
