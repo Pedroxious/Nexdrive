@@ -919,6 +919,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private startHeroAutoSlide() {
+    if (typeof window === 'undefined') return;
     this.heroInterval = setInterval(() => {
       this.heroIndex.update(idx => (idx + 1) % this.heroSlides.length);
     }, 6000);

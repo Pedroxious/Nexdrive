@@ -555,7 +555,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   // ETAPA 8: Polling every 30s for logged-in users
   ngOnInit() {
-    if (this.auth.isLoggedIn()) {
+    if (typeof window !== 'undefined' && this.auth.isLoggedIn()) {
       this.notifService.fetchNotifications();
       this.pollingInterval = setInterval(() => {
         if (this.auth.isLoggedIn()) {

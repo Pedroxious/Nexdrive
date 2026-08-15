@@ -1281,10 +1281,12 @@ export class ForumComponent implements OnInit, OnDestroy {
     this.loadSidebar();
 
     // Auto-polling every 10 seconds for real-time live social feed updates
-    this.pollingInterval = setInterval(() => {
-      this.loadTopics(true);
-      this.loadSidebar();
-    }, 10000);
+    if (typeof window !== 'undefined') {
+      this.pollingInterval = setInterval(() => {
+        this.loadTopics(true);
+        this.loadSidebar();
+      }, 10000);
+    }
   }
 
   ngOnDestroy() {

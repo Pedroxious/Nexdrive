@@ -462,6 +462,7 @@ export class RegisterVerifyEmailComponent implements OnInit, OnDestroy {
   }
 
   startTimer() {
+    if (typeof window === 'undefined') return;
     this.cooldown.set(30);
     this.timerInterval = setInterval(() => {
       if (this.cooldown() > 0) {
