@@ -468,6 +468,7 @@ export class SellCarComponent implements OnInit {
   }
 
   private autoSaveDraft() {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
     this.isSaving.set(true);
     try {
       localStorage.setItem('nexdrive_sell_car_draft', JSON.stringify(this.carData()));
@@ -480,6 +481,7 @@ export class SellCarComponent implements OnInit {
   }
 
   private loadDraftFromLocalStorage() {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
     try {
       const saved = localStorage.getItem('nexdrive_sell_car_draft');
       if (saved) {
@@ -586,7 +588,7 @@ export class SellCarComponent implements OnInit {
     this.http.post<any>('/api/vehicles/listing', payload).subscribe({
       next: (createdVehicle) => {
         this.isSubmitting.set(false);
-        localStorage.removeItem('nexdrive_sell_car_draft');
+        try { localStorage.removeItem('nexdrive_sell_car_draft'); } catch {}
         this.toast.success('🎉 Anúncio publicado com sucesso! Seu veículo já está disponível no catálogo.');
         this.router.navigate(['/car', createdVehicle.id || 1]);
       },

@@ -191,9 +191,13 @@ export class CookieBannerComponent implements OnInit {
   private isClosedTemp = signal(false);
 
   ngOnInit() {
-    const consent = localStorage.getItem(this.STORAGE_KEY);
-    if (consent === 'accepted') {
-      this.isAccepted.set(true);
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      try {
+        const consent = localStorage.getItem(this.STORAGE_KEY);
+        if (consent === 'accepted') {
+          this.isAccepted.set(true);
+        }
+      } catch {}
     }
   }
 
@@ -202,7 +206,11 @@ export class CookieBannerComponent implements OnInit {
   }
 
   acceptConsent(): void {
-    localStorage.setItem(this.STORAGE_KEY, 'accepted');
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem(this.STORAGE_KEY, 'accepted');
+      } catch {}
+    }
     this.isAccepted.set(true);
   }
 
@@ -211,6 +219,8 @@ export class CookieBannerComponent implements OnInit {
   }
 
   onPrivacyClick(): void {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
   }
 }

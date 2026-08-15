@@ -16,6 +16,7 @@ export class BehaviorTrackingService {
    * Get behavior data from sessionStorage (non-blocking)
    */
   private getData(): Record<string, any> {
+    if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') return {};
     try {
       const raw = sessionStorage.getItem(this.STORAGE_KEY);
       return raw ? JSON.parse(raw) : {};
@@ -25,6 +26,7 @@ export class BehaviorTrackingService {
   }
 
   private saveData(data: Record<string, any>): void {
+    if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') return;
     try {
       sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
     } catch { /* ignore quota errors */ }
@@ -68,6 +70,7 @@ export class BehaviorTrackingService {
 
     // Record this vehicle as viewed in localStorage for returning visitors
     setTimeout(() => {
+      if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
       try {
         const viewed = JSON.parse(localStorage.getItem('nexdrive_recent_views') || '[]');
         const filtered = viewed.filter((v: any) => v.id !== vehicleId).slice(0, 9);
@@ -114,6 +117,7 @@ export class BehaviorTrackingService {
       if (data['returningChecked']) return;
 
       try {
+        if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
         const viewed = JSON.parse(localStorage.getItem('nexdrive_recent_views') || '[]');
         if (viewed.length >= 3) {
           data['returningChecked'] = true;

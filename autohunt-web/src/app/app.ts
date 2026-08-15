@@ -35,27 +35,29 @@ export class App implements OnInit {
   private behavior = inject(BehaviorTrackingService);
 
   ngOnInit() {
-    // Welcome toast: first visit only (controlled by localStorage)
-    const welcomeShown = localStorage.getItem('nexdrive_welcome_shown');
-    if (!welcomeShown) {
-      setTimeout(() => {
-        this.toast.info(this.lang.t('visitor.welcome'));
-        localStorage.setItem('nexdrive_welcome_shown', 'true');
-      }, 1200);
+    if (typeof window === 'undefined') return;
+
+    let welcomeShown = false;
+    if (typeof localStorage !== 'undefined') {
+      welcomeShown = !!localStorage.getItem('nexdrive_welcome_shown');
+      if (!welcomeShown) {
+        setTimeout(() => {
+          this.toast.info(this.lang.t('visitor.welcome'));
+          try { localStorage.setItem('nexdrive_welcome_shown', 'true'); } catch {}
+        }, 1200);
+      }
     }
 
-    // Signup incentive: shown once per session to non-logged visitors who return
-    if (!this.auth.isLoggedIn()) {
+    if (!this.auth.isLoggedIn() && typeof sessionStorage !== 'undefined') {
       const signupShown = sessionStorage.getItem('nexdrive_signup_shown');
       if (welcomeShown && !signupShown) {
         setTimeout(() => {
-          this.toast.info(this.lang.t('visitor.signup_incentive'));
-          sessionStorage.setItem('nexdrive_signup_shown', 'true');
+          this.toast.info(this.lang.t('visitor.signup_discount'));
+          try { sessionStorage.setItem('nexdrive_signup_shown', 'true'); } catch {}
         }, 8000);
       }
     }
 
-    // Non-blocking behavior tracking
     this.behavior.checkReturningVisitor();
     this.behavior.setupIdleDetection();
   }

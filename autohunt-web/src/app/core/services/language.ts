@@ -638,14 +638,22 @@ export class LanguageService {
   readonly currentLang = signal<Language>(this.getInitialLang());
 
   private getInitialLang(): Language {
-    const saved = localStorage.getItem(this.STORAGE_KEY) as Language;
-    if (saved === 'pt' || saved === 'en') return saved;
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(this.STORAGE_KEY) as Language;
+        if (saved === 'pt' || saved === 'en') return saved;
+      } catch {}
+    }
     return 'pt';
   }
 
   setLanguage(lang: Language) {
     this.currentLang.set(lang);
-    localStorage.setItem(this.STORAGE_KEY, lang);
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem(this.STORAGE_KEY, lang);
+      } catch {}
+    }
   }
 
   toggleLanguage() {
