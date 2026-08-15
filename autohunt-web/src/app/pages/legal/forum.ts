@@ -127,7 +127,7 @@ import { LanguageService } from '../../core/services/language';
             }
           </div>
 
-          <!-- Discussion List -->
+          <!-- Discussion Feed (Reddit-style cards) -->
           <div class="discussion-list">
             @if (loading()) {
               <div class="loading-state">
@@ -145,40 +145,66 @@ import { LanguageService } from '../../core/services/language';
               </div>
             } @else {
               @for (topic of topics(); track topic.id) {
-                <div class="discussion-row clickable" [class.is-pinned]="topic.isPinned" (click)="openTopic(topic)">
-                  <div class="disc-avatar-col">
-                    <img [src]="topic.author.avatarUrl" [alt]="topic.author.name" class="disc-avatar" />
-                    <span class="online-dot"></span>
-                  </div>
-                  <div class="disc-content-col">
-                    <div class="disc-title-row">
-                      @if (topic.isPinned) {
-                        <span class="badge badge-pinned"><lucide-icon name="pin" [size]="10"></lucide-icon> {{ langService.t('forum.pinned') }}</span>
+                <article class="reddit-card clickable" [class.is-pinned]="topic.isPinned" (click)="openTopic(topic)">
+                  <!-- 1. Compact Author Row -->
+                  <div class="card-author-header">
+                    <div class="author-avatar-wrap">
+                      <img [src]="topic.author.avatarUrl" [alt]="topic.author.name" class="card-avatar" />
+                      <span class="online-dot"></span>
+                    </div>
+                    <div class="author-meta">
+                      <span class="author-name">{{ topic.author.name }}</span>
+                      @if (topic.author.roleTag) {
+                        <span class="author-role-tag">{{ topic.author.roleTag }}</span>
                       }
-                      @if (topic.isSolved) {
-                        <span class="badge badge-solved"><lucide-icon name="check-circle" [size]="10"></lucide-icon> {{ langService.t('forum.solved') }}</span>
-                      }
-                      <span class="disc-title">{{ topic.title }}</span>
-                    </div>
-                    <div class="disc-meta-row">
-                      <span class="cat-tag" [style.background]="getCategoryColor(topic.category)">{{ topic.category }}</span>
-                      <span class="disc-activity">
-                        {{ topic.lastActivityAuthor || topic.author.name }}
-                        <span class="dot-sep">•</span>
-                        {{ timeAgo(topic.updatedAt) }}
-                      </span>
+                      <span class="meta-dot">•</span>
+                      <span class="post-time">{{ timeAgo(topic.createdAt || topic.updatedAt) }}</span>
                     </div>
                   </div>
-                  <div class="disc-stats-col">
-                    <div class="disc-metrics">
-                      <span [title]="langService.t('forum.views')"><lucide-icon name="eye" [size]="13"></lucide-icon> {{ topic.viewsCount }}</span>
-                      <span [title]="langService.t('forum.likes')"><lucide-icon name="heart" [size]="13"></lucide-icon> {{ topic.likesCount }}</span>
+
+                  <!-- 2. Badges Row (Category + Pinned + Solved) -->
+                  <div class="card-badges-row">
+                    <span class="cat-tag" [style.background]="getCategoryColor(topic.category)">{{ topic.category }}</span>
+                    @if (topic.isPinned) {
+                      <span class="badge badge-pinned"><lucide-icon name="pin" [size]="11"></lucide-icon> {{ langService.t('forum.pinned') }}</span>
+                    }
+                    @if (topic.isSolved) {
+                      <span class="badge badge-solved"><lucide-icon name="check-circle" [size]="11"></lucide-icon> {{ langService.t('forum.solved') }}</span>
+                    }
+                  </div>
+
+                  <!-- 3. Topic Title -->
+                  <h2 class="card-title">{{ topic.title }}</h2>
+
+                  <!-- 4. Large Media Image (if topic has imageUrl from vehicle DB) -->
+                  @if (topic.imageUrl) {
+                    <div class="card-image-wrap">
+                      <img [src]="topic.imageUrl" [alt]="topic.title" class="card-img" loading="lazy" />
                     </div>
-                    <div class="reply-badge" [class.has-replies]="topic.repliesCount > 0" [title]="langService.t('forum.replies')">
-                      {{ topic.repliesCount }}
+                  }
+
+                  <!-- 5. Topic Content Text -->
+                  <p class="card-content-text">{{ topic.content }}</p>
+
+                  <!-- 6. Social Action Bar -->
+                  <div class="card-actions-bar" (click)="$event.stopPropagation()">
+                    <button class="card-action-btn like-btn clickable" [class.liked]="topic.userLiked" (click)="toggleTopicLike(topic, $event)" [title]="langService.t('forum.likes')">
+                      <lucide-icon name="heart" [size]="16"></lucide-icon>
+                      <span class="action-count">{{ topic.likesCount }}</span>
+                    </button>
+                    
+                    <button class="card-action-btn reply-btn clickable" (click)="openTopic(topic)" [title]="langService.t('forum.replies')">
+                      <lucide-icon name="message-square" [size]="16"></lucide-icon>
+                      <span class="action-count">{{ topic.repliesCount }}</span>
+                      <span class="action-label">{{ langService.t('forum.replies') }}</span>
+                    </button>
+
+                    <div class="card-action-info view-info" [title]="langService.t('forum.views')">
+                      <lucide-icon name="eye" [size]="16"></lucide-icon>
+                      <span class="action-count">{{ topic.viewsCount }}</span>
                     </div>
                   </div>
-                </div>
+                </article>
               }
             }
           </div>
@@ -599,53 +625,194 @@ import { LanguageService } from '../../core/services/language';
       cursor: pointer;
     }
 
-    /* ═══ Discussion List ═══ */
-    .discussion-list { display: flex; flex-direction: column; gap: 4px; }
-
-    .discussion-row {
+    /* ═══ Reddit-style Feed Cards ═══ */
+    .discussion-list {
       display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 18px;
-      border: 1px solid var(--border-light, #F1F5F9);
-      border-radius: 10px;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .reddit-card {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border: 1px solid var(--border, #E2E8F0);
+      border-radius: 14px;
       background: var(--surface, #FFFFFF);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
-    .discussion-row:hover {
-      background: var(--surface-hover, #F8FAFC);
+    .reddit-card:hover {
       border-color: var(--accent, #0284C7);
-      transform: translateX(2px);
+      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12);
+      transform: translateY(-2px);
     }
-    .discussion-row.is-pinned {
-      background: var(--accent-light, #FFFBEB);
-      border-left: 4px solid #F59E0B;
+    .reddit-card.is-pinned {
+      border-left: 5px solid #F59E0B;
+      background: var(--surface-secondary, #FFFDF5);
     }
 
-    .disc-avatar-col { position: relative; flex-shrink: 0; }
-    .disc-avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border, #E2E8F0); }
+    /* 1. Author Top Row */
+    .card-author-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .author-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .card-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border, #E2E8F0);
+    }
     .online-dot {
       position: absolute;
-      bottom: 2px;
-      right: 2px;
+      bottom: 0px;
+      right: 0px;
       width: 10px;
       height: 10px;
       border-radius: 50%;
       background: #10B981;
       border: 2px solid #FFFFFF;
     }
-
-    .disc-content-col { flex: 1; min-width: 0; }
-    .disc-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
-    .disc-title {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.95rem;
+    .author-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-secondary, #64748B);
+      flex-wrap: wrap;
+    }
+    .author-name {
+      font-weight: 700;
+      color: var(--text-primary, #0F172A);
+    }
+    .author-role-tag {
+      font-size: 0.72rem;
       font-weight: 600;
+      background: var(--surface-secondary, #F1F5F9);
+      color: var(--text-secondary, #475569);
+      padding: 1px 7px;
+      border-radius: 12px;
+      border: 1px solid var(--border, #E2E8F0);
+    }
+    .meta-dot {
+      color: var(--text-muted, #94A3B8);
+    }
+    .post-time {
+      font-size: 0.8rem;
+      color: var(--text-muted, #94A3B8);
+    }
+
+    /* 2. Badges Row */
+    .card-badges-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* 3. Title */
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.18rem;
+      font-weight: 800;
       color: var(--text-primary, #0F172A);
       line-height: 1.35;
+      margin: 0 0 12px 0;
+      transition: color 0.15s ease;
     }
-    .discussion-row:hover .disc-title { color: var(--accent, #0284C7); }
+    .reddit-card:hover .card-title {
+      color: var(--accent, #0284C7);
+    }
+
+    /* 4. Media Image */
+    .card-image-wrap {
+      width: 100%;
+      max-height: 380px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      background: var(--surface-secondary, #F8FAFC);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-light, #F1F5F9);
+    }
+    .card-img {
+      width: 100%;
+      height: 100%;
+      max-height: 380px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .reddit-card:hover .card-img {
+      transform: scale(1.015);
+    }
+
+    /* 5. Content Text */
+    .card-content-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.925rem;
+      line-height: 1.6;
+      color: var(--text-secondary, #334155);
+      margin: 0 0 16px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 6. Social Action Bar */
+    .card-actions-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-light, #F1F5F9);
+    }
+    .card-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border: 1.5px solid var(--border, #E2E8F0);
+      border-radius: 20px;
+      background: var(--surface-secondary, #F8FAFC);
+      color: var(--text-secondary, #64748B);
+      font-size: 0.825rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card-action-btn:hover {
+      background: var(--surface-hover, #F1F5F9);
+      border-color: var(--accent, #0284C7);
+      color: var(--accent, #0284C7);
+    }
+    .card-action-btn.liked {
+      background: #FEF2F2;
+      border-color: #FCA5A5;
+      color: #EF4444;
+    }
+    .card-action-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      color: var(--text-muted, #94A3B8);
+      font-size: 0.825rem;
+      font-weight: 600;
+    }
 
     .badge {
       display: inline-flex;
@@ -661,59 +828,15 @@ import { LanguageService } from '../../core/services/language';
     .badge-pinned { background: #FEF3C7; color: #92400E; }
     .badge-solved { background: #D1FAE5; color: #065F46; }
 
-    .disc-meta-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .cat-tag {
       display: inline-block;
-      padding: 2px 99px;
+      padding: 3px 10px;
       border-radius: 6px;
       font-size: 0.72rem;
       font-weight: 700;
       color: #FFFFFF;
       white-space: nowrap;
     }
-    .disc-activity {
-      font-size: 0.78rem;
-      color: var(--text-muted, #94A3B8);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .disc-stats-col {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-shrink: 0;
-    }
-    .disc-metrics {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.78rem;
-      color: var(--text-muted, #94A3B8);
-
-      span {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-    }
-
-    .reply-badge {
-      min-width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-      font-weight: 800;
-      font-family: 'Outfit', sans-serif;
-      color: var(--text-muted, #94A3B8);
-      background: var(--surface-secondary, #F1F5F9);
-      transition: all 0.15s ease;
-    }
-    .reply-badge.has-replies { background: var(--accent, #0284C7); color: #FFFFFF; }
 
     /* Loading & Empty */
     .loading-state, .empty-state {
@@ -967,13 +1090,14 @@ import { LanguageService } from '../../core/services/language';
           color: #060D1A;
         }
       }
-      .discussion-row {
+      .reddit-card {
         background: #0F1829;
         border-color: #1A2744;
 
         &:hover {
           background: #16223A;
           border-color: #00D4FF;
+          box-shadow: 0 8px 24px rgba(0, 212, 255, 0.15);
         }
 
         &.is-pinned {
@@ -981,19 +1105,36 @@ import { LanguageService } from '../../core/services/language';
           border-left-color: #F59E0B;
         }
       }
-      .disc-title { color: #EDF2F7; }
+      .card-title { color: #EDF2F7; }
+      .card-content-text { color: #CBD5E1; }
+      .card-avatar { border-color: #1A2744; }
+      .author-name { color: #EDF2F7; }
+      .author-role-tag {
+        background: #1A2744;
+        border-color: #24355A;
+        color: #8B9FC7;
+      }
+      .card-image-wrap {
+        background: #070E1C;
+        border-color: #1A2744;
+      }
+      .card-actions-bar {
+        border-top-color: #1A2744;
+      }
+      .card-action-btn {
+        background: #1A2744;
+        border-color: #24355A;
+        color: #8B9FC7;
+
+        &:hover {
+          border-color: #00D4FF;
+          color: #00D4FF;
+          background: #24355A;
+        }
+      }
       .featured-card, .stat-item {
         background: #0F1829;
         border-color: #1A2744;
-      }
-      .reply-badge {
-        background: #1A2744;
-        color: #8B9FC7;
-
-        &.has-replies {
-          background: #00D4FF;
-          color: #060D1A;
-        }
       }
       .sort-btn, .page-btn, .action-btn {
         background: #0F1829;
@@ -1066,8 +1207,7 @@ import { LanguageService } from '../../core/services/language';
       .sidebar-content { padding: 20px 16px; height: 100%; overflow-y: auto; }
       .mobile-sidebar-toggle { display: flex; }
       .forum-main { padding: 16px; }
-      .disc-metrics { display: none; }
-      .disc-title { white-space: normal; }
+      .card-title { font-size: 1.05rem; }
       .modal-overlay { padding: 0; align-items: stretch; }
       .modal-content { border-radius: 0; max-width: 100%; min-height: 100vh; }
     }
@@ -1225,6 +1365,19 @@ export class ForumComponent implements OnInit, OnDestroy {
     });
   }
 
+  toggleTopicLike(topic: ForumTopic, event?: Event) {
+    if (event) event.stopPropagation();
+    if (!this.auth.isLoggedIn()) {
+      this.toast.warning(this.langService.t('toast.login_to_favorite'));
+      return;
+    }
+    this.forumService.toggleLike(topic.id).subscribe(updated => {
+      if (updated) {
+        this.topics.update(list => list.map(t => t.id === topic.id ? updated : t));
+      }
+    });
+  }
+
   submitReply() {
     const topic = this.selectedTopic();
     if (!topic || !this.replyContent.trim()) return;
@@ -1289,7 +1442,7 @@ export class ForumComponent implements OnInit, OnDestroy {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'now';
+    if (mins < 1) return 'agora';
     if (mins < 60) return `${mins}m`;
     const hours = Math.floor(mins / 60);
     if (hours < 24) return `${hours}h`;

@@ -794,7 +794,8 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         private void seedForumData() {
-                boolean hasNewData = forumTopicRepository.existsByTitle("Qual a melhor locadora para viagem longa?");
+                boolean hasNewData = forumTopicRepository.existsByTitle("Qual a melhor locadora para viagem longa?") 
+                        && forumTopicRepository.findAll().stream().anyMatch(t -> t.getImageUrl() != null);
                 if (hasNewData && forumTopicRepository.count() >= 40 && forumBotRepository.count() >= 20) return;
 
                 try {
@@ -922,6 +923,7 @@ public class DataInitializer implements ApplicationRunner {
                     "Galera, consegui um SUV pelo preco de carro basico na Nexdrive durante uma promocao relampago. Fiquem de olho nas redes sociais deles, aparecem ofertas excelentes."
                 };
 
+                List<Vehicle> allVehicles = vehicleRepository.findAll();
                 List<ForumTopic> topics = new ArrayList<>();
                 for (int i = 0; i < topicTitles.length; i++) {
                     ForumBot author = savedBots.get(random.nextInt(savedBots.size()));
@@ -931,6 +933,12 @@ public class DataInitializer implements ApplicationRunner {
                     int likes = random.nextInt(200);
                     boolean isPinned = (i < 3);
                     boolean isSolved = (i > 10 && i < 18);
+
+                    String topicImage = null;
+                    if (i % 3 != 2 && !allVehicles.isEmpty()) {
+                        Vehicle v = allVehicles.get(i % allVehicles.size());
+                        topicImage = v.getImageUrl();
+                    }
 
                     ForumTopic topic = ForumTopic.builder()
                         .title(topicTitles[i])
@@ -943,6 +951,7 @@ public class DataInitializer implements ApplicationRunner {
                         .likesCount(likes)
                         .repliesCount(0)
                         .participantsCount(1)
+                        .imageUrl(topicImage)
                         .createdAt(createdAt)
                         .updatedAt(createdAt.plusHours(random.nextInt(200)))
                         .build();
