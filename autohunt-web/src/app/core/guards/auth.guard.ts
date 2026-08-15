@@ -3,6 +3,10 @@ import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth';
 
 export const authGuard: CanActivateFn = (route, state) => {
+    if (typeof window === 'undefined') {
+        // Allow SSG build worker to extract route without triggering redirect
+        return true;
+    }
     const authService = inject(AuthService);
     const router = inject(Router);
 
