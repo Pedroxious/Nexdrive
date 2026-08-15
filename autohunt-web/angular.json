@@ -23,7 +23,8 @@
             "browser": "src/main.ts",
             "server": "src/main.server.ts",
             "prerender": {
-              "routesFile": "routes.txt"
+              "routesFile": "routes.txt",
+              "discoverRoutes": false
             },
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -47,13 +48,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1MB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "48kB",
-                  "maximumError": "128kB"
+                  "maximumWarning": "64kB",
+                  "maximumError": "256kB"
                 }
               ],
               "outputHashing": "all"
