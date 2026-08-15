@@ -49,10 +49,10 @@ import { LanguageService } from '../../core/services/language';
           <div class="links-col">
             <h4>{{ langService.t('footer.support') }}</h4>
             <ul>
-              <li><a routerLink="/faq">{{ langService.t('footer.help') }}</a></li>
-              <li><a routerLink="/contact">{{ langService.t('footer.contact') }}</a></li>
-              <li><a routerLink="/legal/privacidade">{{ langService.t('footer.privacy') }}</a></li>
-              <li><a routerLink="/legal/termos">{{ langService.t('footer.terms') }}</a></li>
+              <li><a routerLink="/faq" (click)="scrollToTop()">{{ langService.t('footer.help') }}</a></li>
+              <li><a routerLink="/contact" (click)="scrollToTop()">{{ langService.t('footer.contact') }}</a></li>
+              <li><a routerLink="/legal/privacidade" (click)="scrollToTop()">{{ langService.t('footer.privacy') }}</a></li>
+              <li><a routerLink="/legal/termos" (click)="scrollToTop()">{{ langService.t('footer.terms') }}</a></li>
             </ul>
           </div>
 
@@ -226,5 +226,9 @@ export class FooterComponent {
     } else {
       this.toast.warning('Por favor, informe um e-mail válido.');
     }
+  }
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }
 }

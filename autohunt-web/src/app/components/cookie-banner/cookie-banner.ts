@@ -15,12 +15,12 @@ import { LanguageService } from '../../core/services/language';
           <span class="cookie-icon">🍪</span>
           <span class="cookie-text" *ngIf="langService.currentLang() === 'pt'">
             Utilizamos cookies essenciais e tecnologias semelhantes de acordo com a nossa
-            <a routerLink="/legal/privacidade" class="privacy-link">Política de Privacidade</a>
+            <a routerLink="/legal/privacidade" (click)="onPrivacyClick()" class="privacy-link">Política de Privacidade</a>
             e, ao continuar navegando, você concorda com estas condições.
           </span>
           <span class="cookie-text" *ngIf="langService.currentLang() === 'en'">
             We use essential cookies and similar technologies according to our
-            <a routerLink="/legal/privacidade" class="privacy-link">Privacy Policy</a>
+            <a routerLink="/legal/privacidade" (click)="onPrivacyClick()" class="privacy-link">Privacy Policy</a>
             and, by continuing to browse, you agree to these conditions.
           </span>
         </div>
@@ -208,5 +208,9 @@ export class CookieBannerComponent implements OnInit {
 
   closeTemporarily(): void {
     this.isClosedTemp.set(true);
+  }
+
+  onPrivacyClick(): void {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }
 }

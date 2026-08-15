@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
@@ -323,9 +323,13 @@ import { LanguageService } from '../../core/services/language';
     }
   `]
 })
-export class LegalLayoutComponent {
+export class LegalLayoutComponent implements OnInit {
   private router = inject(Router);
   langService = inject(LanguageService);
+
+  ngOnInit() {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }
 
   isForumRoute(): boolean {
     return this.router.url.includes('/legal/forum');
