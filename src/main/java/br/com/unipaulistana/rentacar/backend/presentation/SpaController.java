@@ -25,6 +25,9 @@ public class SpaController {
         "/contact",
         "/privacy",
         "/terms",
+        "/legal",
+        "/legal/{path:[^\\.]*}",
+        "/legal/**",
         "/login",
         "/register",
         "/404"

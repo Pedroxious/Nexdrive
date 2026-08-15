@@ -87,6 +87,7 @@ public class SecurityConfig {
                                 "/buy", "/rent", "/rent/**", "/car/**",
                                 "/favorites", "/my-rentals", "/profile", "/sell-car",
                                 "/about", "/faq", "/contact", "/privacy", "/terms",
+                                "/legal", "/legal/**",
                                 "/login", "/register", "/404", "/oauth2-login"
                         ).permitAll()
                         // Swagger / OpenAPI (consider restricting in production)
