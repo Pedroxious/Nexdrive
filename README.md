@@ -15,7 +15,7 @@
     rel="noopener noreferrer"
   >
     <img
-      src="./media/live-platform-cta.svg"
+      src="./media/live-platform-cta.png"
       alt="Acessar Plataforma ao Vivo"
       height="56"
     />
