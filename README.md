@@ -17,7 +17,7 @@
     <img
       src="./media/live-platform-cta.png"
       alt="Acessar Plataforma ao Vivo"
-      height="56"
+      height="44"
     />
   </a>
 </div>
