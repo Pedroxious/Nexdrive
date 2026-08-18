@@ -9,6 +9,12 @@
 </p>
 
 <p align="center">
+  <a href="https://nexdrive-uwz7.onrender.com/" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/🌐_ACESSAR_APLICAÇÃO_ONLINE-nexdrive--uwz7.onrender.com-0066FF?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Acessar Aplicação Online" height="40" />
+  </a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Status-Active-brightgreen.svg?style=for-the-badge" alt="Status" />
   <img src="https://img.shields.io/badge/Java-21%20LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21" />
   <img src="https://img.shields.io/badge/Spring%20Boot-3.5.7-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot" />
@@ -52,7 +58,7 @@
 </p>
 
 <p align="center">
-  <video src="media/SUV.mp4" width="100%" autoplay loop muted controls></video>
+  <img src="media/SUV.gif" alt="NexDrive SUV - Experiência Visual" width="100%" />
 </p>
 
 ---
@@ -159,9 +165,9 @@ backend/
 ├── Dockerfile                            # Build multi-stage unificado (Angular + Spring Boot)
 ├── render.yaml                           # Especificação de deploy automatizado no Render
 ├── .env                                  # Variáveis de ambiente locais (ignorado no git)
-├── media/                                # Ativos visuais, vídeos e capturas de tela
+├── media/                                # Ativos visuais, animações e capturas de tela
 │   ├── banner-gif-pneu.gif               # Banner animado principal do cabeçalho
-│   ├── SUV.mp4                           # Demonstração em vídeo / visual do veículo SUV
+│   ├── SUV.gif                           # Apresentação visual animada de veículo SUV
 │   ├── promo-sale-01.png                 # Peça promocional 01
 │   ├── promo-sale-02.png                 # Peça promocional 02
 │   ├── promo-sale-03.png                 # Peça promocional 03
@@ -254,12 +260,12 @@ A API REST estará disponível em: `http://localhost:8080`.
 
 ### 2. Frontend (Angular)
 
-1. Acesse o diretório do frontend:
+1. Navegue até o diretório do frontend:
 ```bash
 cd autohunt-web
 ```
 
-2. Instale as dependências:
+2. Instale as dependências do projeto:
 ```bash
 npm install --legacy-peer-deps
 ```
@@ -307,7 +313,7 @@ docker run -d -p 8080:8080 --env-file .env --name nexdrive nexdrive-app
 <h2 align="center">Como Contribuir</h2>
 
 1. Faça um **Fork** do repositório.
-2. Crie uma branch para sua funcionalidade ou correção:
+2. Crie uma branch dedicada para sua feature ou correção:
    ```bash
    git checkout -b feature/minha-feature
    ```
@@ -319,7 +325,7 @@ docker run -d -p 8080:8080 --env-file .env --name nexdrive nexdrive-app
    ```bash
    git push origin feature/minha-feature
    ```
-5. Abra um **Pull Request** descrevendo as mudanças e testes efetuados.
+5. Abra um **Pull Request** descrevendo as mudanças e testes realizados.
 
 ---
 
