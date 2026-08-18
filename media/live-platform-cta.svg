@@ -1,6 +1,10 @@
-svg <svg width="460" height="56" viewBox="0 0 460 56" fill="none" xmlns="http://www.w3.org/2000/svg"> 
-  <rect x="1" y="1" width="458" height="54" rx="14" fill="#0066FF"/> 
-  <rect x="1" y="1" width="458" height="54" rx="14" stroke="#3385FF" stroke-width="2"/> 
-  <circle cx="31" cy="28" r="14" fill="#FFFFFF" fill-opacity="0.15"/> <path d="M31 20L32.8 25.2L38 27L32.8 28.8L31 34L29.2 28.8L24 27L29.2 25.2L31 20Z" fill="white"/> 
-  <text x="55" y="34" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="0.3">ACESSAR PLATAFORMA AO VIVO</text> 
-  <text x="421" y="35" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700">↗</text> </svg>
+svg
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="56" viewBox="0 0 460 56">
+<rect width="460" height="56" rx="12" fill="#0066FF"/>
+<text x="24" y="35" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="16" font-weight="bold">
+ACESSAR PLATAFORMA AO VIVO
+</text>
+<text x="420" y="36" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" font-weight="bold">
+↗
+</text>
+</svg>
