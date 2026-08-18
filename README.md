@@ -2,55 +2,66 @@
   <img src="media/banner-gif-pneu.gif" alt="NexDrive - Marketplace & Locação de Veículos" width="100%" />
 </p>
 
-# NexDrive
+<h1 align="center">NexDrive</h1>
 
-> Plataforma full-stack de marketplace automotivo e gestão de locação de veículos no Brasil, integrando catálogo dinâmico, reservas em tempo real, autenticação segura e suporte a vendas.
+<p align="center">
+  <em>Plataforma full-stack de marketplace automotivo e gestão de locação de veículos no Brasil, integrando catálogo dinâmico, reservas em tempo real, autenticação segura e suporte a vendas.</em>
+</p>
 
-<p align="left">
-  <img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build Status" />
-  <img src="https://img.shields.io/badge/Java-21-orange.svg" alt="Java 21" />
-  <img src="https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen.svg" alt="Spring Boot" />
-  <img src="https://img.shields.io/badge/Angular-21.2-red.svg" alt="Angular" />
-  <img src="https://img.shields.io/badge/Database-PostgreSQL%20%2F%20Neon-blue.svg" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License" />
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Active-brightgreen.svg?style=for-the-badge" alt="Status" />
+  <img src="https://img.shields.io/badge/Java-21%20LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21" />
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.5.7-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot" />
+  <img src="https://img.shields.io/badge/Angular-21.2-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular" />
+  <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Neon%20DB-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Security-JWT%20%26%20OAuth2-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT & OAuth2" />
+  <img src="https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Deploy-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render" />
+  <img src="https://img.shields.io/badge/Docs-Swagger%20%2F%20OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License" />
 </p>
 
 ---
 
-## Sumário
+<h2 align="center">Sumário</h2>
 
-- [Visão Geral](#visão-geral)
-- [Ofertas & Campanhas Promocionais](#ofertas--campanhas-promocionais)
-- [Principais Funcionalidades](#principais-funcionalidades)
-- [Material Promocional do Sistema](#material-promocional-do-sistema)
-- [Telas do Sistema](#telas-do-sistema)
-  - [1. Fluxo de Reserva - Período e Local (R1)](#1-fluxo-de-reserva---período-e-local-r1)
-  - [2. Fluxo de Reserva - Proteção e Opcionais (R2)](#2-fluxo-de-reserva---proteção-e-opcionais-r2)
-  - [3. Fórum & Comunidade Automotiva](#3-fórum--comunidade-automotiva)
-- [Stack Técnica](#stack-técnica)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Pré-requisitos](#pré-requisitos)
-- [Variáveis de Ambiente](#variáveis-de-ambiente)
-- [Como Rodar Localmente](#como-rodar-localmente)
-  - [1. Backend (Spring Boot)](#1-backend-spring-boot)
-  - [2. Frontend (Angular)](#2-frontend-angular)
-  - [3. Execução Unificada via Docker](#3-execução-unificada-via-docker)
-- [Documentação da API (Swagger/OpenAPI)](#documentação-da-api-swaggeropenapi)
-- [Segurança & LGPD](#segurança--lgpd)
-- [Como Contribuir](#como-contribuir)
-- [Licença](#licença)
+<p align="center">
+  <a href="#visão-geral">Visão Geral</a> •
+  <a href="#ofertas--campanhas-promocionais">Campanhas Promocionais</a> •
+  <a href="#principais-funcionalidades">Funcionalidades</a> •
+  <a href="#material-promocional-do-sistema">Material Promocional</a> •
+  <a href="#telas-do-sistema">Telas do Sistema</a> •
+  <a href="#stack-técnica">Stack Técnica</a> •
+  <a href="#estrutura-do-projeto">Estrutura</a> •
+  <a href="#pré-requisitos">Pré-requisitos</a> •
+  <a href="#variáveis-de-ambiente">Variáveis de Ambiente</a> •
+  <a href="#como-rodar-localmente">Como Rodar</a> •
+  <a href="#documentação-da-api-swaggeropenapi">Swagger</a> •
+  <a href="#segurança--lgpd">Segurança</a> •
+  <a href="#como-contribuir">Contribuir</a> •
+  <a href="#licença">Licença</a>
+</p>
 
 ---
 
-## Visão Geral
+<h2 align="center">Visão Geral</h2>
 
-O **NexDrive** é uma plataforma corporativa e moderna projetada para conectar locatários, compradores e vendedores de veículos em território brasileiro. A solução combina uma arquitetura backend robusta e escalável em **Spring Boot 3 (Java 21)** com persistência em nuvem serverless no **PostgreSQL (Neon DB)** e um frontend responsivo e dinâmico em **Angular 21**.
+<p align="center">
+  O <strong>NexDrive</strong> é uma plataforma corporativa de marketplace e locação automotiva no mercado brasileiro. A aplicação integra um ecossistema backend em <strong>Spring Boot 3</strong> com arquitetura RESTful, banco de dados gerenciado em nuvem <strong>PostgreSQL (Neon DB)</strong> e uma Single Page Application em <strong>Angular 21</strong> projetada para alta performance, usabilidade moderna e responsividade fluida.
+</p>
+
+<p align="center">
+  <video src="media/SUV.mp4" width="100%" autoplay loop muted controls></video>
+</p>
 
 ---
 
-## Ofertas & Campanhas Promocionais
+<h2 align="center">Ofertas & Campanhas Promocionais</h2>
 
-Peças visuais e campanhas em destaque integradas ao ecossistema:
+<p align="center">
+  Vitrine de campanhas sazonais e ações comerciais integradas à plataforma:
+</p>
 
 <p align="center">
   <img src="media/promo-sale-01.png" alt="Promo Sale 01 - Oferta Especial de Locação" width="100%" />
@@ -66,21 +77,27 @@ Peças visuais e campanhas em destaque integradas ao ecossistema:
 
 ---
 
-## Principais Funcionalidades
+<h2 align="center">Principais Funcionalidades</h2>
 
-- **Catálogo Inteligente**: Listagem paginada com múltiplos filtros combináveis (Marca, Categoria, Transmissão, Combustível, Faixa de Preço e Cidade/Estado).
-- **Motor de Locação (Rental Wizard)**: Cálculo automatizado de diárias em tempo real, validação anti-sobreposição de agendamentos e contratação de adicionais (Seguro Completo +15% e Condutor Extra).
-- **Autenticação e Segurança**: Acesso via credenciais padrão e Google OAuth2, tokens JWT de curta duração com rotação de Refresh Tokens via cookies `httpOnly`, criptografia de senhas com BCrypt e controle de acesso baseado em papéis (RBAC).
-- **Painel do Usuário**: Gestão de perfil, histórico completo em *"Minhas Reservas"*, cancelamento de solicitações e favoritos.
-- **Comunidade & Fórum**: Espaço para compartilhamento de experiências, tópicos de discussão e avaliações com nota e comentário (*Reviews*).
-- **Anúncio & Venda de Veículos**: Formulário guiado para usuários anunciarem veículos para comercialização.
-- **Abrangência Nacional**: Cobertura integrada com cidades e capitais brasileiras em mais de 12 estados.
+<p align="center">
+  Recursos e módulos projetados para maximizar a experiência de locatários e compradores:
+</p>
+
+- **Catálogo Inteligente**: Filtros dinâmicos por marca, categoria (Economy, Compact, SUV, Sport, Luxury, Van), tipo de combustível, transmissão, valor da diária e cidade/estado.
+- **Motor de Locação (Rental Wizard)**: Cálculo automatizado de valores em tempo real, prevenção de reservas com datas conflitantes e inclusão de opcionais (Seguro Completo +15% e Condutor Extra).
+- **Autenticação & Controle de Acesso**: Suporte a login nativo e Google OAuth2, tokens JWT de curta duração com rotação de Refresh Tokens via cookies `httpOnly`, senhas criptografadas em BCrypt e controle de papéis (RBAC - User/Admin).
+- **Painel do Usuário**: Gestão de perfil, histórico completo em *"Minhas Reservas"*, cancelamento de locações pendentes e lista personalizada de favoritos.
+- **Comunidade & Fórum**: Canal interativo para discussões sobre o setor automotivo e sistema de avaliações com nota e feedback (*Reviews*).
+- **Venda de Veículos**: Módulo intuitivo para proprietários anunciarem carros para comercialização direta.
+- **Cobertura Nacional**: Suporte integrado a estados e capitais brasileiras com pesquisa regionalizada.
 
 ---
 
-## Material Promocional do Sistema
+<h2 align="center">Material Promocional do Sistema</h2>
 
-Apresentação gráfica destacando a interface de navegação, a vitrine de veículos e a identidade do produto:
+<p align="center">
+  Peça gráfica demonstrando a identidade visual, a usabilidade e a experiência integrada do ecossistema NexDrive:
+</p>
 
 <p align="center">
   <img src="media/system-dashboard.png" alt="NexDrive - Material Promocional do Sistema" width="100%" />
@@ -88,24 +105,24 @@ Apresentação gráfica destacando a interface de navegação, a vitrine de veí
 
 ---
 
-## Telas do Sistema
+<h2 align="center">Telas do Sistema</h2>
 
-### 1. Fluxo de Reserva - Período e Local (R1)
-Seleção do intervalo de datas e definição dos pontos de retirada e devolução do veículo:
+<h3 align="center">1. Fluxo de Reserva - Período e Local (R1)</h3>
+<p align="center">Seleção de datas de retirada, devolução e definição de pontos de atendimento no Brasil:</p>
 
 <p align="center">
   <img src="media/R1.png" alt="Etapa 1 do Rental Wizard - Datas e Localidade" width="100%" />
 </p>
 
-### 2. Fluxo de Reserva - Proteção e Opcionais (R2)
-Configuração de serviços complementares e pré-visualização discriminada de custos:
+<h3 align="center">2. Fluxo de Reserva - Proteção e Opcionais (R2)</h3>
+<p align="center">Personalização de cobertura de seguro, condutor adicional e resumo de valores discriminado:</p>
 
 <p align="center">
   <img src="media/R2.png" alt="Etapa 2 do Rental Wizard - Adicionais e Resumo de Custos" width="100%" />
 </p>
 
-### 3. Fórum & Comunidade Automotiva
-Canal interativo de troca de informações e avaliações entre membros da plataforma:
+<h3 align="center">3. Fórum & Comunidade Automotiva</h3>
+<p align="center">Espaço interativo para troca de experiências, relatos e avaliações entre usuários:</p>
 
 <p align="center">
   <img src="media/Forum.png" alt="Fórum da Comunidade NexDrive" width="100%" />
@@ -113,39 +130,38 @@ Canal interativo de troca de informações e avaliações entre membros da plata
 
 ---
 
-## Stack Técnica
+<h2 align="center">Stack Técnica</h2>
 
-### Backend
-- **Linguagem & Runtime**: Java 21 LTS
-- **Framework Base**: Spring Boot 3.5.7
-- **Persistência**: Spring Data JPA & Hibernate 6.6
-- **Segurança**: Spring Security 6, Spring OAuth2 Client, JJWT 0.12.6, BCrypt
-- **Documentação de API**: SpringDoc OpenAPI / Swagger UI 2.8.5
-- **Pool de Conexões**: HikariCP com timeout fail-fast
+<div align="center">
 
-### Frontend
-- **Framework Base**: Angular 21.2 (Standalone Architecture, Signals & Computed State)
-- **UI & Componentes**: Angular Material 21, CDK, Lucide Icons, Heroicons, Ngx-Toastr
-- **Comunicação Assíncrona**: HttpClient, RxJS 7.8
-- **Estilização**: SCSS com Glassmorphism e CSS Variables para temas
+| Camada | Tecnologia | Detalhes / Versão |
+| :--- | :--- | :--- |
+| **Linguagem & Runtime** | Java 21 LTS | OpenJDK / Temurin |
+| **Backend Framework** | Spring Boot 3.5.7 | Web, Data JPA, Security, Validation |
+| **Frontend Framework** | Angular 21.2 | Standalone Components, Signals, RxJS 7.8 |
+| **Linguagem Frontend** | TypeScript 5.9 | Tipagem estrita e arquitetura modular |
+| **Design System** | Angular Material & SCSS | Glassmorphism, CDK, Lucide Icons |
+| **Banco de Dados** | PostgreSQL 16 | Neon Serverless Database |
+| **Segurança & Auth** | JWT & OAuth2 | JJWT 0.12.6, BCrypt, Spring Security 6 |
+| **Documentação API** | Swagger / OpenAPI | SpringDoc OpenAPI 2.8.5 |
+| **Containerização** | Docker | Multi-Stage Build unificado |
+| **Plataforma Cloud** | Render | Deploy automatizado via `render.yaml` |
 
-### Infraestrutura & Banco de Dados
-- **Banco de Dados**: PostgreSQL 16 (Neon Serverless Cloud)
-- **Containerização**: Docker (Multi-stage build unificado)
-- **Hospedagem & Deploy**: Suporte a Render via `render.yaml`
+</div>
 
 ---
 
-## Estrutura do Projeto
+<h2 align="center">Estrutura do Projeto</h2>
 
 ```text
 backend/
 ├── pom.xml                               # Configuração e dependências Maven do backend
 ├── Dockerfile                            # Build multi-stage unificado (Angular + Spring Boot)
 ├── render.yaml                           # Especificação de deploy automatizado no Render
-├── .env                                  # Variáveis de ambiente locais (ignorado no versionamento)
-├── media/                                # Ativos visuais e capturas de tela da documentação
+├── .env                                  # Variáveis de ambiente locais (ignorado no git)
+├── media/                                # Ativos visuais, vídeos e capturas de tela
 │   ├── banner-gif-pneu.gif               # Banner animado principal do cabeçalho
+│   ├── SUV.mp4                           # Demonstração em vídeo / visual do veículo SUV
 │   ├── promo-sale-01.png                 # Peça promocional 01
 │   ├── promo-sale-02.png                 # Peça promocional 02
 │   ├── promo-sale-03.png                 # Peça promocional 03
@@ -179,18 +195,26 @@ backend/
 
 ---
 
-## Pré-requisitos
+<h2 align="center">Pré-requisitos</h2>
 
-- **Java JDK 21** instalado e acessível no terminal
+<p align="center">
+  Ferramentas e ambientes necessários para execução local do projeto:
+</p>
+
+- **Java JDK 21** instalado e configurado nas variáveis de ambiente
 - **Node.js 20+** e **npm 10+**
-- **Maven 3.9+** (ou utilizar o wrapper `./mvnw` incluso)
-- Instância ativa do **PostgreSQL** (local ou Neon DB)
+- **Maven 3.9+** (ou utilizar o wrapper `./mvnw` incluso no repositório)
+- Instância ativa do **PostgreSQL** (local ou Neon DB na nuvem)
 
 ---
 
-## Variáveis de Ambiente
+<h2 align="center">Variáveis de Ambiente</h2>
 
-Crie um arquivo `.env` na raiz do projeto com as seguintes chaves de configuração:
+<p align="center">
+  Crie um arquivo <code>.env</code> na raiz do projeto conforme a tabela abaixo:
+</p>
+
+<div align="center">
 
 | Variável | Descrição | Exemplo / Padrão |
 | :--- | :--- | :--- |
@@ -207,13 +231,15 @@ Crie um arquivo `.env` na raiz do projeto com as seguintes chaves de configuraç
 | `GOOGLE_CLIENT_SECRET` | Client Secret para Google OAuth2 | `seu-google-client-secret` |
 | `PORT` | Porta HTTP do servidor Spring Boot | `8080` |
 
+</div>
+
 ---
 
-## Como Rodar Localmente
+<h2 align="center">Como Rodar Localmente</h2>
 
 ### 1. Backend (Spring Boot)
 
-1. Preencha o arquivo `.env` na raiz do repositório com credenciais válidas do PostgreSQL.
+1. Preencha o arquivo `.env` na raiz do projeto com credenciais válidas do PostgreSQL.
 2. Inicie a aplicação através do Maven Wrapper:
 
 ```bash
@@ -228,12 +254,12 @@ A API REST estará disponível em: `http://localhost:8080`.
 
 ### 2. Frontend (Angular)
 
-1. Navegue até o diretório do frontend:
+1. Acesse o diretório do frontend:
 ```bash
 cd autohunt-web
 ```
 
-2. Instale as dependências do projeto:
+2. Instale as dependências:
 ```bash
 npm install --legacy-peer-deps
 ```
@@ -259,31 +285,33 @@ docker run -d -p 8080:8080 --env-file .env --name nexdrive nexdrive-app
 
 ---
 
-## Documentação da API (Swagger/OpenAPI)
+<h2 align="center">Documentação da API (Swagger/OpenAPI)</h2>
 
-Com o backend em execução, a documentação interativa com endpoints e esquemas de dados está disponível em:
+<p align="center">
+  Com o backend em execução, a documentação interativa e os schemas OpenAPI estão acessíveis em:
+</p>
 
 - **Swagger UI**: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 - **OpenAPI JSON Spec**: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
 
 ---
 
-## Segurança & LGPD
+<h2 align="center">Segurança & LGPD</h2>
 
-- **Proteção PII & LGPD**: Logs de SQL desativados por padrão em produção para impedir exposição de dados sensíveis (CPF, telefone, credenciais).
-- **Estratégia de Conexão Fail-Fast**: Configuração estrita de timeouts no HikariCP para evitar travamentos com instâncias serverless.
-- **Ciclo de Vida de Tokens**: Access Tokens de curta duração (15 min) e Refresh Tokens rotativos persistidos em cookies seguros (`httpOnly`, `SameSite=Strict`).
+- **Proteção de Dados Sensíveis (PII)**: Logs SQL desabilitados por padrão em produção para prevenir vazamento de dados de usuários (CPF, telefone, credenciais).
+- **Conexão Resiliente**: Timeouts rigorosos no HikariCP para evitar travamentos e conexões órfãs com bancos serverless.
+- **Ciclo de Vida de Tokens**: Access Tokens curtos (15 min) e Refresh Tokens rotativos persistidos em cookies seguros (`httpOnly`, `SameSite=Strict`).
 
 ---
 
-## Como Contribuir
+<h2 align="center">Como Contribuir</h2>
 
-1. Faça um Fork do repositório.
-2. Crie uma branch dedicada para sua feature ou correção:
+1. Faça um **Fork** do repositório.
+2. Crie uma branch para sua funcionalidade ou correção:
    ```bash
    git checkout -b feature/minha-feature
    ```
-3. Realize seus commits seguindo mensagens claras:
+3. Realize commits seguindo mensagens claras:
    ```bash
    git commit -m "feat: adiciona filtro por tipo de seguro na locação"
    ```
@@ -291,10 +319,12 @@ Com o backend em execução, a documentação interativa com endpoints e esquema
    ```bash
    git push origin feature/minha-feature
    ```
-5. Abra um **Pull Request** descrevendo as mudanças e testes realizados.
+5. Abra um **Pull Request** descrevendo as mudanças e testes efetuados.
 
 ---
 
-## Licença
+<h2 align="center">Licença</h2>
 
-Distribuído sob a licença [MIT](LICENSE).
+<p align="center">
+  Distribuído sob a licença <strong><a href="LICENSE">MIT</a></strong>.
+</p>
