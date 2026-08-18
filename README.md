@@ -8,11 +8,13 @@
   <em>Plataforma full-stack de marketplace automotivo e gestão de locação de veículos no Brasil, integrando catálogo dinâmico, reservas em tempo real, autenticação segura e suporte a vendas.</em>
 </p>
 
-<p align="center">
+<div align="center">
   <a href="https://nexdrive-uwz7.onrender.com/" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/🌐_ACESSAR_APLICAÇÃO_ONLINE-nexdrive--uwz7.onrender.com-0066FF?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Acessar Aplicação Online" height="40" />
+    <img src="https://img.shields.io/badge/%F0%9F%9A%80%20ACESSAR%20PLATAFORMA%20AO%20VIVO-ABRIR%20EM%20NOVA%20ABA%20%E2%86%97-0066FF?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Acessar Plataforma ao Vivo" height="44" />
   </a>
-</p>
+</div>
+
+<br />
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Active-brightgreen.svg?style=for-the-badge" alt="Status" />
@@ -57,9 +59,17 @@
   O <strong>NexDrive</strong> é uma plataforma corporativa de marketplace e locação automotiva no mercado brasileiro. A aplicação integra um ecossistema backend em <strong>Spring Boot 3</strong> com arquitetura RESTful, banco de dados gerenciado em nuvem <strong>PostgreSQL (Neon DB)</strong> e uma Single Page Application em <strong>Angular 21</strong> projetada para alta performance, usabilidade moderna e responsividade fluida.
 </p>
 
-<p align="center">
-  <img src="media/SUV.gif" alt="NexDrive SUV - Experiência Visual" width="100%" />
-</p>
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" style="padding: 16px; background-color: rgba(255, 255, 255, 0.02); border-radius: 12px;">
+        <img src="media/SUV.gif" alt="NexDrive SUV - Mini Card Interativo" width="460" />
+        <br />
+        <sub><strong>🚗 Demonstração Interativa &bull; Visualização Dinâmica de Categoria SUV</strong></sub>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ---
 
@@ -167,7 +177,7 @@ backend/
 ├── .env                                  # Variáveis de ambiente locais (ignorado no git)
 ├── media/                                # Ativos visuais, animações e capturas de tela
 │   ├── banner-gif-pneu.gif               # Banner animado principal do cabeçalho
-│   ├── SUV.gif                           # Apresentação visual animada de veículo SUV
+│   ├── SUV.gif                           # Apresentação visual animada de veículo SUV (Mini Card)
 │   ├── promo-sale-01.png                 # Peça promocional 01
 │   ├── promo-sale-02.png                 # Peça promocional 02
 │   ├── promo-sale-03.png                 # Peça promocional 03
