@@ -10,7 +10,11 @@
 
 <div align="center">
   <a href="https://nexdrive-uwz7.onrender.com/" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/%F0%9F%9A%80%20ACESSAR%20PLATAFORMA%20AO%20VIVO-ABRIR%20EM%20NOVA%20ABA%20%E2%86%97-0066FF?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Acessar Plataforma ao Vivo" height="44" />
+    <img
+      src="./.github/assets/acessar-plataforma.svg"
+      alt="Acessar Plataforma ao Vivo"
+      height="52"
+    />
   </a>
 </div>
 
