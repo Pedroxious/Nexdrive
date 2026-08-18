@@ -9,11 +9,15 @@
 </p>
 
 <div align="center">
-  <a href="https://nexdrive-uwz7.onrender.com/" target="_blank" rel="noopener noreferrer">
+  <a
+    href="https://nexdrive-uwz7.onrender.com/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
     <img
-      src="./.github/assets/acessar-plataforma.svg"
+      src="./media/live-platform-cta.svg"
       alt="Acessar Plataforma ao Vivo"
-      height="52"
+      height="56"
     />
   </a>
 </div>
