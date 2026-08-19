@@ -2,8 +2,10 @@ package br.com.unipaulistana.rentacar.backend.config;
 
 import br.com.unipaulistana.rentacar.backend.domain.RequestLog;
 import br.com.unipaulistana.rentacar.backend.service.BotDetectionService;
+import br.com.unipaulistana.rentacar.backend.service.GeoIpResolutionService;
 import br.com.unipaulistana.rentacar.backend.service.TrafficMonitoringService;
 import br.com.unipaulistana.rentacar.backend.service.TrafficRateLimiterService;
+import br.com.unipaulistana.rentacar.backend.service.UserAgentParserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +33,8 @@ public class TrafficMonitoringFilter extends OncePerRequestFilter {
     private final TrafficRateLimiterService rateLimiterService;
     private final BotDetectionService botDetectionService;
     private final TrafficMonitoringService trafficMonitoringService;
+    private final UserAgentParserService userAgentParserService;
+    private final GeoIpResolutionService geoIpResolutionService;
 
     private static final Set<String> STATIC_EXTENSIONS = Set.of(
             ".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico",
@@ -65,8 +69,10 @@ public class TrafficMonitoringFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         String userAgent = request.getHeader("User-Agent");
 
-        // 1. Rate Limiting Check (Bucket4j)
-        boolean allowed = rateLimiterService.tryAcquire(clientIp);
+        boolean isInternal = geoIpResolutionService.isInternalIp(clientIp);
+
+        // 1. Rate Limiting Check (Bucket4j) — internal IPs are exempted
+        boolean allowed = isInternal || rateLimiterService.tryAcquire(clientIp);
         if (!allowed) {
             long duration = System.currentTimeMillis() - startTime;
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
@@ -74,17 +80,27 @@ public class TrafficMonitoringFilter extends OncePerRequestFilter {
             response.setHeader("Retry-After", "60");
             response.getWriter().write("{\"error\":\"Too Many Requests\",\"message\":\"Rate limit exceeded. Please try again later.\",\"retryAfterSeconds\":60}");
 
-            // Log blocked request
+            // Parse metadata asynchronously for logging
+            UserAgentParserService.UserAgentInfo uaInfo = userAgentParserService.parse(userAgent);
+            GeoIpResolutionService.GeoLocation geoLoc = geoIpResolutionService.resolve(clientIp);
+
             RequestLog logEntry = RequestLog.builder()
                     .ipAddress(clientIp)
                     .endpoint(uri)
                     .method(method)
                     .userAgent(userAgent != null ? userAgent : "")
+                    .deviceType(uaInfo.deviceType())
+                    .browser(uaInfo.browser())
+                    .operatingSystem(uaInfo.operatingSystem())
+                    .country(geoLoc.country())
+                    .countryCode(geoLoc.countryCode())
+                    .city(geoLoc.city())
                     .statusCode(HttpStatus.TOO_MANY_REQUESTS.value())
                     .timestamp(LocalDateTime.now())
                     .responseTimeMs(duration)
                     .blockedByRateLimit(true)
                     .isSuspicious(true)
+                    .isInternal(false)
                     .suspiciousReason("Rate limit exceeded (" + rateLimiterService.getRateLimitPerMinute() + " req/min)")
                     .build();
 
@@ -101,16 +117,27 @@ public class TrafficMonitoringFilter extends OncePerRequestFilter {
             long duration = System.currentTimeMillis() - startTime;
             int statusCode = response.getStatus();
 
+            // Enrich request log with parsed device and GeoIP data
+            UserAgentParserService.UserAgentInfo uaInfo = userAgentParserService.parse(userAgent);
+            GeoIpResolutionService.GeoLocation geoLoc = geoIpResolutionService.resolve(clientIp);
+
             RequestLog logEntry = RequestLog.builder()
                     .ipAddress(clientIp)
                     .endpoint(uri)
                     .method(method)
                     .userAgent(userAgent != null ? userAgent : "")
+                    .deviceType(uaInfo.deviceType())
+                    .browser(uaInfo.browser())
+                    .operatingSystem(uaInfo.operatingSystem())
+                    .country(geoLoc.country())
+                    .countryCode(geoLoc.countryCode())
+                    .city(geoLoc.city())
                     .statusCode(statusCode)
                     .timestamp(LocalDateTime.now())
                     .responseTimeMs(duration)
                     .blockedByRateLimit(false)
                     .isSuspicious(botCheck.isSuspicious())
+                    .isInternal(isInternal)
                     .suspiciousReason(botCheck.reason())
                     .build();
 

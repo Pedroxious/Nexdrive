@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
             @Index(name = "idx_request_logs_ip", columnList = "ipAddress"),
             @Index(name = "idx_request_logs_endpoint", columnList = "endpoint"),
             @Index(name = "idx_request_logs_suspicious", columnList = "isSuspicious"),
-            @Index(name = "idx_request_logs_blocked", columnList = "blockedByRateLimit")
+            @Index(name = "idx_request_logs_blocked", columnList = "blockedByRateLimit"),
+            @Index(name = "idx_request_logs_internal", columnList = "isInternal")
         })
 @Data
 @Builder
@@ -36,6 +37,24 @@ public class RequestLog {
     @Column(columnDefinition = "TEXT")
     private String userAgent;
 
+    @Column(length = 32)
+    private String deviceType;
+
+    @Column(length = 64)
+    private String browser;
+
+    @Column(length = 64)
+    private String operatingSystem;
+
+    @Column(length = 64)
+    private String country;
+
+    @Column(length = 8)
+    private String countryCode;
+
+    @Column(length = 64)
+    private String city;
+
     @Column(nullable = false)
     private int statusCode;
 
@@ -49,6 +68,9 @@ public class RequestLog {
 
     @Builder.Default
     private boolean isSuspicious = false;
+
+    @Builder.Default
+    private boolean isInternal = false;
 
     @Column(length = 255)
     private String suspiciousReason;

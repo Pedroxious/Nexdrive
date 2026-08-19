@@ -1,16 +1,19 @@
 package br.com.unipaulistana.rentacar.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class BotDetectionService {
+
+    private final GeoIpResolutionService geoIpResolutionService;
 
     private static final int ROUTE_TRAVERSAL_THRESHOLD = 20; // distinct routes
     private static final long TIME_WINDOW_MILLIS = 10_000L;  // 10 seconds
@@ -39,8 +42,14 @@ public class BotDetectionService {
 
     /**
      * Evaluates incoming request characteristics against anti-scraping and bot heuristics.
+     * Always ignores internal/trusted IPs (localhost, team allowlist).
      */
     public BotCheckResult evaluateRequest(String ipAddress, String endpoint, String userAgent) {
+        // Exclude internal/localhost IPs from bot heuristics
+        if (geoIpResolutionService.isInternalIp(ipAddress)) {
+            return BotCheckResult.clean();
+        }
+
         // 1. Check User-Agent anomalies
         if (userAgent == null || userAgent.trim().isEmpty()) {
             return BotCheckResult.suspicious("Empty or missing User-Agent header");

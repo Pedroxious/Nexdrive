@@ -8,5 +8,8 @@ public record TopIpDto(
         long blockedCount,
         long suspiciousCount,
         LocalDateTime lastSeen,
-        String sampleUserAgent
+        String sampleUserAgent,
+        String country,
+        String city,
+        boolean isInternal
 ) {}

@@ -28,11 +28,13 @@ public interface RequestLogRepository extends JpaRepository<RequestLog, Long> {
     @Query("DELETE FROM RequestLog r WHERE r.timestamp < :cutoff")
     int deleteByTimestampBefore(@Param("cutoff") LocalDateTime cutoff);
 
-    // Top active IPs in the time window
+    // Top active IPs in the time window with location and internal status
     @Query("SELECT r.ipAddress, COUNT(r), " +
            "SUM(CASE WHEN r.blockedByRateLimit = true THEN 1 ELSE 0 END), " +
            "SUM(CASE WHEN r.isSuspicious = true THEN 1 ELSE 0 END), " +
-           "MAX(r.timestamp), MAX(r.userAgent) " +
+           "MAX(r.timestamp), MAX(r.userAgent), " +
+           "MAX(r.country), MAX(r.city), " +
+           "MAX(CASE WHEN r.isInternal = true THEN 1 ELSE 0 END) " +
            "FROM RequestLog r WHERE r.timestamp >= :since " +
            "GROUP BY r.ipAddress ORDER BY COUNT(r) DESC")
     List<Object[]> findTopIpAggregates(@Param("since") LocalDateTime since, Pageable pageable);
@@ -50,6 +52,6 @@ public interface RequestLogRepository extends JpaRepository<RequestLog, Long> {
 
     Page<RequestLog> findByTimestampAfterAndBlockedByRateLimitTrueOrderByTimestampDesc(LocalDateTime since, Pageable pageable);
 
-    // All logs after timestamp for in-memory timeline aggregation
+    // All logs after timestamp for timeline aggregation
     List<RequestLog> findByTimestampAfterOrderByTimestampAsc(LocalDateTime since);
 }

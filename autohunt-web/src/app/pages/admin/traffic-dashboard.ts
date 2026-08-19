@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -11,6 +11,16 @@ import {
   RequestLogItem
 } from '../../core/services/traffic-admin';
 import { LanguageService } from '../../core/services/language';
+
+interface HoverPoint {
+  index: number;
+  x: number;
+  y: number;
+  label: string;
+  total: number;
+  suspicious: number;
+  blocked: number;
+}
 
 @Component({
   selector: 'app-traffic-dashboard',
@@ -27,7 +37,7 @@ import { LanguageService } from '../../core/services/language';
           </div>
           <h1>Monitoramento em Tempo Real & Anti-Scraping</h1>
           <p class="subtitle">
-            Proteção in-app com Rate Limiting (Bucket4j), heurísticas de detecção de bots e registros estruturados.
+            Proteção in-app com Rate Limiting (Bucket4j), heurísticas de detecção de bots, geolocalização e inspeção de dispositivos.
           </p>
         </div>
 
@@ -99,7 +109,7 @@ import { LanguageService } from '../../core/services/language';
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/>
               <line x1="2" y1="12" x2="22" y2="12"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1-4-10z"/>
             </svg>
           </div>
           <div class="kpi-info">
@@ -113,12 +123,12 @@ import { LanguageService } from '../../core/services/language';
         </div>
       </div>
 
-      <!-- Chart Section -->
+      <!-- Chart Section (Datadog / Vercel style) -->
       <div class="chart-section">
         <div class="section-top">
           <div>
             <h2>Volume de Tráfego & Picos</h2>
-            <p class="section-desc">Evolução temporal das requisições, bloqueios (429) e atividades suspeitas.</p>
+            <p class="section-desc">Evolução temporal das requisições, bloqueios (429) e atividades suspeitas com crosshair interativo.</p>
           </div>
           <div class="time-toggle">
             <button [class.active]="timeframe() === 'hourly'" (click)="setTimeframe('hourly')">24 Horas</button>
@@ -126,56 +136,117 @@ import { LanguageService } from '../../core/services/language';
           </div>
         </div>
 
-        <!-- Custom SVG Line/Bar Chart -->
-        <div class="chart-container">
+        <!-- Custom Interactive SVG Chart -->
+        <div class="chart-container" #chartContainer (mousemove)="onChartMouseMove($event)" (mouseleave)="onChartMouseLeave()">
           <div *ngIf="timelineData().length === 0" class="no-data">
             Carregando dados de tráfego...
           </div>
 
           <div *ngIf="timelineData().length > 0" class="svg-chart-wrapper">
             <svg class="traffic-svg" viewBox="0 0 900 240" preserveAspectRatio="none">
-              <!-- Grid lines -->
+              <!-- Grid lines & Values -->
               <line x1="40" y1="30" x2="880" y2="30" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"/>
               <line x1="40" y1="80" x2="880" y2="80" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"/>
               <line x1="40" y1="130" x2="880" y2="130" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"/>
               <line x1="40" y1="180" x2="880" y2="180" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"/>
 
-              <!-- Area under curve (Total) -->
-              <polygon [attr.points]="chartTotalAreaPoints()" fill="url(#blueGradient)" opacity="0.25"/>
+              <!-- Baseline axis -->
+              <line x1="40" y1="200" x2="880" y2="200" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
 
               <!-- Gradients -->
               <defs>
-                <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.8"/>
-                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
+                <linearGradient id="totalGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45"/>
+                  <stop offset="70%" stop-color="#3b82f6" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#1e293b" stop-opacity="0.0"/>
+                </linearGradient>
+                <linearGradient id="suspiciousGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
                 </linearGradient>
               </defs>
 
-              <!-- Total Requests Line (Blue) -->
-              <polyline [attr.points]="chartTotalLinePoints()" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Area under curve (Total) -->
+              <polygon *ngIf="showTotal()" [attr.points]="chartTotalAreaPoints()" fill="url(#totalGradient)"/>
 
-              <!-- Blocked Requests Line (Red) -->
-              <polyline [attr.points]="chartBlockedLinePoints()" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="3" stroke-linecap="round"/>
+              <!-- Area under curve (Suspicious) -->
+              <polygon *ngIf="showSuspicious()" [attr.points]="chartSuspiciousAreaPoints()" fill="url(#suspiciousGradient)"/>
 
-              <!-- Suspicious Requests Line (Amber) -->
-              <polyline [attr.points]="chartSuspiciousLinePoints()" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+              <!-- Total Requests Polyline (Blue/Cyan) -->
+              <polyline *ngIf="showTotal()" [attr.points]="chartTotalLinePoints()" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+              <!-- Suspicious Polyline (Amber) -->
+              <polyline *ngIf="showSuspicious()" [attr.points]="chartSuspiciousLinePoints()" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+              <!-- Blocked Polyline (Red Dashed) -->
+              <polyline *ngIf="showBlocked()" [attr.points]="chartBlockedLinePoints()" fill="none" stroke="#f87171" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round" stroke-linejoin="round"/>
 
               <!-- Data Points (Total) -->
-              <circle *ngFor="let pt of chartPoints()" [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.5" fill="#3b82f6" stroke="#0f172a" stroke-width="2">
-                <title>{{ pt.label }}: {{ pt.val }} reqs</title>
-              </circle>
+              <ng-container *ngIf="showTotal()">
+                <circle *ngFor="let pt of chartPoints()" [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" fill="#38bdf8" stroke="#0f172a" stroke-width="2.5"/>
+              </ng-container>
+
+              <!-- "Agora" (Now) marker on 24h view (last point) -->
+              <g *ngIf="timeframe() === 'hourly' && chartPoints().length > 0">
+                <line [attr.x1]="lastPointX()" y1="20" [attr.x2]="lastPointX()" y2="200" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4 2"/>
+                <rect [attr.x]="lastPointX() - 24" y="6" width="48" height="18" rx="4" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7" stroke-width="1"/>
+                <text [attr.x]="lastPointX()" y="18" fill="#e9d5ff" font-size="10" font-weight="700" text-anchor="middle">AGORA</text>
+              </g>
+
+              <!-- Crosshair Vertical Guideline (When Hovered) -->
+              <g *ngIf="hoverPoint() as hp">
+                <line [attr.x1]="hp.x" y1="25" [attr.x2]="hp.x" y2="200" stroke="#f8fafc" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>
+                <circle [attr.cx]="hp.x" [attr.cy]="hp.y" r="6" fill="#38bdf8" stroke="#ffffff" stroke-width="2"/>
+              </g>
             </svg>
+
+            <!-- Floating Tooltip Card -->
+            <div *ngIf="hoverPoint() as hp" class="floating-tooltip" [style.left.px]="tooltipX()" [style.top.px]="tooltipY()">
+              <div class="tooltip-header">
+                <span class="tooltip-time">{{ hp.label }}</span>
+                <span class="tooltip-badge" *ngIf="timeframe() === 'hourly'">Última hora</span>
+              </div>
+              <div class="tooltip-row">
+                <span class="tooltip-dot blue"></span>
+                <span class="tooltip-label">Total:</span>
+                <span class="tooltip-val">{{ hp.total | number }} reqs</span>
+              </div>
+              <div class="tooltip-row" *ngIf="hp.suspicious > 0">
+                <span class="tooltip-dot amber"></span>
+                <span class="tooltip-label">Suspeitas:</span>
+                <span class="tooltip-val amber-text">{{ hp.suspicious | number }}</span>
+              </div>
+              <div class="tooltip-row" *ngIf="hp.blocked > 0">
+                <span class="tooltip-dot red"></span>
+                <span class="tooltip-label">Bloqueados:</span>
+                <span class="tooltip-val red-text">{{ hp.blocked | number }}</span>
+              </div>
+            </div>
 
             <!-- X-Axis Labels -->
             <div class="chart-labels">
               <span *ngFor="let pt of chartLabelsSample()">{{ pt }}</span>
             </div>
 
-            <!-- Legend -->
+            <!-- Interactive Toggleable Legend -->
             <div class="chart-legend">
-              <div class="legend-item"><span class="legend-dot blue"></span> Total de Requisições</div>
-              <div class="legend-item"><span class="legend-dot amber"></span> Suspeitas de Bot</div>
-              <div class="legend-item"><span class="legend-dot red"></span> Bloqueados (Rate Limit 429)</div>
+              <button class="legend-btn" [class.inactive]="!showTotal()" (click)="toggleSeries('total')">
+                <span class="legend-dot blue"></span>
+                <span>Total de Requisições</span>
+                <span class="legend-eye">{{ showTotal() ? '👁️' : '🚫' }}</span>
+              </button>
+
+              <button class="legend-btn" [class.inactive]="!showSuspicious()" (click)="toggleSeries('suspicious')">
+                <span class="legend-dot amber"></span>
+                <span>Suspeitas de Bot</span>
+                <span class="legend-eye">{{ showSuspicious() ? '👁️' : '🚫' }}</span>
+              </button>
+
+              <button class="legend-btn" [class.inactive]="!showBlocked()" (click)="toggleSeries('blocked')">
+                <span class="legend-dot red"></span>
+                <span>Bloqueados (Rate Limit 429)</span>
+                <span class="legend-eye">{{ showBlocked() ? '👁️' : '🚫' }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -194,7 +265,7 @@ import { LanguageService } from '../../core/services/language';
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Endereço IP</th>
+                  <th>Endereço IP & Local</th>
                   <th class="text-right">Requisições</th>
                   <th class="text-center">Status</th>
                   <th>Último Acesso</th>
@@ -204,16 +275,20 @@ import { LanguageService } from '../../core/services/language';
                 <tr *ngFor="let ip of topIps()">
                   <td>
                     <div class="ip-cell">
-                      <span class="mono">{{ ip.ipAddress }}</span>
+                      <span class="mono bold">{{ ip.ipAddress }}</span>
+                      <span class="sub-location" *ngIf="ip.city || ip.country">
+                        📍 {{ ip.city || 'Desconhecido' }}, {{ ip.country || '--' }}
+                      </span>
                     </div>
                   </td>
                   <td class="text-right">
                     <span class="bold">{{ ip.totalRequests | number }}</span>
                   </td>
                   <td class="text-center">
-                    <span *ngIf="ip.blockedCount > 0" class="badge danger">Bloqueado ({{ ip.blockedCount }})</span>
-                    <span *ngIf="ip.blockedCount === 0 && ip.suspiciousCount > 0" class="badge warning">Suspeito ({{ ip.suspiciousCount }})</span>
-                    <span *ngIf="ip.blockedCount === 0 && ip.suspiciousCount === 0" class="badge normal">Normal</span>
+                    <span *ngIf="ip.isInternal" class="badge internal">Interno</span>
+                    <span *ngIf="!ip.isInternal && ip.blockedCount > 0" class="badge danger">Bloqueado ({{ ip.blockedCount }})</span>
+                    <span *ngIf="!ip.isInternal && ip.blockedCount === 0 && ip.suspiciousCount > 0" class="badge warning">Suspeito ({{ ip.suspiciousCount }})</span>
+                    <span *ngIf="!ip.isInternal && ip.blockedCount === 0 && ip.suspiciousCount === 0" class="badge normal">Normal</span>
                   </td>
                   <td class="muted">{{ ip.lastSeen | date:'dd/MM HH:mm:ss' }}</td>
                 </tr>
@@ -262,12 +337,12 @@ import { LanguageService } from '../../core/services/language';
         </div>
       </div>
 
-      <!-- Live Stream Logs Section -->
+      <!-- Live Stream Logs Section (Enriched with Device & GeoIP) -->
       <div class="logs-section">
         <div class="logs-header">
           <div>
             <h2>Feed de Auditoria de Requisições</h2>
-            <p class="section-desc">Inspeção detalhada dos eventos HTTP capturados em tempo real.</p>
+            <p class="section-desc">Inspeção detalhada de eventos HTTP com geolocalização e identificação de dispositivo/navegador.</p>
           </div>
 
           <div class="filter-tabs">
@@ -282,17 +357,24 @@ import { LanguageService } from '../../core/services/language';
             <thead>
               <tr>
                 <th>Horário</th>
-                <th>IP de Origem</th>
+                <th>IP & Origem</th>
                 <th>Método & Rota</th>
+                <th>Dispositivo / Navegador</th>
                 <th>Status</th>
-                <th>User-Agent / Motivo</th>
                 <th class="text-right">Tempo</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let log of logs()" [class.row-danger]="log.blockedByRateLimit" [class.row-warning]="log.isSuspicious && !log.blockedByRateLimit">
                 <td class="muted">{{ log.timestamp | date:'dd/MM HH:mm:ss' }}</td>
-                <td><span class="mono">{{ log.ipAddress }}</span></td>
+                <td>
+                  <div class="ip-geo-cell">
+                    <span class="mono bold">{{ log.ipAddress }}</span>
+                    <span class="geo-sub">
+                      📍 {{ log.city || 'Desconhecido' }}, {{ log.countryCode || '--' }}
+                    </span>
+                  </div>
+                </td>
                 <td>
                   <div class="route-cell">
                     <span class="method-badge" [attr.data-method]="log.method">{{ log.method }}</span>
@@ -300,16 +382,30 @@ import { LanguageService } from '../../core/services/language';
                   </div>
                 </td>
                 <td>
-                  <span class="status-code" [class.status-2xx]="log.statusCode < 300" [class.status-4xx]="log.statusCode >= 400 && log.statusCode < 500" [class.status-5xx]="log.statusCode >= 500">
-                    {{ log.statusCode }}
-                  </span>
+                  <div class="device-cell">
+                    <div class="device-main">
+                      <span class="device-icon" [title]="log.deviceType || 'Desktop'">
+                        <span *ngIf="log.deviceType === 'Mobile'">📱</span>
+                        <span *ngIf="log.deviceType === 'Tablet'">📟</span>
+                        <span *ngIf="log.deviceType === 'Bot'">🤖</span>
+                        <span *ngIf="!log.deviceType || log.deviceType === 'Desktop'">💻</span>
+                      </span>
+                      <span class="browser-name">{{ log.browser || 'Navegador' }}</span>
+                      <span class="os-name">· {{ log.operatingSystem || 'SO' }}</span>
+                    </div>
+
+                    <!-- Warning Reason Badge -->
+                    <div *ngIf="log.suspiciousReason" class="alert-reason-badge">
+                      ⚠️ {{ log.suspiciousReason }}
+                    </div>
+                  </div>
                 </td>
                 <td>
-                  <div class="ua-cell">
-                    <span *ngIf="log.suspiciousReason" class="reason-tag">
-                      ⚠️ {{ log.suspiciousReason }}
+                  <div class="status-cell">
+                    <span class="status-code" [class.status-2xx]="log.statusCode < 300" [class.status-4xx]="log.statusCode >= 400 && log.statusCode < 500" [class.status-5xx]="log.statusCode >= 500">
+                      {{ log.statusCode }}
                     </span>
-                    <span class="ua-text" [title]="log.userAgent">{{ log.userAgent || '(vazio)' }}</span>
+                    <span *ngIf="log.isInternal" class="badge internal sm">Interno</span>
                   </div>
                 </td>
                 <td class="text-right muted">{{ log.responseTimeMs }} ms</td>
@@ -562,11 +658,12 @@ import { LanguageService } from '../../core/services/language';
     .chart-container {
       position: relative;
       width: 100%;
+      cursor: crosshair;
     }
 
     .traffic-svg {
       width: 100%;
-      height: 220px;
+      height: 240px;
       overflow: visible;
     }
 
@@ -582,17 +679,35 @@ import { LanguageService } from '../../core/services/language';
     .chart-legend {
       display: flex;
       justify-content: center;
-      gap: 24px;
+      gap: 16px;
       margin-top: 16px;
       font-size: 12px;
       color: #94a3b8;
       flex-wrap: wrap;
     }
 
-    .legend-item {
+    .legend-btn {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .legend-btn:hover {
+      background: #334155;
+    }
+
+    .legend-btn.inactive {
+      opacity: 0.4;
+      text-decoration: line-through;
     }
 
     .legend-dot {
@@ -601,9 +716,65 @@ import { LanguageService } from '../../core/services/language';
       border-radius: 50%;
     }
 
-    .legend-dot.blue { background: #3b82f6; }
-    .legend-dot.amber { background: #f59e0b; }
-    .legend-dot.red { background: #ef4444; }
+    .legend-dot.blue { background: #38bdf8; }
+    .legend-dot.amber { background: #fbbf24; }
+    .legend-dot.red { background: #f87171; }
+
+    /* Floating Tooltip */
+    .floating-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid #3b82f6;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      transform: translate(-50%, -115%);
+      z-index: 20;
+      min-width: 140px;
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.1s ease-out;
+    }
+
+    .tooltip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+
+    .tooltip-time {
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .tooltip-badge {
+      font-size: 9px;
+      background: #334155;
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: #94a3b8;
+    }
+
+    .tooltip-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 3px;
+      font-size: 11px;
+    }
+
+    .tooltip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .tooltip-label { color: #94a3b8; }
+    .tooltip-val { font-weight: 700; color: #f8fafc; margin-left: auto; }
 
     /* Analytics Grid */
     .analytics-grid {
@@ -687,6 +858,17 @@ import { LanguageService } from '../../core/services/language';
     .muted { color: #64748b; font-size: 12px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; }
 
+    .ip-cell, .ip-geo-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sub-location, .geo-sub {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
     .route-text {
       color: #38bdf8;
       max-width: 280px;
@@ -721,6 +903,36 @@ import { LanguageService } from '../../core/services/language';
     .badge.normal { background: rgba(34, 197, 94, 0.12); color: #4ade80; }
     .badge.warning { background: rgba(245, 158, 11, 0.12); color: #fbbf24; }
     .badge.danger { background: rgba(239, 68, 68, 0.12); color: #f87171; }
+    .badge.internal { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .badge.sm { font-size: 10px; padding: 1px 6px; }
+
+    /* Device Cell */
+    .device-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .device-main {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .device-icon { font-size: 14px; }
+    .browser-name { font-weight: 600; color: #f8fafc; }
+    .os-name { color: #94a3b8; }
+
+    .alert-reason-badge {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      width: fit-content;
+    }
 
     /* Logs Table */
     .row-danger td { background: rgba(239, 68, 68, 0.05) !important; }
@@ -730,6 +942,12 @@ import { LanguageService } from '../../core/services/language';
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .status-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .status-code {
@@ -742,27 +960,6 @@ import { LanguageService } from '../../core/services/language';
     .status-2xx { color: #4ade80; background: rgba(34, 197, 94, 0.1); }
     .status-4xx { color: #f87171; background: rgba(239, 68, 68, 0.1); }
     .status-5xx { color: #c084fc; background: rgba(192, 132, 252, 0.1); }
-
-    .ua-cell {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      max-width: 380px;
-    }
-
-    .reason-tag {
-      font-size: 11px;
-      font-weight: 600;
-      color: #fbbf24;
-    }
-
-    .ua-text {
-      font-size: 11px;
-      color: #64748b;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
 
     .empty-cell {
       text-align: center;
@@ -808,6 +1005,8 @@ import { LanguageService } from '../../core/services/language';
   `]
 })
 export class TrafficDashboardComponent implements OnInit, OnDestroy {
+  @ViewChild('chartContainer') chartContainerRef?: ElementRef<HTMLDivElement>;
+
   private trafficService = inject(TrafficAdminService);
   langService = inject(LanguageService);
 
@@ -821,6 +1020,16 @@ export class TrafficDashboardComponent implements OnInit, OnDestroy {
   timeframe = signal<'hourly' | 'daily'>('hourly');
   logFilter = signal<string>('all');
 
+  // Series visibility toggles
+  showTotal = signal<boolean>(true);
+  showSuspicious = signal<boolean>(true);
+  showBlocked = signal<boolean>(true);
+
+  // Crosshair & Hover Tooltip
+  hoverPoint = signal<HoverPoint | null>(null);
+  tooltipX = signal<number>(0);
+  tooltipY = signal<number>(0);
+
   currentPage = signal<number>(0);
   totalPages = signal<number>(0);
   totalElements = signal<number>(0);
@@ -830,7 +1039,7 @@ export class TrafficDashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.refreshAll();
 
-    // Auto-refresh metrics every 15 seconds if in browser
+    // Auto-refresh metrics every 15 seconds in browser
     if (typeof window !== 'undefined') {
       this.autoRefreshTimer = setInterval(() => {
         this.loadSummary();
@@ -856,6 +1065,7 @@ export class TrafficDashboardComponent implements OnInit, OnDestroy {
 
   setTimeframe(tf: 'hourly' | 'daily') {
     this.timeframe.set(tf);
+    this.hoverPoint.set(null);
     this.loadTimeline();
   }
 
@@ -863,6 +1073,12 @@ export class TrafficDashboardComponent implements OnInit, OnDestroy {
     this.logFilter.set(filter);
     this.currentPage.set(0);
     this.loadLogs();
+  }
+
+  toggleSeries(series: 'total' | 'suspicious' | 'blocked') {
+    if (series === 'total') this.showTotal.update(v => !v);
+    if (series === 'suspicious') this.showSuspicious.update(v => !v);
+    if (series === 'blocked') this.showBlocked.update(v => !v);
   }
 
   goToPage(page: number) {
@@ -919,21 +1135,27 @@ export class TrafficDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  // --- SVG Chart Calculations ---
+  // --- SVG Chart Calculations & Crosshair Interaction ---
   chartPoints = computed(() => {
     const data = this.timelineData();
     if (!data.length) return [];
 
     const maxVal = Math.max(...data.map(d => d.totalRequests), 10);
     const width = 840; // 40 to 880
-    const height = 170; // 30 to 200
+    const height = 160; // 35 to 195
     const step = width / Math.max(data.length - 1, 1);
 
     return data.map((d, i) => {
       const x = 40 + i * step;
-      const y = 200 - (d.totalRequests / maxVal) * height;
-      return { x, y, val: d.totalRequests, label: d.label };
+      // Minimum baseline offset so low/0 values are clearly visible above axis
+      const y = 195 - (d.totalRequests / maxVal) * height;
+      return { x, y, val: d.totalRequests, label: d.label, item: d };
     });
+  });
+
+  lastPointX = computed(() => {
+    const pts = this.chartPoints();
+    return pts.length > 0 ? pts[pts.length - 1].x : 880;
   });
 
   chartTotalLinePoints = computed(() => {
@@ -954,12 +1176,12 @@ export class TrafficDashboardComponent implements OnInit, OnDestroy {
 
     const maxVal = Math.max(...data.map(d => d.totalRequests), 10);
     const width = 840;
-    const height = 170;
+    const height = 160;
     const step = width / Math.max(data.length - 1, 1);
 
     return data.map((d, i) => {
       const x = 40 + i * step;
-      const y = 200 - (d.blockedRequests / maxVal) * height;
+      const y = 195 - (d.blockedRequests / maxVal) * height;
       return `${x},${y}`;
     }).join(' ');
   });
@@ -970,20 +1192,37 @@ export class TrafficDashboardComponent implements OnInit, OnDestroy {
 
     const maxVal = Math.max(...data.map(d => d.totalRequests), 10);
     const width = 840;
-    const height = 170;
+    const height = 160;
     const step = width / Math.max(data.length - 1, 1);
 
     return data.map((d, i) => {
       const x = 40 + i * step;
-      const y = 200 - (d.suspiciousRequests / maxVal) * height;
+      const y = 195 - (d.suspiciousRequests / maxVal) * height;
       return `${x},${y}`;
     }).join(' ');
+  });
+
+  chartSuspiciousAreaPoints = computed(() => {
+    const data = this.timelineData();
+    if (!data.length) return '';
+
+    const maxVal = Math.max(...data.map(d => d.totalRequests), 10);
+    const width = 840;
+    const height = 160;
+    const step = width / Math.max(data.length - 1, 1);
+
+    const pts = data.map((d, i) => {
+      const x = 40 + i * step;
+      const y = 195 - (d.suspiciousRequests / maxVal) * height;
+      return `${x},${y}`;
+    });
+
+    return `40,200 ${pts.join(' ')} ${40 + (data.length - 1) * step},200`;
   });
 
   chartLabelsSample = computed(() => {
     const data = this.timelineData();
     if (!data.length) return [];
-    // Pick 6-8 evenly spaced labels
     const count = Math.min(data.length, 8);
     const step = Math.floor(data.length / count) || 1;
     const labels: string[] = [];
@@ -992,4 +1231,49 @@ export class TrafficDashboardComponent implements OnInit, OnDestroy {
     }
     return labels;
   });
+
+  onChartMouseMove(event: MouseEvent) {
+    const container = this.chartContainerRef?.nativeElement;
+    if (!container || !this.timelineData().length) return;
+
+    const rect = container.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const relativeX = (mouseX / rect.width) * 900;
+
+    const pts = this.chartPoints();
+    if (!pts.length) return;
+
+    // Find closest data point along X axis
+    let closest = pts[0];
+    let minDiff = Math.abs(pts[0].x - relativeX);
+    let closestIndex = 0;
+
+    pts.forEach((p, idx) => {
+      const diff = Math.abs(p.x - relativeX);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = p;
+        closestIndex = idx;
+      }
+    });
+
+    const item = closest.item;
+    this.hoverPoint.set({
+      index: closestIndex,
+      x: closest.x,
+      y: closest.y,
+      label: closest.label,
+      total: item.totalRequests,
+      suspicious: item.suspiciousRequests,
+      blocked: item.blockedRequests
+    });
+
+    // Position tooltip relative to pixel container
+    this.tooltipX.set((closest.x / 900) * rect.width);
+    this.tooltipY.set((closest.y / 240) * rect.height);
+  }
+
+  onChartMouseLeave() {
+    this.hoverPoint.set(null);
+  }
 }

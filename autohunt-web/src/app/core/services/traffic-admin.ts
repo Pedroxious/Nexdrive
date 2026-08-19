@@ -28,6 +28,9 @@ export interface TopIp {
   suspiciousCount: number;
   lastSeen: string;
   sampleUserAgent: string;
+  country?: string;
+  city?: string;
+  isInternal?: boolean;
 }
 
 export interface TopRoute {
@@ -43,11 +46,18 @@ export interface RequestLogItem {
   endpoint: string;
   method: string;
   userAgent: string;
+  deviceType?: string;
+  browser?: string;
+  operatingSystem?: string;
+  country?: string;
+  countryCode?: string;
+  city?: string;
   statusCode: number;
   timestamp: string;
   responseTimeMs: number;
   blockedByRateLimit: boolean;
   isSuspicious: boolean;
+  isInternal?: boolean;
   suspiciousReason: string;
 }
 

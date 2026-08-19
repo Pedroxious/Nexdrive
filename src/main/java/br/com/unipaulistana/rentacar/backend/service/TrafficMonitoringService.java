@@ -135,7 +135,10 @@ public class TrafficMonitoringService {
                 ((Number) row[2]).longValue(),
                 ((Number) row[3]).longValue(),
                 (LocalDateTime) row[4],
-                (String) row[5]
+                (String) row[5],
+                (String) row[6],
+                (String) row[7],
+                row[8] != null && ((Number) row[8]).intValue() == 1
         )).collect(Collectors.toList());
     }
 
