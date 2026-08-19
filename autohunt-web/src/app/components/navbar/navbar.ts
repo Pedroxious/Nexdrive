@@ -1,7 +1,7 @@
 import { Component, inject, signal, HostListener, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
-import { LucideAngularModule, Car, MapPin, ChevronDown, Bell, PlusCircle, Sun, Moon, Menu, X, User, LogOut, Heart, CalendarDays, LogIn, Check } from 'lucide-angular';
+import { LucideAngularModule, Car, MapPin, ChevronDown, Bell, PlusCircle, Sun, Moon, Menu, X, User, LogOut, Heart, CalendarDays, LogIn, Check, Shield } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth';
 import { ThemeService } from '../../core/services/theme';
 import { CarService } from '../../core/services/car';
@@ -136,6 +136,12 @@ import { NotificationService, AppNotification } from '../../core/services/notifi
                   <a routerLink="/favorites" class="drop-item clickable">
                     <lucide-icon name="heart" [size]="16"></lucide-icon> {{ langService.t('nav.favorites') }}
                   </a>
+                  @if (auth.currentUser()?.role === 'ADMIN') {
+                    <div class="dropdown-divider"></div>
+                    <a routerLink="/admin/traffic" class="drop-item admin-drop-item clickable" (click)="showProfile.set(false)">
+                      <lucide-icon name="shield" [size]="16"></lucide-icon> Painel de Tráfego & Anti-Bot
+                    </a>
+                  }
                   <div class="dropdown-divider"></div>
                   <button class="drop-item logout clickable" (click)="auth.logout()">
                     <lucide-icon name="log-out" [size]="16"></lucide-icon> {{ langService.t('nav.logout') }}

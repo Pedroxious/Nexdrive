@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 import { LegalLayoutComponent } from './pages/legal/legal-layout';
 import { PrivacyComponent } from './pages/legal/privacy';
 import { TermsComponent } from './pages/legal/terms';
@@ -113,6 +114,18 @@ export const routes: Routes = [
     {
         path: 'termos-de-uso',
         redirectTo: 'legal/termos',
+        pathMatch: 'full'
+    },
+
+    // Admin Traffic & Security Monitoring Dashboard
+    {
+        path: 'admin/traffic',
+        loadComponent: () => import('./pages/admin/traffic-dashboard').then(m => m.TrafficDashboardComponent),
+        canActivate: [adminGuard]
+    },
+    {
+        path: 'admin',
+        redirectTo: 'admin/traffic',
         pathMatch: 'full'
     },
 

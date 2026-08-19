@@ -88,6 +88,7 @@ public class SecurityConfig {
                                 "/favorites", "/my-rentals", "/profile", "/sell-car",
                                 "/about", "/faq", "/contact", "/privacy", "/terms",
                                 "/legal", "/legal/**",
+                                "/admin", "/admin/**",
                                 "/login", "/register", "/404", "/oauth2-login"
                         ).permitAll()
                         // Swagger / OpenAPI (consider restricting in production)
@@ -114,6 +115,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/forum/**").permitAll()
                         // V-02 fix: Admin-only endpoints — declared AFTER the public GET rule above
                         // so the more-specific method+path combination is reached correctly.
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/rentals").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/vehicles").hasRole("ADMIN")
